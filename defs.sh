@@ -48,7 +48,7 @@ function watchdog {
         log "ERROR: state file is confused [$s].  This is a code error"
     fi
 
-    status
+    status # print status for the log
 
     log "MEM: Performing memory management"
     freek=`df -k /mnt/sdcard | tail -1 | awk '{print $4}'`

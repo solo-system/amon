@@ -70,18 +70,13 @@ function amonsplit {
   log "sent USR1 to pid=$pid"
 }
     
-
-    
-
-# MANAGER LEVEL FUNCTIONS
-
 function start {
   if [ -f $PIDFILE ] ; then
       log "already running as [`cat $PIDFILE`]"
       return 1
   fi
 
-  # test arecord works  before doing it.
+# test arecord works  before doing it.
 #  arecord -d 0.1 $AUDIODEVICE /dev/null >& /dev/null
 #  if [ $? != 0 ] ; then
 #    log "FATAL: No Microphone"

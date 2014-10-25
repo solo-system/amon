@@ -19,3 +19,9 @@ with "git branch" (git branch junk creates a new branch called junk)
 
 
 
+-----
+it seems that git pull on raspberry pi not only brings down the changes from origin (jdmc2.com), but also any new branches.  I think that's ok...
+
+All this would probably be better If I used branches, but NOT for the moment - stick to one for the moment.
+
+J.

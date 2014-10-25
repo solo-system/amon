@@ -1,4 +1,5 @@
 #### Director-level functions.
+# change made on raspi
 
 function amonon {
     s=`getstate`

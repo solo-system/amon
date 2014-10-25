@@ -10,6 +10,8 @@ function amonon {
     start
 }
 
+# non conflicting change made on dreamhost
+
 function amonoff {
     s=`getstate`
     if [ "$s" = "off" ]; then

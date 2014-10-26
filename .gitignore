@@ -1,1 +1,4 @@
-dont-track-me
+amon.log
+cron.log
+pidfile
+state

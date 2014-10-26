@@ -94,6 +94,9 @@ function start {
       log "backed up old arecord log file: $ALOG to $newname"
   fi
 
+  log "setting volume to $VOLUME"
+  amixer -q -c 1 set "Mic" $VOLUME
+
   cmd="arecord $ABUFFER --mmap $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --max-file-time $MAXDURATION --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$HOSTNAME-%Y-%m-%d_%H-%M-%S.wav"
 
   log "about to run: $cmd"

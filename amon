@@ -58,9 +58,6 @@ if [ ! -f $STATEFILE ] ; then
   echo "on" > $STATEFILE
 fi
 
-
-### TODO watchdog ought to do a memory check and stop recording when it's full
-
 # include all the function definitions:
 source defs.sh
 

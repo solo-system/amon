@@ -1,3 +1,12 @@
+README.txt for amon
+-------------------
+
+TODO: use file locking in /var/run to ensure no two amons run at the same time (really unlikely)
+
+
+
+git information
+----------------
 on a raspi, you do 
 
 # git clone jdmc2@jdmc2.com:git/amon

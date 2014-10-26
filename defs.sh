@@ -1,5 +1,4 @@
-#### Director-level functions.
-# change made on raspi
+### function definitions for amon
 
 function amonon {
     s=`getstate`
@@ -10,8 +9,6 @@ function amonon {
     setstateon
     start
 }
-
-# non conflicting change made on dreamhost
 
 function amonoff {
     s=`getstate`
@@ -65,9 +62,7 @@ function watchdog {
 } # end of watchdog
 
 # send signal to arecord to split the output file
-# BUG for the moment do it every time we are called
 function amonsplit {
-  # get time, if time rem DURATION = 0 then;
   pid=`cat $PIDFILE`
   kill -USR1  $pid
   log "sent USR1 to pid=$pid"
@@ -78,15 +73,6 @@ function start {
       log "already running as [`cat $PIDFILE`]"
       return 1
   fi
-
-# test arecord works  before doing it.
-#  arecord -d 0.1 $AUDIODEVICE /dev/null >& /dev/null
-#  if [ $? != 0 ] ; then
-#    log "FATAL: No Microphone"
-#    return 1
-#  else
-#    log "MICROPHONE PASSED"
-#  fi
 
   if [ -f $ALOG ] ;then 
       ts=`tstamp`
@@ -102,8 +88,7 @@ function start {
   sleep 1
   log "arecord process started as pid=[`cat $PIDFILE`]"
 
-  return 0
-
+  return $?
 }
 
 function stop {
@@ -141,6 +126,10 @@ function status {
 #############################
 ### HELPER FUNCTIONS BELOW
 #############################
+
+function state {
+    getstate
+}
 
 function getstate {
 
@@ -291,40 +280,40 @@ function deep-clean {
     log "1 ... "
     sleep 1
 
-    rm -rvf *.log ${AMONDATA}/*
+    rm -rvf *.log ${WAVDIR}/*
 
 }
 
-function handle-reboot {
-    # TODO = the path names here are HORRIBLE - need to use $BASE etc...
- log "detected a reboot - handling it..."
- log "removing the reboot file..."
- rm -f $REBOOTED
- log "backing up the audio and copying logfiles therein (not really)"
- mv -v ${AMONDATA}/wavs ${AMONDATA}/stack
- mkdir $WAVDIR
- mv -v ${AMONDATA}/stack $WAVDIR/push
-
- log "done handling reboot"
-}
+#function handle-reboot {
+#    # TODO = the path names here are HORRIBLE - need to use $BASE etc...
+# log "detected a reboot - handling it..."
+# log "removing the reboot file..."
+# rm -f $REBOOTED
+# log "backing up the audio and copying logfiles therein (not really)"
+# mv -v ${AMONDATA}/wavs ${AMONDATA}/stack
+# mkdir $WAVDIR
+# mv -v ${AMONDATA}/stack $WAVDIR/push
+#
+# log "done handling reboot"
+#}
 
 # used during testing to get the most recent audio to hp for listening test.
-function copylast {
-	afile=`find $WAVDIR -type f -name \*.wav | grep -v stack | sort | tail -2 | head -1`
-	ls -l $afile
-	
-	host=$HOSTNAME
-
-	dest=hp
-        if [ "$1" ] ; then
-          dest="$1"
-	fi
-
-	to=$dest:tmpaud/$host/
-	cmd="scp $afile $to"
-	echo "running: $cmd"
-	$cmd
-}
+#function copylast {
+#	afile=`find $WAVDIR -type f -name \*.wav | grep -v stack | sort | tail -2 | head -1`
+#	ls -l $afile
+#	
+#	host=$HOSTNAME
+#
+#	dest=hp
+#        if [ "$1" ] ; then
+#          dest="$1"
+#	fi
+#
+#	to=$dest:tmpaud/$host/
+#	cmd="scp $afile $to"
+#	echo "running: $cmd"
+#	$cmd
+#}
 
 # count the number of "arecord" processes running"
 function countprocs {
@@ -338,76 +327,77 @@ function procids {
   echo $ids
 }
 
-function amondiff {
-  log "Diff here!"
+# function amondiff {
+#   log "Diff here!"
+#
+# #    SERVER=jdmc2.com
+#     if [ "$1" ] ; then 
+# 	SERVER="$1"
+# 	log "comparing with $SERVER"
+#     fi
+#
+#     log "comparing with $SERVER ...  Enter password only if you are sure"
+#
+#     scp -p jdmc2@$SERVER:code/amon/amon ./amon.download
+#     scp -p jdmc2@$SERVER:code/amon/defs.sh ./defs.sh.download
+#     scp -p jdmc2@$SERVER:code/amon/amon.php ./amon.php.download
+#
+#     log "Diff amon (local -- remote):"
+#     diff amon amon.download
+#
+#
+#     log "Diff defs.sh (local -- remote):"
+#     diff defs.sh defs.sh.download
+#
+#     log "Diff amon.php (local -- remote):"
+#     diff amon.php amon.php.download
+#
+#     rm -f *.download
+#     log "done"
+# }
 
-#    SERVER=jdmc2.com
-    if [ "$1" ] ; then 
-	SERVER="$1"
-	log "comparing with $SERVER"
-    fi
+# function update {
 
-    log "comparing with $SERVER ...  Enter password only if you are sure"
+#     SERVER=jdmc2.com
+#     if [ "$1" ] ; then 
+# 	SERVER="$1"
+# 	log "updating from $SERVER"
+#     fi
 
-    scp -p jdmc2@$SERVER:code/amon/amon ./amon.download
-    scp -p jdmc2@$SERVER:code/amon/defs.sh ./defs.sh.download
-    scp -p jdmc2@$SERVER:code/amon/amon.php ./amon.php.download
+#     log "updating from $SERVER ...  Enter password only if you are sure"
 
-    log "Diff amon (local -- remote):"
-    diff amon amon.download
+#     # backup the originals 
+#     mvv amon
+#     mvv defs.sh
+#     mvv amon.php
 
-    log "Diff defs.sh (local -- remote):"
-    diff defs.sh defs.sh.download
+#     scp -p jdmc2@$SERVER:code/amon/amon .
+#     scp -p jdmc2@$SERVER:code/amon/defs.sh .
+#     scp -p jdmc2@$SERVER:code/amon/amon.php .
 
-    log "Diff amon.php (local -- remote):"
-    diff amon.php amon.php.download
+#     cp amon.php ../public_html/utils/
 
-    rm -f *.download
-    log "done"
-}
+#     V=`grep "VERSION=" amon | head -1`
+#     log "update Complete (to amon version: $V)"
+#     log "done"
+# }
 
-function update {
+# function amonmerge {
+#     log "merge here!"
 
-    SERVER=jdmc2.com
-    if [ "$1" ] ; then 
-	SERVER="$1"
-	log "updating from $SERVER"
-    fi
+#     SERVER=jdmc2.com
+#     if [ "$1" ] ; then 
+# 	SERVER="$1"
+#     fi
 
-    log "updating from $SERVER ...  Enter password only if you are sure"
+#     log "Merging with $SERVER ..."
 
-    # backup the originals 
-    mvv amon
-    mvv defs.sh
-    mvv amon.php
-
-    scp -p jdmc2@$SERVER:code/amon/amon .
-    scp -p jdmc2@$SERVER:code/amon/defs.sh .
-    scp -p jdmc2@$SERVER:code/amon/amon.php .
-
-    cp amon.php ../public_html/utils/
-
-    V=`grep "VERSION=" amon | head -1`
-    log "update Complete (to amon version: $V)"
-    log "done"
-}
-
-function amonmerge {
-    log "merge here!"
-
-    SERVER=jdmc2.com
-    if [ "$1" ] ; then 
-	SERVER="$1"
-    fi
-
-    log "Merging with $SERVER ..."
-
-    scp -p amon.conf jdmc2@$SERVER:code/amon/amon.conf
-    scp -p amon jdmc2@$SERVER:code/amon/amon
-    scp -p defs.sh jdmc2@$SERVER:code/amon/defs.sh 
-    scp -p /home/jdmc2/public_html/utils/amon.php jdmc2@$SERVER:code/amon/amon.php
-    log "merge complete"
-}
+#     scp -p amon.conf jdmc2@$SERVER:code/amon/amon.conf
+#     scp -p amon jdmc2@$SERVER:code/amon/amon
+#     scp -p defs.sh jdmc2@$SERVER:code/amon/defs.sh 
+#     scp -p /home/jdmc2/public_html/utils/amon.php jdmc2@$SERVER:code/amon/amon.php
+#     log "merge complete"
+# }
 
 # remove the wav file that's oldest (memory management)
 function deloldest {
@@ -419,4 +409,20 @@ function deloldest {
     echo "MEM: deleted" > $oldest # zero the length
     mv $oldest $oldest.deleted # move it to new name (not ending in .wav)
     ls -l $oldest.deleted
+}
+
+function usage() {
+    echo "Usage: amon status|ping|others"
+    echo "Usage: amon help  --- for more help"
+}
+
+function help() {
+    echo "Help section for amon."
+    echo "unwritten.  Sorry"
+    [ -r amon.help ] && cat amon.help
+}
+
+function testargs() {
+    echo "testargs here with args: $*"
+    echo "bye"
 }

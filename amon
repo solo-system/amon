@@ -1,36 +1,11 @@
 #!/bin/bash
 
-umask 0022
+umask 0022 # TODO - check this gives read to all (think vfat)
 
-# version info - this needs to be first in this file for grepping.
-VERSION="1.2.1 drop leading zero in date to help amonsplit comparison"
-VERSION="1.2 Changed to signal arecord for file split"
-VERSION="1.1 Added buffer option read from amon.conf seconds"
-VERSION="1.0 Added checking to arecord prior to start"
-VERSION="1.0-rc3 Added amondiff, and umask for web interface"
-VERSION="1.0-rc2 Changed to work with no mounted filesystem"
-VERSION="1.0-rc1 Major refactoring of code"
-VERSION="0.96.1 Added provisional load monitoring to watchdog"
-VERSION="0.96 Tidied up logging and refactored some internal function names"
-VERSION="0.95 handle backups of arecord.log better"
-VERSION="0.94 copylast now ignores stack directories"
-VERSION="0.93.1 improved logging"
-VERSION="0.93 cleaned up wavdir definition and naming"
-VERSION="0.92.1 BUGFIX version numbering added to update and ping"
-VERSION="0.92 with version numbering added to update and ping"
-VERSION="0.91 with verbosity added to deep-clean"
-VERSION="0.9  with host options to update and copylast"
+# get the pid of this instance of amon
+AMONPID=$$
 
-# bail out immediately if we are on source directory
-# HOSTNAME=`hostname`
-#if [ $HOSTNAME = 'hp' -a `pwd` = '/home/jdmc2/code/amon' ] ; then
-#   echo "This is the source directory - don't run here !!!!!!"
-#   echo "instead, do:  cd /home/jdmc2/amon/ "
-#   exit -1
-#fi
-
-# inside this script, we always cd to the amon directory so I/O is easy
-# get the amon directory from the path of this executable
+# always cd to amondir to make paths simple.
 AMONDIR=`dirname $0`
 cd ${AMONDIR}
 BASE=.
@@ -39,195 +14,53 @@ STATEFILE=${BASE}/state
 REBOOTED=${BASE}/REBOOTED
 PIDFILE=${BASE}/pidfile
 
+### read the config file(s) and function definitions.
+[ ! -r defs.sh ] && echo "Fatal: no config file defs.sh. I give up." && exit -1
+source defs.sh
 
-# include the local defs if it exists
-[ ! -f amon.conf ] && log "Argh! -- no amon.conf file.  Expect stupid things..."
-#[ -f amon.conf ] && source amon.conf
+[ ! -r amon.conf ] && log "Fatal: no config file amon.conf. I give up." && exit -1
 source amon.conf
 
+[ -r /boot/recorder.conf ] && { 
+    log "Reading additional config file: /boot/recorder.conf" 
+    source /boot/recorder.conf
+}
+
+### these must come AFTER reading the configs.
 WAVDIR=${AMONDATA}/wavs
 ALOG=${WAVDIR}/arecord.log
 
-# get the pid of this instance of amon
-AMONPID=$$
-
 # what if there is no state file?
-if [ ! -f $STATEFILE ] ; then
-  #argh - assume it should run???
+if [ ! -r $STATEFILE ] ; then
   log "Argh: No statefile \"$STATEFILE\" - creating one in the \"on\" position"
   echo "on" > $STATEFILE
 fi
 
-# include all the function definitions:
-source defs.sh
-
 # a recent reboot trumps whatever we were asked to do.
-if [ -f $REBOOTED ] ; then
-    handle-reboot
-    # TODO : should remove this bail out and continue - why not!
-    # could continue to do our job, but watchdog will catch us in 1 min, so bail out.
-    exit 0
-fi
+#if [ -f $REBOOTED ] ; then
+#    handle-reboot
+#    # TODO : should remove this bail out and continue - why not!
+#    # could continue to do our job, but watchdog will catch us in 1 min, so bail out.
+#    exit 0
+#fi
 
 # what if there is no data directory?
 if [ ! -d $WAVDIR ] ; then
     log "ARGH - there's no data directory \"$WAVDIR\" - making it now"
-    mkdir -p $WAVDIR
+    mkdir $WAVDIR
 fi
 
-# MAIN: parse the command line and do the job.
-if [ $# -eq 0 ] ; then
-    echo -n "Hello.  What shall I do? Choose from:"
-    grep function defs.sh | sed 's:function ::g' | sed 's: {::g' | sort | tr '\012' ' '
-    echo
-    exit 0
+##########################################
+# parse command line
+##########################################
+[ $# -eq 0 ] && { usage; exit 0;}
+
+if [ xx`type -t amon${1}` = xx"function" ] ; then
+    amon${1} $*
+elif [ xx`type -t $1` = xx"function" ] ; then
+    $1 $*
+else
+    echo "amon: \"$1\": command not known to amon"
 fi
-
-##########################
-# Director-level functions
-
-if [ "$1" == "on" ] ; then
-   amonon
-   exit 0
-fi
-
-if [ "$1" == "off" ] ; then
-   amonoff
-   exit 0
-fi
-
-if [ "$1" == "watchdog" ] ; then
-   watchdog
-   exit 0
-fi
-
-# thats the really high level functions.
-
-if [ "$1" == "start" ] ; then
-   start
-   exit 0
-fi
-
-if [ "$1" == "stop" ] ; then
-  stop
-  exit 0
-fi
-
-if [ "$1" == "status" ] ; then
-  status
-  exit 0
-fi
-
-if [ "$1" == "amonsplit" ] ; then
-  amonsplit
-  exit 0
-fi
-
-if [ "$1" == "diskusage" ] ; then
-  diskusage
-  exit 0
-fi
-
-if [ "$1" == "lastorders" ] ; then
-  lastorders
-  exit 0
-fi
-
-if [ "$1" == "log" ] ; then
-  amonlog
-  exit 0
-fi
-
-if [ "$1" == "ping" ] ; then
-  amonping
-  exit 0
-fi
-
-if [ "$1" == "getstate" -o "$1" == "state" ] ; then 
-  getstate
-  exit 0
-fi
-
-if [ "$1" == "setstateoff" ] ; then
-  setstateoff
-  exit 0
-fi
-
-if [ "$1" == "setstateon" ] ; then
-  setstateon
-  exit 0
-fi
-
-if [ "$1" == "cleanup" ] ; then
-  amoncleanup
-  exit 0
-fi
-
-if [ "$1" == "diff" ] ; then
-  amondiff
-  exit 0
-fi
-
-if [ "$1" == "update" ] ; then
-  shift
-  update $* 
-  exit 0
-fi
-
-if [ "$1" == "merge" ] ; then
-  amonmerge
-  exit 0
-fi
-
-
-if [ "$1" == "deep-clean" ] ; then
-  deep-clean
-  exit 0
-fi
-
-if [ "$1" == "copylast" ] ; then
-  shift
-  copylast $*
-  exit 0
-fi
-
-
-# if we fell through them all ...
-echo "Didn't recognise command: Usage is:"
-amonhelp
 
 exit 0
-
-# implementation notes and thoughts:
-# see command "logger" which logs through syslog to /var/log/user.log?
-# kill(1), fuser(1), pgrep(1), pidof(1), pkill(1), ps(1), kill(2) killall().
-
-
-# TODO
-# SHOULD USE FLOCK TO ENSURE ONLY ONE OF THESE RUNS AT ANY TIME.
-# IF (! (LOCK = FLOCK $flockfile) ) THEN 
-#     LOG " CANT GET LOG FILE"
-#     IF (LOCK IS OLDER THAN 5 MINS)
-#     LOG "VERY OLD LOCK HAS NOT BEEN RELEASED"
-#     CLEANUP
-#     SET-REBOOT-FLAG
-#     RETURN 0
-
-# send all the arecord processes 
-# function lastorders {
-#     procs=`pidof arecord`
-#     if [ ! -s "$procs" ] ;then
-# 	log "lastorders: no process running, so doing nothing"
-# 	return 0
-#     fi
-
-#     log "lastorders: sending SIGINT to: $procs"
-
-#     killall -s SIGINT arecord
-
-#     procs=`pidof arecord`
-#     log "lastorders: after the SIGINT, the following are running: $procs"
-# }
-
-
-

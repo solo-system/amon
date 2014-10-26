@@ -59,6 +59,12 @@ function watchdog {
         log "MEM: plenty of free space (${freek} > ${MINMEMFREE}) => doing nothing"
     fi
 
+    # check if we should reboot
+    hourmin=`date +"%H-%M"`
+    if [ $NIGHTLYREBOOT -a $NIGHTLYREBOOT = "yes" -a hourmin="23-59" ] ; then
+        reboot
+    fi
+
 } # end of watchdog
 
 # send signal to arecord to split the output file
@@ -67,7 +73,14 @@ function amonsplit {
   kill -USR1  $pid
   log "sent USR1 to pid=$pid"
 }
-    
+
+function conf {
+    echo "configuration is as follows:"
+    echo "NIGHTLYREBOOT is $NIGHTLYREBOOT"
+    echo "finished."
+}
+
+
 function start {
   if [ -f $PIDFILE ] ; then
       log "already running as [`cat $PIDFILE`]"
@@ -425,4 +438,12 @@ function help() {
 function testargs() {
     echo "testargs here with args: $*"
     echo "bye"
+}
+
+# close down things and reboot (called from watchdog)
+function reboot() {
+    log "REBOOT: shutting down amon, and rebooting"
+    stop
+    sudo reboot
+    return 0
 }

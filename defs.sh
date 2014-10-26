@@ -95,7 +95,7 @@ function start {
       log "backed up old arecord log file: $ALOG to $newname"
   fi
 
-  cmd="arecord $ABUFFER --mmap $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --max-file-time $MAXDURATION --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$HOSTNAME-%Y-%m-%d-%H-%M-%S.wav"
+  cmd="arecord $ABUFFER --mmap $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --max-file-time $MAXDURATION --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$HOSTNAME-%Y-%m-%d_%H-%M-%S.wav"
 
   log "about to run: $cmd"
   $cmd  >& $ALOG &
@@ -196,7 +196,7 @@ function log {
 }
 
 function tstamp {
-    date +"%Y-%m-%d:%H-%M-%S"
+    date +"%Y-%m-%d_%H-%M-%S"
 }
 
 function amonhelp {

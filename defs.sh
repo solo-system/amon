@@ -60,8 +60,8 @@ function watchdog {
     fi
 
     # check if we should reboot
-    hourmin=`date +"%H-%M"`
-    if [ $NIGHTLYREBOOT -a $NIGHTLYREBOOT = "yes" -a hourmin="23-59" ] ; then
+    hourmin=`date +"%H:%M"`
+    if [ $NIGHTLYREBOOT -a $NIGHTLYREBOOT = "23:59" ] ; then
         reboot
     fi
 
@@ -76,7 +76,7 @@ function amonsplit {
 
 function conf {
     echo "configuration is as follows:"
-    echo "NIGHTLYREBOOT is $NIGHTLYREBOOT"
+    echo "NIGHTLYREBOOT is at: $NIGHTLYREBOOT"
     echo "finished."
 }
 

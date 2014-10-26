@@ -34,3 +34,11 @@ it seems that git pull on raspberry pi not only brings down the changes from ori
 All this would probably be better If I used branches, but NOT for the moment - stick to one for the moment.
 
 J.
+----------
+Without understanding .gitignore (which is the proper way)
+
+Once You have made changes on a raspi, if you do git add . (to stage
+the changes before a git commit), then it adds log files and other
+crud, you don't want this.  so rather than git add . , go a git add -u (updates only).  This doesn't add crud and ignores logfiles.
+
+"git add -u" looks at all the currently tracked files and stages the changes to those files if they are different or if they have been removed. It does not add any new files, it only stages changes to already tracked files.

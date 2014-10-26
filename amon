@@ -22,7 +22,7 @@ source defs.sh
 source amon.conf
 
 [ -r /boot/recorder.conf ] && { 
-    log "Reading additional config file: /boot/recorder.conf" 
+#    echo "Reading additional config file: /boot/recorder.conf" 
     source /boot/recorder.conf
 }
 

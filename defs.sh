@@ -61,9 +61,12 @@ function watchdog {
 
     # check if we should reboot
     hourmin=`date +"%H:%M"`
-    if [ $NIGHTLYREBOOT -a $NIGHTLYREBOOT = "23:59" ] ; then
+    if [ $NIGHTLYREBOOT -a $NIGHTLYREBOOT = $hourmin ] ; then
+	log "calling reboot since $hourmin = $NIGHTLYREBOOT"
         reboot
-    fi
+    else 
+	log "not calling reboot since $hourmin != $NIGHTLYREBOOT"
+     fi
 
 } # end of watchdog
 
@@ -76,7 +79,9 @@ function amonsplit {
 
 function conf {
     echo "configuration is as follows:"
+    echo "-----------------------------------"
     echo "NIGHTLYREBOOT is at: $NIGHTLYREBOOT"
+    printenv
     echo "finished."
 }
 
@@ -444,6 +449,7 @@ function testargs() {
 function reboot() {
     log "REBOOT: shutting down amon, and rebooting"
     stop
+    sync
     sudo reboot
     return 0
 }

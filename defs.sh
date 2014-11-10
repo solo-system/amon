@@ -62,7 +62,7 @@ function watchdog {
     # check if we should reboot
     hourmin=`date +"%H:%M"`
     if [ $NIGHTLYREBOOT -a $NIGHTLYREBOOT = $hourmin ] ; then
-	log "calling reboot since $hourmin = $NIGHTLYREBOOT"
+	log "rebooting since $hourmin = $NIGHTLYREBOOT"
         reboot
     else 
 	log "not calling reboot since $hourmin != $NIGHTLYREBOOT"

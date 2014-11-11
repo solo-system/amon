@@ -50,7 +50,7 @@ function watchdog {
 
     status # print status for the log
 
-    log "MEM: Performing memory management"
+    # log "MEM: Performing memory management"
     freek=`df -k /mnt/sdcard | tail -1 | awk '{print $4}'`
     if [ ${freek} -lt ${MINMEMFREE} ] ; then 
         log "MEM: too little free space (${freek} < ${MINMEMFREE}) => calling deloldest()"

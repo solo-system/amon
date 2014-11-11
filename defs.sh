@@ -23,7 +23,7 @@ function amonoff {
 function watchdog {
     #  HACK - ABOUT TO DEPLOY TO FIELD, SO SET STATE TO "ON"
     ## setstateon
-
+    log "-- MARK --"
     s=`getstate`
     log "state=[$s].  Doing a cleanup then setting recording as required."
 

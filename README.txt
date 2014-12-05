@@ -42,3 +42,6 @@ the changes before a git commit), then it adds log files and other
 crud, you don't want this.  so rather than git add . , go a git add -u (updates only).  This doesn't add crud and ignores logfiles.
 
 "git add -u" looks at all the currently tracked files and stages the changes to those files if they are different or if they have been removed. It does not add any new files, it only stages changes to already tracked files.
+
+--------------------
+wavwrite(chirp([0:0.001:5]), "chirp.wav");

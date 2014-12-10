@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-wav=/home/amon/amon/calibrate.sh
+wav=/home/amon/amon/calibrate.wav
 
 echo "this is playback.sh"
 echo "the time is `date`"

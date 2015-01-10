@@ -21,9 +21,9 @@ source defs.sh
 [ ! -r amon.conf ] && log "Fatal: no config file amon.conf. I give up." && exit -1
 source amon.conf
 
-[ -r /boot/recorder.conf ] && { 
-#    echo "Reading additional config file: /boot/recorder.conf" 
-    source /boot/recorder.conf
+[ -r /boot/solo.conf ] && { 
+#    echo "Reading additional config file: /boot/solo.conf" 
+    source /boot/solo.conf
 }
 
 ### these must come AFTER reading the configs.

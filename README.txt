@@ -16,6 +16,16 @@ Instead, the solo-boot.sh should know what we're doing, and setup an appropriate
 except, solo is not amon, and this is really an amon thing...
 Perhaps amon should do it.  But amon is never "installed", so we'd need a "firstrun" flag or something.  Perhaps just the absense of .asoundrc could cause amon to generate an appropriate asoundrc file.
 
+to get recording working on raspi with cirrus we need to do:
+/home/pi/Reset_paths.sh 
+/home/pi/Record_from_DMIC.sh
+arecord -c 2 -f S16_LE -r 44100 out.wav
+
+then to test:
+./Playback_to_Lineout.sh
+aplay out.wav
+
+
 ------
 
 

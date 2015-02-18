@@ -1,6 +1,25 @@
 README.txt for amon
 -------------------
 
+First big change for some time : 
+
+integrate cirrus logic audio card.
+----------------------------------
+arecord uses asoundrc file to find default audio card.
+We should use this functionality.
+We need to define default audio card for BOTH use cases:
+the cirrus AND the snowflake.
+amon should NOT know about this.  Except using a –Dhw:sndrpiwsp flag to arecord
+the string sndrpiwsp is from the usermanual, but is defined in .asoundrc in /home/pi/.asoundrc
+
+Instead, the solo-boot.sh should know what we're doing, and setup an appropriate .asoundrc for us.
+except, solo is not amon, and this is really an amon thing...
+Perhaps amon should do it.  But amon is never "installed", so we'd need a "firstrun" flag or something.  Perhaps just the absense of .asoundrc could cause amon to generate an appropriate asoundrc file.
+
+------
+
+
+
 TODO: use file locking in /var/run to ensure no two amons run at the same time (really unlikely)
 
 

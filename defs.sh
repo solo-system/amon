@@ -99,10 +99,29 @@ function start {
       log "backed up old arecord log file: $ALOG to $newname"
   fi
 
-  log "setting volume to $VOLUME"
-  amixer -q -c 1 set "Mic" $VOLUME
-
-  cmd="arecord $ABUFFER --mmap $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --max-file-time $MAXDURATION --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$HOSTNAME-%Y-%m-%d_%H-%M-%S.wav"
+  # is this cirrus logic audio card? (clac)?
+  KRNL=$(uname -r | cut -f1,2 -d'.')
+  if [ $KRNL = "3.12" ] ; then
+      CLAC=yes
+      log "Kernel is version $KRNL so assuming Cirrus Logic Audio Card."
+      [ ! -f /home/amon/.asoundrc ] && cp /home/pi/.asoundrc /home/amon/.asoundrc
+      /home/pi/Reset_paths.sh >> clac.log 2>&1
+      /home/pi/Record_from_DMIC.sh >> clac.log 2>&1
+      CHANNELS="-c2" # need to override, because it can't record from 1 channel
+      AUDIODEVICE="" # override this, cos the above scripts set it all up nicely.
+      MMAP=""
+  elif [ $KRNL = "3.18" ] ; then
+      CLAC=no
+      log "Kernel is version $KRNL so assuming USB snowflake microphone."
+      log "setting volume to $VOLUME ..."
+      amixer -q -c 1 set "Mic" $VOLUME
+      MMAP="--mmap"
+  else
+      CLAC=unknown
+      log "KRNL version unrecognised - don't know what to do."
+  fi
+  
+  cmd="arecord $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --max-file-time $MAXDURATION --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$HOSTNAME-%Y-%m-%d_%H-%M-%S.wav"
 
   log "about to run: $cmd"
   $cmd  >& $ALOG &

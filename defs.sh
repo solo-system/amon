@@ -110,6 +110,14 @@ function start {
 #      /home/pi/Record_from_Headset.sh >> clac.log 2>&1
 #      /home/pi/Record_from_lineIn.sh >> clac.log 2>&1
       /home/pi/Record_from_lineIn_Micbias.sh >> clac.log 2>&1
+      CLAC_VOL=20
+      CLAC_DIG_VOL=150
+      log "Setting: volumes to CLAC_VOL=$CLAC_VOL and CLAC_DIG_VOL=$CLAC_DIG_VOL"
+      amixer -q -Dhw:sndrpiwsp cset name='IN3L Volume' $VOL
+      amixer -q -Dhw:sndrpiwsp cset name='IN3R Volume' $VOL
+      amixer -q -Dhw:sndrpiwsp cset name='IN3L Digital Volume' $DVOL
+      amixer -q -Dhw:sndrpiwsp cset name='IN3R Digital Volume' $DVOL
+
       CHANNELS="-c2" # need to override, because it can't record from 1 channel
       AUDIODEVICE="" # override this, cos the above scripts set it all up nicely.
       MMAP=""

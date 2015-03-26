@@ -99,10 +99,29 @@ function start {
       log "backed up old arecord log file: $ALOG to $newname"
   fi
 
-  log "setting volume to $VOLUME"
-  amixer -q -c 1 set "Mic" $VOLUME
-
-  cmd="arecord $ABUFFER --mmap $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --max-file-time $MAXDURATION --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$HOSTNAME-%Y-%m-%d_%H-%M-%S.wav"
+  # is this cirrus logic audio card? (clac)?
+  KRNL=$(uname -r | cut -f1,2 -d'.')
+  if [ $KRNL = "3.12" ] ; then
+      CLAC=yes
+      log "Kernel is version $KRNL so assuming Cirrus Logic Audio Card."
+      [ ! -f /home/amon/.asoundrc ] && cp /home/pi/.asoundrc /home/amon/.asoundrc
+      /home/pi/Reset_paths.sh >> clac.log 2>&1
+      /home/pi/Record_from_DMIC.sh >> clac.log 2>&1
+      CHANNELS="-c2" # need to override, because it can't record from 1 channel
+      AUDIODEVICE="" # override this, cos the above scripts set it all up nicely.
+      MMAP=""
+  elif [ $KRNL = "3.18" ] ; then
+      CLAC=no
+      log "Kernel is version $KRNL so assuming USB snowflake microphone."
+      log "setting volume to $VOLUME ..."
+      amixer -q -c 1 set "Mic" $VOLUME
+      MMAP="--mmap"
+  else
+      CLAC=unknown
+      log "KRNL version unrecognised - don't know what to do."
+  fi
+  
+  cmd="arecord $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --max-file-time $MAXDURATION --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$HOSTNAME-%Y-%m-%d_%H-%M-%S.wav"
 
   log "about to run: $cmd"
   $cmd  >& $ALOG &
@@ -347,78 +366,6 @@ function procids {
   ids=`ps --no-headers -C arecord -o pid | sed 's:^ *::g'`
   echo $ids
 }
-
-# function amondiff {
-#   log "Diff here!"
-#
-# #    SERVER=jdmc2.com
-#     if [ "$1" ] ; then 
-# 	SERVER="$1"
-# 	log "comparing with $SERVER"
-#     fi
-#
-#     log "comparing with $SERVER ...  Enter password only if you are sure"
-#
-#     scp -p jdmc2@$SERVER:code/amon/amon ./amon.download
-#     scp -p jdmc2@$SERVER:code/amon/defs.sh ./defs.sh.download
-#     scp -p jdmc2@$SERVER:code/amon/amon.php ./amon.php.download
-#
-#     log "Diff amon (local -- remote):"
-#     diff amon amon.download
-#
-#
-#     log "Diff defs.sh (local -- remote):"
-#     diff defs.sh defs.sh.download
-#
-#     log "Diff amon.php (local -- remote):"
-#     diff amon.php amon.php.download
-#
-#     rm -f *.download
-#     log "done"
-# }
-
-# function update {
-
-#     SERVER=jdmc2.com
-#     if [ "$1" ] ; then 
-# 	SERVER="$1"
-# 	log "updating from $SERVER"
-#     fi
-
-#     log "updating from $SERVER ...  Enter password only if you are sure"
-
-#     # backup the originals 
-#     mvv amon
-#     mvv defs.sh
-#     mvv amon.php
-
-#     scp -p jdmc2@$SERVER:code/amon/amon .
-#     scp -p jdmc2@$SERVER:code/amon/defs.sh .
-#     scp -p jdmc2@$SERVER:code/amon/amon.php .
-
-#     cp amon.php ../public_html/utils/
-
-#     V=`grep "VERSION=" amon | head -1`
-#     log "update Complete (to amon version: $V)"
-#     log "done"
-# }
-
-# function amonmerge {
-#     log "merge here!"
-
-#     SERVER=jdmc2.com
-#     if [ "$1" ] ; then 
-# 	SERVER="$1"
-#     fi
-
-#     log "Merging with $SERVER ..."
-
-#     scp -p amon.conf jdmc2@$SERVER:code/amon/amon.conf
-#     scp -p amon jdmc2@$SERVER:code/amon/amon
-#     scp -p defs.sh jdmc2@$SERVER:code/amon/defs.sh 
-#     scp -p /home/jdmc2/public_html/utils/amon.php jdmc2@$SERVER:code/amon/amon.php
-#     log "merge complete"
-# }
 
 # remove the wav file that's oldest (memory management)
 function deloldest {

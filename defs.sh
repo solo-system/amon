@@ -106,7 +106,10 @@ function start {
       log "Kernel is version $KRNL so assuming Cirrus Logic Audio Card."
       [ ! -f /home/amon/.asoundrc ] && cp /home/pi/.asoundrc /home/amon/.asoundrc
       /home/pi/Reset_paths.sh >> clac.log 2>&1
-      /home/pi/Record_from_DMIC.sh >> clac.log 2>&1
+#      /home/pi/Record_from_DMIC.sh >> clac.log 2>&1
+#      /home/pi/Record_from_Headset.sh >> clac.log 2>&1
+#      /home/pi/Record_from_lineIn.sh >> clac.log 2>&1
+      /home/pi/Record_from_lineIn_Micbias.sh >> clac.log 2>&1
       CHANNELS="-c2" # need to override, because it can't record from 1 channel
       AUDIODEVICE="" # override this, cos the above scripts set it all up nicely.
       MMAP=""

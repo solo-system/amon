@@ -101,9 +101,18 @@ function start {
 
   # is this cirrus logic audio card? (clac)?
   KRNL=$(uname -r | cut -f1,2 -d'.')
-  if [ $KRNL = "3.12" ] ; then
+
+# do we have a CLAC installed?
+  if grep sndrpiwsp /proc/asound/cards > /dev/null ; then 
       CLAC=yes
-      log "Kernel is version $KRNL so assuming Cirrus Logic Audio Card."
+  else
+      CLAC=no
+  fi
+
+  log "Just checked for CLAC card and got this result: $CLAC"
+
+  if [ $CLAC = yes ] ; then
+      log "Found CLAC hat - so assuming we should record from there."
       [ ! -f /home/amon/.asoundrc ] && cp /home/pi/.asoundrc /home/amon/.asoundrc
       /home/pi/Reset_paths.sh >> clac.log 2>&1
 #      /home/pi/Record_from_DMIC.sh >> clac.log 2>&1

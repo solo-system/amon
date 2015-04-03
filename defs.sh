@@ -85,7 +85,14 @@ function conf {
     echo "finished."
 }
 
+function prepare_microphone {
 
+    log "This is prepare microphone starting"
+
+    log "prepare_microphone exiting"
+}
+
+# start recording - ignores "state" file.
 function start {
   if [ -f $PIDFILE ] ; then
       log "already running as [`cat $PIDFILE`]"
@@ -99,10 +106,13 @@ function start {
       log "backed up old arecord log file: $ALOG to $newname"
   fi
 
+  # setup environment for arecord to correctly record
+  prepare_microphone
+
   # is this cirrus logic audio card? (clac)?
   KRNL=$(uname -r | cut -f1,2 -d'.')
 
-# do we have a CLAC installed?
+  # do we have a CLAC installed?
   if grep sndrpiwsp /proc/asound/cards > /dev/null ; then 
       CLAC=yes
   else
@@ -113,12 +123,12 @@ function start {
 
   if [ $CLAC = yes ] ; then
       log "Found CLAC hat - so assuming we should record from there."
-# hoping we don't need this any more...
-#      [ ! -f /home/amon/.asoundrc ] && cp /home/pi/.asoundrc /home/amon/.asoundrc
+      # hoping we don't need this any more...
+      # [ ! -f /home/amon/.asoundrc ] && cp /home/pi/.asoundrc /home/amon/.asoundrc
       /home/pi/Reset_paths.sh -q
-#      /home/pi/Record_from_DMIC.sh >> clac.log 2>&1
-#      /home/pi/Record_from_Headset.sh >> clac.log 2>&1
-#      /home/pi/Record_from_lineIn.sh >> clac.log 2>&1
+      # /home/pi/Record_from_DMIC.sh >> clac.log 2>&1
+      # /home/pi/Record_from_Headset.sh >> clac.log 2>&1
+      # /home/pi/Record_from_lineIn.sh >> clac.log 2>&1
       /home/pi/Record_from_lineIn_Micbias.sh -q
       CLAC_VOL=20
       CLAC_DIG_VOL=150

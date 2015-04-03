@@ -20,6 +20,7 @@ function amonoff {
     stop
 }
 
+
 function watchdog {
     #  HACK - ABOUT TO DEPLOY TO FIELD, SO SET STATE TO "ON"
     ## setstateon
@@ -86,10 +87,62 @@ function conf {
 }
 
 function prepare_microphone {
+    # do we have a CLAC installed?
+    if grep sndrpiwsp /proc/asound/cards > /dev/null ; then 
+	CLAC=yes
+    else
+	CLAC=no
+    fi
 
-    log "This is prepare microphone starting"
+    if [ $CLAC = yes ] ; then
+        # hoping we don't need this any more...
+        # [ ! -f /home/amon/.asoundrc ] && cp /home/pi/.asoundrc /home/amon/.asoundrc
+        /home/pi/Reset_paths.sh -q
+        # /home/pi/Record_from_DMIC.sh >> clac.log 2>&1
+        # /home/pi/Record_from_Headset.sh >> clac.log 2>&1
+        # /home/pi/Record_from_lineIn.sh >> clac.log 2>&1
+	/home/pi/Record_from_lineIn_Micbias.sh -q
+	[ ! $CLAC_VOL ]     && { log "choosing default for CLAC_DIG_VOL" ; CLAC_VOL=31 ;}
+	[ ! $CLAC_DIG_VOL ] && { log "choosing default for CLAC_DIG_VOL" ; CLAC_DIG_VOL=160 ;}
+ 
+#	log "Setting: volumes to CLAC_VOL=$CLAC_VOL and CLAC_DIG_VOL=$CLAC_DIG_VOL"
+	amixer -q -Dhw:sndrpiwsp cset name='IN3L Volume' $CLAC_VOL
+	amixer -q -Dhw:sndrpiwsp cset name='IN3R Volume' $CLAC_VOL
+	amixer -q -Dhw:sndrpiwsp cset name='IN3L Digital Volume' $CLAC_DIG_VOL
+	amixer -q -Dhw:sndrpiwsp cset name='IN3R Digital Volume' $CLAC_DIG_VOL
 
-    log "prepare_microphone exiting"
+	CHANNELS="-c2" # need to override, because it can't record from 1 channel
+	AUDIODEVICE="-Dhw:sndrpiwsp" # override this, cos the above scripts set it all up nicely.
+	MMAP=""
+	log "prepare_mic: [MICTYPE=CLAC] CHANNELS=$CHANNELS AUDIODEVICE=$AUDIODEVICE MMAP=$MMAP CLAC_VOL=$CLAC_VOL CLAC_DIG_VOL=$CLAC_DIG_VOL"
+	log "prepare_mic: WARNING: Recording WITH bias voltage!"
+    elif [ grep "snowflakeHELP" /proc/asound/cards > /dev/null ] ] ; then
+	CLAC=no
+	log "Not a clack soo..... assuming USB snowflake microphone."
+	log "setting volume to $VOLUME ..."
+	amixer -q -c 1 set "Mic" $VOLUME
+	MMAP="--mmap"
+    else
+	CLAC=unknown
+	log "KRNL version unrecognised - don't know what to do."
+    fi
+}
+
+function testrec {
+    log "Performing a test recording [ 3 seconds long ...]"
+    prepare_microphone
+    cmd="arecord $ABUFFER $MMAP $AUDIODEVICE -d 3 -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE  testrec.wav"
+    log "running: $cmd"
+    $cmd
+
+    if [ $? -ne 0 ] ; then
+	log "testrec: ERROR: something went wrong (arecord already running? \"amon status\" to check)"
+    else
+	
+	log "Recording complete: see file testrec.wav"
+	file testrec.wav
+	log "scp testrec.wav jdmc2@t510j:"
+    fi
 }
 
 # start recording - ignores "state" file.
@@ -108,49 +161,6 @@ function start {
 
   # setup environment for arecord to correctly record
   prepare_microphone
-
-  # is this cirrus logic audio card? (clac)?
-  KRNL=$(uname -r | cut -f1,2 -d'.')
-
-  # do we have a CLAC installed?
-  if grep sndrpiwsp /proc/asound/cards > /dev/null ; then 
-      CLAC=yes
-  else
-      CLAC=no
-  fi
-
-  log "Just checked for CLAC card and got this result: $CLAC"
-
-  if [ $CLAC = yes ] ; then
-      log "Found CLAC hat - so assuming we should record from there."
-      # hoping we don't need this any more...
-      # [ ! -f /home/amon/.asoundrc ] && cp /home/pi/.asoundrc /home/amon/.asoundrc
-      /home/pi/Reset_paths.sh -q
-      # /home/pi/Record_from_DMIC.sh >> clac.log 2>&1
-      # /home/pi/Record_from_Headset.sh >> clac.log 2>&1
-      # /home/pi/Record_from_lineIn.sh >> clac.log 2>&1
-      /home/pi/Record_from_lineIn_Micbias.sh -q
-      CLAC_VOL=20
-      CLAC_DIG_VOL=150
-      log "Setting: volumes to CLAC_VOL=$CLAC_VOL and CLAC_DIG_VOL=$CLAC_DIG_VOL"
-      amixer -q -Dhw:sndrpiwsp cset name='IN3L Volume' $CLAC_VOL
-      amixer -q -Dhw:sndrpiwsp cset name='IN3R Volume' $CLAC_VOL
-      amixer -q -Dhw:sndrpiwsp cset name='IN3L Digital Volume' $CLAC_DIG_VOL
-      amixer -q -Dhw:sndrpiwsp cset name='IN3R Digital Volume' $CLAC_DIG_VOL
-
-      CHANNELS="-c2" # need to override, because it can't record from 1 channel
-      AUDIODEVICE="" # override this, cos the above scripts set it all up nicely.
-      MMAP=""
-  elif [ $KRNL = "3.18" ] ; then
-      CLAC=no
-      log "Kernel is version $KRNL so assuming USB snowflake microphone."
-      log "setting volume to $VOLUME ..."
-      amixer -q -c 1 set "Mic" $VOLUME
-      MMAP="--mmap"
-  else
-      CLAC=unknown
-      log "KRNL version unrecognised - don't know what to do."
-  fi
   
   cmd="arecord $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --max-file-time $MAXDURATION --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$HOSTNAME-%Y-%m-%d_%H-%M-%S.wav"
 
@@ -351,7 +361,7 @@ function deep-clean {
     log "1 ... "
     sleep 1
 
-    rm -rvf *.log ${WAVDIR}/*
+    rm -rvf *.log testrec.wav ${WAVDIR}/*
 
 }
 

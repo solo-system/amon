@@ -98,9 +98,18 @@ function prepare_microphone {
         # hoping we don't need this any more...
         # [ ! -f /home/amon/.asoundrc ] && cp /home/pi/.asoundrc /home/amon/.asoundrc
         /home/pi/Reset_paths.sh -q
+	if [ "$CLAC_AUDIO_SOURCE" != "linein" ] ; then
+	    log "WARNING: CLAC_AUDIO_SOURCE ($CLAC_AUDIO_SOURCE) not currently supported"
+	fi
+
+	if [ "$CLAC_PHANTOM_POWER" != "on" ] ; then
+	    log "WARNING: CLAC_PHANTOM_POWER ($CLAC_PHANTOM_POWER) not currently supported"
+	fi
+
         # /home/pi/Record_from_DMIC.sh >> clac.log 2>&1
         # /home/pi/Record_from_Headset.sh >> clac.log 2>&1
         # /home/pi/Record_from_lineIn.sh >> clac.log 2>&1
+
 	/home/pi/Record_from_lineIn_Micbias.sh -q
 	[ ! $CLAC_VOL ]     && { log "choosing default for CLAC_DIG_VOL" ; CLAC_VOL=31 ;}
 	[ ! $CLAC_DIG_VOL ] && { log "choosing default for CLAC_DIG_VOL" ; CLAC_DIG_VOL=160 ;}
@@ -114,8 +123,8 @@ function prepare_microphone {
 	CHANNELS="-c2" # need to override, because it can't record from 1 channel
 	AUDIODEVICE="-Dhw:sndrpiwsp" # override this, cos the above scripts set it all up nicely.
 	MMAP=""
-	log "prepare_mic: [MICTYPE=CLAC] CHANNELS=$CHANNELS AUDIODEVICE=$AUDIODEVICE MMAP=$MMAP CLAC_VOL=$CLAC_VOL CLAC_DIG_VOL=$CLAC_DIG_VOL"
-	log "prepare_mic: WARNING: Recording WITH bias voltage!"
+	log "prepare_mic: [MICTYPE=CLAC] CHANNELS=$CHANNELS AUDIODEVICE=$AUDIODEVICE MMAP=$MMAP CLAC_VOL=$CLAC_VOL CLAC_DIG_VOL=$CLAC_DIG_VOL CLAC_AUDIO_SOURCE=$CLAC_AUDIO_SOURCE CLAC_PHANTOM_POWER=$CLAC_PHANTOM_POWER"
+
     elif [ grep "snowflakeHELP" /proc/asound/cards > /dev/null ] ] ; then
 	CLAC=no
 	log "Not a clack soo..... assuming USB snowflake microphone."
@@ -124,7 +133,7 @@ function prepare_microphone {
 	MMAP="--mmap"
     else
 	CLAC=unknown
-	log "KRNL version unrecognised - don't know what to do."
+	log "ERROR: programmer error, CLAC is neither yes nor no."
     fi
 }
 

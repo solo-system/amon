@@ -1,6 +1,8 @@
 README.txt for amon
 -------------------
 
+todo: SAMPLERATE - if not set in amon.conf, isn't set anywhere.  Should have default value of 16k in defs.sh, prepare mic (or some other function).
+
 todo: add target "amon test" - which records a 3 second test file.  if
 given a $1 it scp's it to that machine.
 

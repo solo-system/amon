@@ -113,6 +113,7 @@ function prepare_microphone {
 	/home/pi/Record_from_lineIn_Micbias.sh -q
 	[ ! $CLAC_VOL ]     && { log "choosing default for CLAC_DIG_VOL" ; CLAC_VOL=31 ;}
 	[ ! $CLAC_DIG_VOL ] && { log "choosing default for CLAC_DIG_VOL" ; CLAC_DIG_VOL=160 ;}
+	[ ! $CLAC_SAMPLERATE ] && { log "choosing default for CLAC_SAMPLERATE" ; CLAC_SAMPLERATE="-r44100" ;}
 
 #	log "Setting: volumes to CLAC_VOL=$CLAC_VOL and CLAC_DIG_VOL=$CLAC_DIG_VOL"
 	amixer -q -Dhw:sndrpiwsp cset name='IN3L Volume' $CLAC_VOL
@@ -120,7 +121,7 @@ function prepare_microphone {
 	amixer -q -Dhw:sndrpiwsp cset name='IN3L Digital Volume' $CLAC_DIG_VOL
 	amixer -q -Dhw:sndrpiwsp cset name='IN3R Digital Volume' $CLAC_DIG_VOL
 	SAMPLERATE=$CLAC_SAMPLERATE
-	CHANNELS="-c2" # need to override, because it can't record from 1 channel
+	CHANNELS=$CLAC_CHANNELS 
 	AUDIODEVICE="-Dhw:sndrpiwsp" # override this, cos the above scripts set it all up nicely.
 	MMAP=""
 	log "prepare_mic: [MICTYPE=CLAC] CHANNELS=$CHANNELS AUDIODEVICE=$AUDIODEVICE MMAP=$MMAP CLAC_VOL=$CLAC_VOL CLAC_DIG_VOL=$CLAC_DIG_VOL CLAC_AUDIO_SOURCE=$CLAC_AUDIO_SOURCE CLAC_PHANTOM_POWER=$CLAC_PHANTOM_POWER"

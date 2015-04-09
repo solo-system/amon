@@ -53,7 +53,7 @@ function watchdog {
 
     # log "MEM: Performing memory management"
     freek=`df -k /mnt/sdcard | tail -1 | awk '{print $4}'`
-    if [ ${freek} -lt ${MINMEMFREE} ] ; then 
+    if [ ${freek} -lt ${MINMEMFREE} ] ; then
         log "MEM: too little free space (${freek} < ${MINMEMFREE}) => calling deloldest()"
         deloldest
     else
@@ -65,7 +65,7 @@ function watchdog {
     if [ $NIGHTLYREBOOT -a $NIGHTLYREBOOT = $hourmin ] ; then
 	log "rebooting since $hourmin = $NIGHTLYREBOOT"
         reboot
-    else 
+    else
 	log "not calling reboot since $hourmin != $NIGHTLYREBOOT"
      fi
 
@@ -88,7 +88,7 @@ function conf {
 
 function prepare_microphone {
     # do we have a CLAC installed?
-    if grep sndrpiwsp /proc/asound/cards > /dev/null ; then 
+    if grep sndrpiwsp /proc/asound/cards > /dev/null ; then
 	CLAC=yes
     else
 	CLAC=no
@@ -113,13 +113,13 @@ function prepare_microphone {
 	/home/pi/Record_from_lineIn_Micbias.sh -q
 	[ ! $CLAC_VOL ]     && { log "choosing default for CLAC_DIG_VOL" ; CLAC_VOL=31 ;}
 	[ ! $CLAC_DIG_VOL ] && { log "choosing default for CLAC_DIG_VOL" ; CLAC_DIG_VOL=160 ;}
- 
+
 #	log "Setting: volumes to CLAC_VOL=$CLAC_VOL and CLAC_DIG_VOL=$CLAC_DIG_VOL"
 	amixer -q -Dhw:sndrpiwsp cset name='IN3L Volume' $CLAC_VOL
 	amixer -q -Dhw:sndrpiwsp cset name='IN3R Volume' $CLAC_VOL
 	amixer -q -Dhw:sndrpiwsp cset name='IN3L Digital Volume' $CLAC_DIG_VOL
 	amixer -q -Dhw:sndrpiwsp cset name='IN3R Digital Volume' $CLAC_DIG_VOL
-
+	SAMPLERATE=$CLAC_SAMPLERATE
 	CHANNELS="-c2" # need to override, because it can't record from 1 channel
 	AUDIODEVICE="-Dhw:sndrpiwsp" # override this, cos the above scripts set it all up nicely.
 	MMAP=""
@@ -147,7 +147,6 @@ function testrec {
     if [ $? -ne 0 ] ; then
 	log "testrec: ERROR: something went wrong (arecord already running? \"amon status\" to check)"
     else
-	
 	log "Recording complete: see file testrec.wav"
 	file testrec.wav
 	log "scp testrec.wav jdmc2@t510j:"
@@ -161,16 +160,16 @@ function start {
       return 1
   fi
 
-  if [ -f $ALOG ] ;then 
+  if [ -f $ALOG ] ;then
       ts=`tstamp`
-      newname=${WAVDIR}/arecord-$ts.log 
+      newname=${WAVDIR}/arecord-$ts.log
       mv $ALOG $newname
       log "backed up old arecord log file: $ALOG to $newname"
   fi
 
   # setup environment for arecord to correctly record
   prepare_microphone
-  
+
   cmd="arecord $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --max-file-time $MAXDURATION --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$HOSTNAME-%Y-%m-%d_%H-%M-%S.wav"
 
   log "about to run: $cmd"
@@ -183,7 +182,7 @@ function start {
 
 function stop {
 
-    if [ ! -f $PIDFILE ] ; then 
+    if [ ! -f $PIDFILE ] ; then
       log "No pidfile - can't stop anything"
       return 0
     fi
@@ -191,7 +190,7 @@ function stop {
     pid=`cat $PIDFILE`
     # should check that the pid has a wc -w of one.
     log "Stopping (kill - SIGINT) process $pid.."
-    kill -s SIGINT $pid 
+    kill -s SIGINT $pid
     rogues=`pidof arecord`
     if [ -s "$rogues" ] ; then
 	log "WARNING: just killed $pid, but rogues remain : $rogues"
@@ -223,7 +222,7 @@ function state {
 
 function getstate {
 
-    if [ ! -r $STATEFILE ] ; then 
+    if [ ! -r $STATEFILE ] ; then
 	log "Error: no state file exists. I am not fixing it"
        exit -1
     fi
@@ -265,13 +264,13 @@ function setstateoff {
 function log {
     ts=`tstamp`
     msg="$1"
-    lmsg="$ts: [amon[$AMONPID]->${FUNCNAME[1]}]: $msg" 
+    lmsg="$ts: [amon[$AMONPID]->${FUNCNAME[1]}]: $msg"
 
     # could send this to a logfile if something is set...
     echo "$lmsg" >> $AMONLOG
 
     # if stdin is a tty (interactive session) also print to stdout
-    tty -s && echo "$msg" 
+    tty -s && echo "$msg"
 }
 
 function tstamp {
@@ -317,10 +316,9 @@ function amoncleanup {
       log "no-op: [stopped] no procs and no procfile."
       return 0
    fi
-   
+
    # Also OK if pidfile matches ps output.
-   if [ -f $PIDFILE ] ; then 
-    
+   if [ -f $PIDFILE ] ; then
      # get a list of the processes and the pid from the file:
      procs=`procids`
      pidf=`cat $PIDFILE`
@@ -336,16 +334,16 @@ function amoncleanup {
 
    # actually do the cleanup.
    # kill all the processes
-   log "sending all processes SIGINT" 
+   log "sending all processes SIGINT"
    killall -s SIGINT arecord
    sleep 1
-   log "sending all processes SIGKILL" 
+   log "sending all processes SIGKILL"
    killall -s SIGKILL arecord
    sleep 1
    log "should have killed all processes."
 
    # remove the pidfile
-   if [ -f $PIDFILE ] ; then 
+   if [ -f $PIDFILE ] ; then
        log "removing stale pidfile"
        rm -f $PIDFILE
    fi

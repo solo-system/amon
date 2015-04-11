@@ -52,13 +52,16 @@ function watchdog {
     status # print status for the log
 
     # log "MEM: Performing memory management"
-    freek=`df -k /mnt/sdcard | tail -1 | awk '{print $4}'`
-    if [ ${freek} -lt ${MINMEMFREE} ] ; then
-        log "MEM: too little free space (${freek} < ${MINMEMFREE}) => calling deloldest()"
-        deloldest
-    else
-        log "MEM: plenty of free space (${freek} > ${MINMEMFREE}) => doing nothing"
-    fi
+    DO_MEM_STUFF=no
+    if [ $DO_MEM_STUFF != "no" ] ; then
+      freek=`df -k /mnt/sdcard | tail -1 | awk '{print $4}'`
+      if [ ${freek} -lt ${MINMEMFREE} ] ; then
+          log "MEM: too little free space (${freek} < ${MINMEMFREE}) => calling deloldest()"
+          deloldest
+      else
+          log "MEM: plenty of free space (${freek} > ${MINMEMFREE}) => doing nothing"
+      fi
+    fi # end of "if DO_MEM_STUFF"
 
     # check if we should reboot
     hourmin=`date +"%H:%M"`

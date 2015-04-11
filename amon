@@ -21,7 +21,7 @@ source defs.sh
 source amon.conf
 
 [ -r /boot/amon.conf ] && { 
-    echo "Reading additional config file: /boot/amon.conf" 
+#    echo "Reading additional config file: /boot/amon.conf" 
     source /boot/amon.conf
 }
 

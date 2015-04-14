@@ -114,7 +114,7 @@ function prepare_microphone {
         # /home/pi/Record_from_lineIn.sh >> clac.log 2>&1
 
 	/home/pi/Record_from_lineIn_Micbias.sh -q
-	amixer -Dhw:sndrpiwsp cset name='Line Input Switch' off
+	# amixer -Dhw:sndrpiwsp cset name='Line Input Switch' off
 	[ ! $CLAC_VOL ]     && { log "choosing default for CLAC_DIG_VOL" ; CLAC_VOL=31 ;}
 	[ ! $CLAC_DIG_VOL ] && { log "choosing default for CLAC_DIG_VOL" ; CLAC_DIG_VOL=160 ;}
 	[ ! $CLAC_SAMPLERATE ] && { log "choosing default for CLAC_SAMPLERATE" ; CLAC_SAMPLERATE="-r44100" ;}

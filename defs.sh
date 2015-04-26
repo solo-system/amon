@@ -103,15 +103,22 @@ function prepare_microphone {
 	    log "WARNING: CLAC_AUDIO_SOURCE ($CLAC_AUDIO_SOURCE) not currently supported"
 	fi
 
+	#WARNING : DON'T FIDDLE WITH THE ORDER OF THE
+	# reset_paths, record_from_linein_micbias,  here.  Previously 
+	# had other setup and it caused a hang: complaining:
+	# bmc_2708 DMA transfer could not be stopped. (or something).
+	# The arecord (from amon testrec) hung, output 44 bytes, and 
+	# syslog (dmesg) showed above message.
+
         # /home/pi/Record_from_DMIC.sh >> clac.log 2>&1
         # /home/pi/Record_from_Headset.sh >> clac.log 2>&1
         # /home/pi/Record_from_lineIn.sh >> clac.log 2>&1
 	/home/pi/Reset_paths.sh -q  # initialize everything to safe values
-	/home/pi/Record_from_lineIn.sh -q  # set up for line in.
-	amixer -Dhw:sndrpiwsp cset name='Line Input Switch' off  # turn it off for safety
+	/home/pi/Record_from_lineIn_Micbias.sh -q  # set up for line in.
+#	amixer -Dhw:sndrpiwsp cset name='Line Input Switch' off  # turn it off for safety
 	if [ "$CLAC_PIP" != "on" ] ; then
            log "WARNING: CLAC_PIP ($CLAC_PIP) (plug-in-power) is ON!"
-	   amixer -Dhw:sndrpiwsp cset name='Line Input Switch' on
+#	   amixer -Dhw:sndrpiwsp cset name='Line Input Switch' on
         fi
 
 	[ ! $CLAC_VOL ]     && { log "choosing default for CLAC_DIG_VOL" ; CLAC_VOL=31 ;}

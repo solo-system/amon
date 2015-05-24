@@ -89,24 +89,25 @@ function conf {
     echo "finished."
 }
 
+
+
 function prepare_microphone {
-    # do we have a CLAC installed?
+    # choose and setup microphone.
+    # how do they show up in /proc/asound/cards (or arecord -l)
+    # Blue:snowflake mic -> "Snowflake"
+    # Cirrus Logic Audio Card -> "sndrpiwsp"
+    # New microphone here
     if grep sndrpiwsp /proc/asound/cards > /dev/null ; then
-	CLAC=yes
-    else
-	CLAC=no
-    fi
 
-    if [ $CLAC = yes ] ; then
+	log "detected Cirrus Logic Audio Card => preparing as audio source"
+#	if [ "$CLAC_AUDIO_SOURCE" != "linein" ] ; then
+#	    log "WARNING: CLAC_AUDIO_SOURCE ($CLAC_AUDIO_SOURCE) not currently supported"
+#	fi
 
-	if [ "$CLAC_AUDIO_SOURCE" != "linein" ] ; then
-	    log "WARNING: CLAC_AUDIO_SOURCE ($CLAC_AUDIO_SOURCE) not currently supported"
-	fi
-
-	#WARNING : DON'T FIDDLE WITH THE ORDER OF THE
+	# WARNING : DON'T FIDDLE WITH THE ORDER OF THE
 	# reset_paths, record_from_linein_micbias,  here.  Previously 
 	# had other setup and it caused a hang: complaining:
-	# bmc_2708 DMA transfer could not be stopped. (or something).
+	# bmc_2708 DMA transfer could not be stopped. (or similar).
 	# The arecord (from amon testrec) hung, output 44 bytes, and 
 	# syslog (dmesg) showed above message.
 
@@ -116,16 +117,15 @@ function prepare_microphone {
 	/home/pi/Reset_paths.sh -q  # initialize everything to safe values
 	/home/pi/Record_from_lineIn_Micbias.sh -q  # set up for line in.
 #	amixer -Dhw:sndrpiwsp cset name='Line Input Switch' off  # turn it off for safety
-	if [ "$CLAC_PIP" != "on" ] ; then
-           log "WARNING: CLAC_PIP ($CLAC_PIP) (plug-in-power) is ON!"
+#	if [ "$CLAC_PIP" != "on" ] ; then
+#           log "WARNING: CLAC_PIP ($CLAC_PIP) (plug-in-power) is ON!"
 #	   amixer -Dhw:sndrpiwsp cset name='Line Input Switch' on
-        fi
+#        fi
 
 	[ ! $CLAC_VOL ]     && { log "choosing default for CLAC_DIG_VOL" ; CLAC_VOL=31 ;}
 	[ ! $CLAC_DIG_VOL ] && { log "choosing default for CLAC_DIG_VOL" ; CLAC_DIG_VOL=160 ;}
 	[ ! $CLAC_SAMPLERATE ] && { log "choosing default for CLAC_SAMPLERATE" ; CLAC_SAMPLERATE="-r44100" ;}
 
-#	log "Setting: volumes to CLAC_VOL=$CLAC_VOL and CLAC_DIG_VOL=$CLAC_DIG_VOL"
 	amixer -q -Dhw:sndrpiwsp cset name='IN3L Volume' $CLAC_VOL
 	amixer -q -Dhw:sndrpiwsp cset name='IN3R Volume' $CLAC_VOL
 	amixer -q -Dhw:sndrpiwsp cset name='IN3L Digital Volume' $CLAC_DIG_VOL
@@ -133,19 +133,17 @@ function prepare_microphone {
 	SAMPLERATE=$CLAC_SAMPLERATE
 	CHANNELS=$CLAC_CHANNELS
 	AUDIODEVICE="-Dhw:sndrpiwsp" # override this, cos the above scripts set it all up nicely.
-	AUDIODEVICE="-Dclac" # override this, cos the above scripts set it all up nicely.
 	MMAP=""
 	log "prepare_mic: [MICTYPE=CLAC] CHANNELS=$CHANNELS AUDIODEVICE=$AUDIODEVICE MMAP=$MMAP CLAC_VOL=$CLAC_VOL CLAC_DIG_VOL=$CLAC_DIG_VOL CLAC_AUDIO_SOURCE=$CLAC_AUDIO_SOURCE CLAC_PIP=$CLAC_PIP"
 
-    elif [ grep "snowflakeHELP" /proc/asound/cards > /dev/null ] ] ; then
-	CLAC=no
-	log "Not a clack soo..... assuming USB snowflake microphone."
+    elif [ grep "Snowflake" /proc/asound/cards > /dev/null ] ; then
+	log "Detected Blue:Snowflake microphone => preparing as audio source"
 	log "setting volume to $VOLUME ..."
-	amixer -q -c 1 set "Mic" $VOLUME
-	MMAP="--mmap"
+	AUDIODEVICE="-D hw:Snowflake"
+	amixer $AUDIODEVICE -q -c 1 set "Mic" $VOLUME
+	# MMAP="--mmap" # turned this off (may 2015) for no good reason.
     else
-	CLAC=unknown
-	log "ERROR: programmer error, CLAC is neither yes nor no."
+	log "ERROR: warning - microphone not recognised."
     fi
 }
 
@@ -245,7 +243,7 @@ function getstate {
       echo "$s"
       return 0
     else
-      log "Error: unknown state: [$s]. I am notfixing it"
+      log "Error: unknown state: [$s]. I am _not_ fixing it"
       return 1
     fi
 }
@@ -276,7 +274,7 @@ function setstateoff {
 function log {
     ts=`tstamp`
     msg="$1"
-    lmsg="$ts: [amon[$AMONPID]->${FUNCNAME[1]}]: $msg"
+    lmsg="$ts: [amon[$AMONPID]->${FUNCNAME[1]}]: $msg"  # I've been reading "man bash".
 
     # could send this to a logfile if something is set...
     echo "$lmsg" >> $AMONLOG
@@ -291,7 +289,15 @@ function tstamp {
 
 function amonhelp {
     echo "---------- HELP: ---------------"
-    echo "unwritten. sorry."
+    echo "amon stop - to stop recording"
+    echo "amon start - to start recording"
+    echo "amon on - turns on desired-state and starts"
+    echo "amon off - turns off desired-state and stops"
+    echo "amon log - show all log entries"
+    echo "amon testrec - perform a test recording into testrec.wav"
+    echo "amon ping - see if amon is listening and happy"
+    echo "amon deep-clean - deletes all data including logs *CAREFUL*"
+    echo "... There are lots more ... TODO"
     echo "--------------------------------"
 }
 

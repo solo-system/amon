@@ -96,7 +96,21 @@ function prepare_microphone {
     # how do they show up in /proc/asound/cards (or arecord -l)
     # Blue:snowflake mic -> "Snowflake"
     # Cirrus Logic Audio Card -> "sndrpiwsp"
+    # Dodotronic ultrasound mic (200k) -> "bits"
     # New microphone here
+
+    # Todo : This Setup won't work in long run.  For example, I bet
+    # dodotronic 250k mic also shows up as "bits" in alsa.  And we
+    # need a "per-mic" configuration file (in /boot)
+    # micsetup.DODOTRONIC, so users can easily change their
+    # preferences for each mic (from windows quite easily).  Can also
+    # then support new mics by simply adding new micsetup.conf file.
+
+    # Also question of whether the prepare_mic routine should SET the
+    # cmdline for arecord (or whatever), or should set the values to
+    # be on that command line.  Probably better to set the $cmd
+    # variable, but then can we still use testrec?  
+
     if grep sndrpiwsp /proc/asound/cards > /dev/null ; then
 
 	log "detected Cirrus Logic Audio Card => preparing as audio source"
@@ -136,12 +150,28 @@ function prepare_microphone {
 	MMAP=""
 	log "prepare_mic: [MICTYPE=CLAC] CHANNELS=$CHANNELS AUDIODEVICE=$AUDIODEVICE MMAP=$MMAP CLAC_VOL=$CLAC_VOL CLAC_DIG_VOL=$CLAC_DIG_VOL CLAC_AUDIO_SOURCE=$CLAC_AUDIO_SOURCE CLAC_PIP=$CLAC_PIP"
 
-    elif [ grep "Snowflake" /proc/asound/cards > /dev/null ] ; then
+    elif grep "Snowflake" /proc/asound/cards > /dev/null ; then
 	log "Detected Blue:Snowflake microphone => preparing as audio source"
 	log "setting volume to $VOLUME ..."
 	AUDIODEVICE="-D hw:Snowflake"
 	amixer $AUDIODEVICE -q -c 1 set "Mic" $VOLUME
 	# MMAP="--mmap" # turned this off (may 2015) for no good reason.
+    elif grep "UltraMic 200K" /proc/asound/cards > /dev/null ; then
+	MICNAME="dodotronic-200k"
+	log "Detected \"$MICNAME\" microphone => preparing as audio source"
+
+	conf=mics/$MICNAME.conf
+	if [ -f $conf ] ; then 
+	    log "reading microphone config file: $conf"
+#	    set -x
+	    . mics/$MICNAME.conf
+#	    set +x
+	    log "done reading microhpone config file"
+	else
+	    log "Can't find configuration for microphone $MICNAME - no mics/$MICNAME.conf file"
+	    log "Dunno what will happen - ..."
+	fi
+	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
     else
 	log "ERROR: warning - microphone not recognised."
     fi

@@ -128,8 +128,8 @@ function prepare_microphone {
         # /home/pi/Record_from_DMIC.sh >> clac.log 2>&1
         # /home/pi/Record_from_Headset.sh >> clac.log 2>&1
         # /home/pi/Record_from_lineIn.sh >> clac.log 2>&1
-	/home/pi/Reset_paths.sh -q  # initialize everything to safe values
-	/home/pi/Record_from_lineIn_Micbias.sh -q  # set up for line in.
+	/home/amon/clac/Reset_paths.sh -q  # initialize everything to safe values
+	/home/amon/clac/Record_from_lineIn_Micbias.sh -q  # set up for line in.
 #	amixer -Dhw:sndrpiwsp cset name='Line Input Switch' off  # turn it off for safety
 #	if [ "$CLAC_PIP" != "on" ] ; then
 #           log "WARNING: CLAC_PIP ($CLAC_PIP) (plug-in-power) is ON!"
@@ -147,6 +147,7 @@ function prepare_microphone {
 	SAMPLERATE=$CLAC_SAMPLERATE
 	CHANNELS=$CLAC_CHANNELS
 	AUDIODEVICE="-Dhw:sndrpiwsp" # override this, cos the above scripts set it all up nicely.
+	AUDIODEVICE="-Dclac"
 	MMAP=""
 	log "prepare_mic: [MICTYPE=CLAC] CHANNELS=$CHANNELS AUDIODEVICE=$AUDIODEVICE MMAP=$MMAP CLAC_VOL=$CLAC_VOL CLAC_DIG_VOL=$CLAC_DIG_VOL CLAC_AUDIO_SOURCE=$CLAC_AUDIO_SOURCE CLAC_PIP=$CLAC_PIP"
 

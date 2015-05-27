@@ -76,9 +76,15 @@ function watchdog {
 
 # send signal to arecord to split the output file
 function amonsplit {
-  pid=`cat $PIDFILE`
-  kill -USR1  $pid
-  log "sent USR1 to pid=$pid"
+    
+    if [ ! -f $PIDFILE ] ; then
+	log "No pidfile - can't do amonsplit"
+	return 0
+    fi
+
+    pid=`cat $PIDFILE`
+    kill -USR1  $pid
+    log "Sent split signal [USR1] to arecord process [pid=$pid]"
 }
 
 function conf {

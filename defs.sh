@@ -226,9 +226,16 @@ function start {
   retval=$?
 
   log "startup recording process returned status value of $retval"
-  # TODO: put an if $retval != 0 thing here.
-  sleep 1
-  log "arecord process started as pid=[`cat $PIDFILE`]"
+  if [ $retval -eq 0 ] ; then
+      sleep 1
+      log "arecord process started as pid=[`cat $PIDFILE`]"
+      # set led flash to "recording"
+  else
+      log "arecord process failed to start returning error code $retval"
+      log "I suppose it'll try again in a minute..."
+      # could look for the error here
+      # set led flash to "not recording"
+  fi
 
   return $?
 }

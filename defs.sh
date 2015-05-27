@@ -26,7 +26,7 @@ function watchdog {
     ## setstateon
     log "-- MARK --"
     s=`getstate`
-    log "state=[$s].  Doing a cleanup then setting recording as required."
+    log "(desired) state=[$s]: will cleanup() then make it so."
 
     # first do some cleanup (test processes and procfile are in sync)
     amoncleanup

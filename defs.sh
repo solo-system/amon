@@ -69,7 +69,9 @@ function watchdog {
 	log "rebooting since $hourmin = $NIGHTLYREBOOT"
         reboot
     else
-	log "not calling reboot since $hourmin != $NIGHTLYREBOOT"
+	# log "not calling reboot since $hourmin != $NIGHTLYREBOOT"
+	# those log messages were getting boring.
+	true
      fi
 
 } # end of watchdog

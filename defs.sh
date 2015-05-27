@@ -221,6 +221,10 @@ function start {
 
   log "about to run: $cmd"
   $cmd  >& $ALOG &
+  retval=$?
+
+  log "startup recording process returned status value of $retval"
+  # TODO: put an if $retval != 0 thing here.
   sleep 1
   log "arecord process started as pid=[`cat $PIDFILE`]"
 

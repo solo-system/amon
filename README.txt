@@ -1,6 +1,30 @@
 README.txt for amon
 -------------------
 
+generated: wav files
+	   pidfile   -> currently:/home/amon/amon    moveto:/var/lock?
+	   state     -> /var/run
+	   cron.log  -> 
+	   arecord.log -> stay on sdcard
+	   solo-boot.log -> copy itself to /sdcard/logs
+	   dmesg -> solo-boot.sh can copy it to /sdcard/logs
+
+	   
+	   mountpoint = /mnt/sdcard/
+	   amondata / wavs / 2015-01-01
+	   	      	     2015-01-02
+	   		     arecord.log
+			     arecord.log.backup2014-12-31.
+	   
+	   /home/amon/	amon.log
+			state
+			pidfile
+			cron.log
+
+			
+
+-----------------------------------------------------------------------	   
+
 todo: SAMPLERATE - if not set in amon.conf, isn't set anywhere.  Should have default value of 16k in defs.sh, prepare mic (or some other function).
 
 todo: add target "amon test" - which records a 3 second test file.  if

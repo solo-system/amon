@@ -8,16 +8,16 @@ AMONPID=$$
 # always cd to amondir to make paths simple.
 AMONDIR=`dirname $0`
 cd ${AMONDIR}
-BASE=.
-AMONLOG=${BASE}/amon.log
-STATEFILE=${BASE}/state
-PIDFILE=${BASE}/pidfile
+BASE=. # think this can go.
+
+#STATEFILE=${BASE}/state
+#PIDFILE=${BASE}/pidfile
 
 ### read the config file(s) and function definitions.
 [ ! -r defs.sh ] && echo "Fatal: no config file defs.sh. I give up." && exit -1
 source defs.sh
 
-[ ! -r amon.conf ] && log "Fatal: no config file amon.conf. I give up." && exit -1
+[ ! -r amon.conf ] && echo "Fatal: no config file amon.conf. I give up." && exit -1
 source amon.conf
 
 [ -r /boot/amon.conf ] && { 
@@ -25,25 +25,66 @@ source amon.conf
     source /boot/amon.conf
 }
 
+if [ ! -d $AMONDATA ] ; then
+    echo "Warning: can't find output directory $AMONDATA - instead using $HOME/amontmp/"
+    AMONDATA=$HOME/amontmp
+    mkdir -p $AMONDATA
+fi
+
 ### these must come AFTER reading the configs.
 WAVDIR=${AMONDATA}/wavs
-ALOG=${WAVDIR}/arecord.log
+LOGDIR=${AMONDATA}/logs
+ALOG=${LOGDIR}/arecord.log
+AMONLOG=${LOGDIR}/amon.log
+STATEFILE=${LOGDIR}/amon.state
+PIDFILE=${LOGDIR}/arecord.pid
+
+# TODO: should use mkidir -p to do all these checks.
+# what if there is no data directory?
+if [ ! -d $WAVDIR ] ; then
+    log "INFO: Creating data directory \"$WAVDIR\" for audio files"
+    mkdir $WAVDIR 
+fi
+
+# Build log directory
+if [ ! -d $LOGDIR ] ; then
+    log "INFO: Creating data directory \"$LOGDIR\" for logs"
+    mkdir $LOGDIR 
+fi
 
 # what if there is no state file?
 if [ ! -r $STATEFILE ] ; then
-  log "INFO: No statefile \"$STATEFILE\" - creating one in the \"on\" position"
-  echo "on" > $STATEFILE
+  log "INFO: No statefile \"$STATEFILE\" - creating one ... "
+
+  # Perhaps conf prescribed "off" or "on"???
+  # choose logic so that if it is _anything_ but "off", we are on.
+  if [ -n "$MASTERSWITCH" ] ; then
+      log "Read MASTERSWITCH value from conf of \"$MASTERSWITCH\""
+      if [ "$MASTERSWITCH" != "off" -a "$MASTERSWITCH" != "on"] ; then
+	  log "Warning: badly formed MASTERSWITCH value of $MASTERSWITCH.  Assuming: \"on\""
+	  MASTERSWITCH="on"
+       fi
+  else
+      MASTERSWITCH=on
+  fi
+
+  log "Creating statefile: amon MASTERSWITCH is \"$MASTERSWITCH\""
+  echo "$MASTERSWITCH" > $STATEFILE      
 fi
 
-# what if there is no data directory?
-if [ ! -d $WAVDIR ] ; then
-    log "INFO: Creating data directory \"$WAVDIR\""
-    mkdir $WAVDIR
-fi
 
 ##########################################
 # parse command line
 ##########################################
+
+# the below is a bit obscure.  It uses "type -t" to work out what the
+# command line args are.  if the arg on the command "amon status",
+# "status" is checked to see if it is a recognised function name
+# (probably read from defs.sh), then run it.  Actually, look for
+# amonstatus() function first and run that if it exists, then try
+# status().  This prevents worries about "amon shutdown" shutting down
+# the whole system.
+
 [ $# -eq 0 ] && { usage; exit 0;}
 
 if [ xx`type -t amon${1}` = xx"function" ] ; then

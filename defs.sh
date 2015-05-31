@@ -327,7 +327,7 @@ function log {
     lmsg="$ts: [amon[$AMONPID]->${FUNCNAME[1]}]: $msg"  # I've been reading "man bash".
 
     # could send this to a logfile if something is set...
-    [ -f $AMONLOG ]  && echo "$lmsg" >> $AMONLOG
+    echo "$lmsg" >> $AMONLOG
 
     # if stdin is a tty (interactive session) also print to stdout
     tty -s && echo "$msg"

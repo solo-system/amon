@@ -1,6 +1,7 @@
 #!/bin/bash
 
-umask 0022 # TODO - check this gives read to all (think vfat)
+# umask to ensure others can read files we generate
+umask 0022 
 
 # get the pid of this instance of amon
 AMONPID=$$
@@ -8,7 +9,7 @@ AMONPID=$$
 # always cd to amondir to make paths simple.
 AMONDIR=`dirname $0`
 cd ${AMONDIR}
-BASE=. # think this can go.
+BASE=. # TODO: I think this can go.
 
 #STATEFILE=${BASE}/state
 #PIDFILE=${BASE}/pidfile
@@ -31,7 +32,7 @@ if [ ! -d $AMONDATA ] ; then
     mkdir -p $AMONDATA
 fi
 
-### these must come AFTER reading the configs.
+### these must come AFTER reading the configs (really?)
 WAVDIR=${AMONDATA}/wavs
 LOGDIR=${AMONDATA}/logs
 ALOG=${LOGDIR}/arecord.log
@@ -39,8 +40,7 @@ AMONLOG=${LOGDIR}/amon.log
 STATEFILE=${LOGDIR}/amon.state
 PIDFILE=${LOGDIR}/arecord.pid
 
-# TODO: should use mkidir -p to do all these checks.
-# what if there is no data directory?
+# Build the directory for wav files
 if [ ! -d $WAVDIR ] ; then
     log "INFO: Creating data directory \"$WAVDIR\" for audio files"
     mkdir $WAVDIR 
@@ -52,7 +52,7 @@ if [ ! -d $LOGDIR ] ; then
     mkdir $LOGDIR 
 fi
 
-# what if there is no state file?
+# Initialise 'state' file?
 if [ ! -r $STATEFILE ] ; then
   log "INFO: No statefile \"$STATEFILE\" - creating one ... "
 
@@ -77,14 +77,13 @@ fi
 # parse command line
 ##########################################
 
-# the below is a bit obscure.  It uses "type -t" to work out what the
-# command line args are.  if the arg on the command "amon status",
-# "status" is checked to see if it is a recognised function name
-# (probably read from defs.sh), then run it.  Actually, look for
-# amonstatus() function first and run that if it exists, then try
-# status().  This prevents worries about "amon shutdown" shutting down
-# the whole system.
+# The user has typed something like "amon status".  The code below
+# uses "type -t" to ensure there is a function called either
+# "amonstatus" or "status", and then executes it.  Thus functions can
+# be developed independently of informing this "command line parser"
+# about them.
 
+# must say something
 [ $# -eq 0 ] && { usage; exit 0;}
 
 if [ xx`type -t amon${1}` = xx"function" ] ; then

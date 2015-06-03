@@ -20,10 +20,9 @@ function amonoff {
     stop
 }
 
-
+# This runs from crontab every minute.  Check sanity, then start/stop
+# according to "statefile".
 function watchdog {
-    #  HACK - ABOUT TO DEPLOY TO FIELD, SO SET STATE TO "ON"
-    ## setstateon
     log "-- MARK --"
     s=`getstate`
     log "(desired) state=[$s]: will cleanup() then make it so."
@@ -89,6 +88,7 @@ function amonsplit {
     log "Sent split signal [USR1] to arecord process [pid=$pid]"
 }
 
+# show the configuration options.
 function conf {
     echo "configuration is as follows:"
     echo "-----------------------------------"
@@ -98,7 +98,7 @@ function conf {
 }
 
 
-
+# This still needs lots of work - 
 function prepare_microphone {
     # choose and setup microphone.
     # how do they show up in /proc/asound/cards (or arecord -l)
@@ -186,6 +186,7 @@ function prepare_microphone {
     fi
 }
 
+# perform a test recording to check microphone settings etc...
 function testrec {
     log "Performing a test recording [ 3 seconds long ...]"
     prepare_microphone
@@ -240,6 +241,7 @@ function start {
   return $?
 }
 
+# stop recording (ignores state file)
 function stop {
 
     if [ ! -f $PIDFILE ] ; then
@@ -259,7 +261,9 @@ function stop {
     fi
 }
 
-# get status back to the user (not sure if this is useful
+# get status back to the user (are we running?)  don't confuse with
+# "amon state" which gives contents of "statefile" - what we _should_
+# be doing.  If all is well, they match.
 function status {
     if [ -f "$PIDFILE" ] ; then
 	log "running as pid=[`cat $PIDFILE`]"
@@ -309,7 +313,6 @@ function setstateon {
     fi
 }
 
-
 function setstateoff {
     s=`getstate`
 
@@ -321,6 +324,7 @@ function setstateoff {
     fi
 }
 
+# write response/log to both logfile and (if it exists) the screen.
 function log {
     ts=`tstamp`
     msg="$1"
@@ -337,6 +341,7 @@ function tstamp {
     date +"%Y-%m-%d_%H-%M-%S"
 }
 
+# unlikely to ever be up to date...
 function amonhelp {
     echo "---------- HELP: ---------------"
     echo "amon stop - to stop recording"
@@ -351,10 +356,12 @@ function amonhelp {
     echo "--------------------------------"
 }
 
+# Show the log file (only useful interactively)
 function amonlog {
     less -f $AMONLOG
 }
 
+# fun wee ping, just to check all is well.
 function amonping {
 #    log "amon version : $VERSION"
     log "Ping: response.  Happy."
@@ -366,6 +373,8 @@ function diskusage {
     log "$str"
 }
 
+
+# This is important - it is run as part of the watchdog every minute.
 function amoncleanup {
 
    # Deal with inconsistent situations
@@ -420,7 +429,7 @@ function amoncleanup {
    return 1
 }
 
-
+# this is dangerous - clears out all generated files (recordings logs etc...)
 function deep-clean {
 
     s=`getstate`
@@ -439,37 +448,6 @@ function deep-clean {
     rm -rvf *.log testrec.wav ${WAVDIR}/*
 
 }
-
-#function handle-reboot {
-#    # TODO = the path names here are HORRIBLE - need to use $BASE etc...
-# log "detected a reboot - handling it..."
-# log "removing the reboot file..."
-# rm -f $REBOOTED
-# log "backing up the audio and copying logfiles therein (not really)"
-# mv -v ${AMONDATA}/wavs ${AMONDATA}/stack
-# mkdir $WAVDIR
-# mv -v ${AMONDATA}/stack $WAVDIR/push
-#
-# log "done handling reboot"
-#}
-
-# used during testing to get the most recent audio to hp for listening test.
-#function copylast {
-#	afile=`find $WAVDIR -type f -name \*.wav | grep -v stack | sort | tail -2 | head -1`
-#	ls -l $afile
-#	
-#	host=$HOSTNAME
-#
-#	dest=hp
-#        if [ "$1" ] ; then
-#          dest="$1"
-#	fi
-#
-#	to=$dest:tmpaud/$host/
-#	cmd="scp $afile $to"
-#	echo "running: $cmd"
-#	$cmd
-#}
 
 # count the number of "arecord" processes running"
 function countprocs {
@@ -495,23 +473,18 @@ function deloldest {
     ls -l $oldest.deleted
 }
 
-function usage() {
+function usage() { # TODO: tidy up: "help", "usage", "amonhelp", "amonusage"
     echo "Usage: amon status|ping|others"
-    echo "Usage: amon help  --- for more help"
+    echo "Usage: amon usage  --- for more help"
 }
 
-function help() {
-    echo "Help section for amon."
-    echo "unwritten.  Sorry"
-    [ -r amon.help ] && cat amon.help
-}
-
+# for debug
 function testargs() {
     echo "testargs here with args: $*"
     echo "bye"
 }
 
-# close down things and reboot (called from watchdog)
+# close down things and reboot (called from watchdog if we want it)
 function reboot() {
     log "REBOOT: shutting down amon, and rebooting"
     stop

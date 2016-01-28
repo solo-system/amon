@@ -122,8 +122,8 @@ function prepare_microphone {
     if grep sndrpiwsp /proc/asound/cards > /dev/null ; then
 
 	log "detected Cirrus Logic Audio Card => preparing as audio source"
-#	if [ "$CLAC_AUDIO_SOURCE" != "linein" ] ; then
-#	    log "WARNING: CLAC_AUDIO_SOURCE ($CLAC_AUDIO_SOURCE) not currently supported"
+#	if [ "$CLAC_AUDIO_SOURCE" != "linein" -a "$CLAC_AUDIO_SOURCE" != "dmic" ] ; then
+#	    log "WARNING: CLAC_AUDIO_SOURCE ($CLAC_AUDIO_SOURCE) not recognised - using default: \"dmic\""
 #	fi
 
 	# WARNING : DON'T FIDDLE WITH THE ORDER OF THE
@@ -137,7 +137,18 @@ function prepare_microphone {
         # /home/pi/Record_from_Headset.sh >> clac.log 2>&1
         # /home/pi/Record_from_lineIn.sh >> clac.log 2>&1
 	/home/amon/clac/Reset_paths.sh -q  # initialize everything to safe values
-	/home/amon/clac/Record_from_lineIn_Micbias.sh -q  # set up for line in.
+
+	if [ "$CLAC_AUDIO_SOURCE" = "linein" ] ; then
+	    log "setting record source to :$CLAC_AUDIO_SOURCE"
+	    /home/amon/clac/Record_from_lineIn_Micbias.sh -q  # with micbias!
+        elif [ "$CLAC_AUDIO_SOURCE" = "dmic" ] ; then
+	    log "setting record source to :$CLAC_AUDIO_SOURCE"
+	    /home/amon/clac/Record_from_DMIC.sh -q  # dmic (onboard MEMS mics)
+	else
+	    log "WARNING: CLAC_AUDIO_SOURCE ($CLAC_AUDIO_SOURCE) not recognised - using default: \"dmic\""
+	    /home/amon/clac/Record_from_DMIC.sh -q
+	fi
+
 #	amixer -Dhw:sndrpiwsp cset name='Line Input Switch' off  # turn it off for safety
 #	if [ "$CLAC_PIP" != "on" ] ; then
 #           log "WARNING: CLAC_PIP ($CLAC_PIP) (plug-in-power) is ON!"
@@ -145,8 +156,8 @@ function prepare_microphone {
 #        fi
 
 	[ ! $CLAC_VOL ]     && { log "choosing default for CLAC_DIG_VOL" ; CLAC_VOL=31 ;}
-	[ ! $CLAC_DIG_VOL ] && { log "choosing default for CLAC_DIG_VOL" ; CLAC_DIG_VOL=160 ;}
-	[ ! $CLAC_SAMPLERATE ] && { log "choosing default for CLAC_SAMPLERATE" ; CLAC_SAMPLERATE="-r44100" ;}
+	[ ! $CLAC_DIG_VOL ] && { log "choosing default for CLAC_DIG_VOL" ; CLAC_DIG_VOL=128 ;}
+	[ ! $CLAC_SAMPLERATE ] && { log "choosing default for CLAC_SAMPLERATE" ; CLAC_SAMPLERATE="-r16000" ;}
 
 	amixer -q -Dhw:sndrpiwsp cset name='IN3L Volume' $CLAC_VOL
 	amixer -q -Dhw:sndrpiwsp cset name='IN3R Volume' $CLAC_VOL
@@ -154,7 +165,7 @@ function prepare_microphone {
 	amixer -q -Dhw:sndrpiwsp cset name='IN3R Digital Volume' $CLAC_DIG_VOL
 	SAMPLERATE=$CLAC_SAMPLERATE
 	CHANNELS=$CLAC_CHANNELS
-	AUDIODEVICE="-Dhw:sndrpiwsp" # override this, cos the above scripts set it all up nicely.
+#	AUDIODEVICE="-Dhw:sndrpiwsp" # override this, cos the above scripts set it all up nicely.
 	AUDIODEVICE="-Dclac"
 	MMAP=""
 	log "prepare_mic: [MICTYPE=CLAC] CHANNELS=$CHANNELS AUDIODEVICE=$AUDIODEVICE MMAP=$MMAP CLAC_VOL=$CLAC_VOL CLAC_DIG_VOL=$CLAC_DIG_VOL CLAC_AUDIO_SOURCE=$CLAC_AUDIO_SOURCE CLAC_PIP=$CLAC_PIP"
@@ -182,7 +193,7 @@ function prepare_microphone {
 	fi
 	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
     else
-	log "ERROR: warning - microphone not recognised."
+	log "ERROR: warning - microphone not recognised. Doing no mic_preparation"
     fi
 }
 

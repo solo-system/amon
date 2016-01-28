@@ -141,14 +141,14 @@ function prepare_microphone {
 	/home/amon/clac/Reset_paths.sh -q  # initialize everything to safe values
 
 	if [ "$CLAC_AUDIO_SOURCE" = "linein" ] ; then
-	    log "setting record source to :$CLAC_AUDIO_SOURCE"
+	    log "setting record source to: $CLAC_AUDIO_SOURCE"
 	    /home/amon/clac/Record_from_lineIn_Micbias.sh -q  # with micbias!
 	    amixer -q -Dhw:sndrpiwsp cset name='IN3L Volume' $CLAC_VOL
 	    amixer -q -Dhw:sndrpiwsp cset name='IN3R Volume' $CLAC_VOL
 	    amixer -q -Dhw:sndrpiwsp cset name='IN3L Digital Volume' $CLAC_DIG_VOL
 	    amixer -q -Dhw:sndrpiwsp cset name='IN3R Digital Volume' $CLAC_DIG_VOL
         elif [ "$CLAC_AUDIO_SOURCE" = "dmic" ] ; then
-	    log "setting record source to :$CLAC_AUDIO_SOURCE"
+	    log "setting record source to: $CLAC_AUDIO_SOURCE"
 	    /home/amon/clac/Record_from_DMIC.sh -q  # dmic (onboard MEMS mics)
 	    amixer -q -Dhw:sndrpiwsp cset name='IN2L Volume' $CLAC_VOL
 	    amixer -q -Dhw:sndrpiwsp cset name='IN2R Volume' $CLAC_VOL
@@ -168,7 +168,6 @@ function prepare_microphone {
 #           log "WARNING: CLAC_PIP ($CLAC_PIP) (plug-in-power) is ON!"
 #	   amixer -Dhw:sndrpiwsp cset name='Line Input Switch' on
 #        fi
-
 
 	SAMPLERATE=$CLAC_SAMPLERATE
 	CHANNELS=$CLAC_CHANNELS

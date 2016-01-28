@@ -122,9 +122,11 @@ function prepare_microphone {
     if grep sndrpiwsp /proc/asound/cards > /dev/null ; then
 
 	log "detected Cirrus Logic Audio Card => preparing as audio source"
-#	if [ "$CLAC_AUDIO_SOURCE" != "linein" -a "$CLAC_AUDIO_SOURCE" != "dmic" ] ; then
-#	    log "WARNING: CLAC_AUDIO_SOURCE ($CLAC_AUDIO_SOURCE) not recognised - using default: \"dmic\""
-#	fi
+
+	[ ! $CLAC_VOL ]     && { log "choosing default for CLAC_DIG_VOL" ; CLAC_VOL=31 ;}
+	[ ! $CLAC_DIG_VOL ] && { log "choosing default for CLAC_DIG_VOL" ; CLAC_DIG_VOL=128 ;}
+	[ ! $CLAC_SAMPLERATE ] && { log "choosing default for CLAC_SAMPLERATE" ; CLAC_SAMPLERATE="-r16000" ;}
+	# TODO: why don't I check for channels here (and why do I call samplerate and channels CLAC_* ?)
 
 	# WARNING : DON'T FIDDLE WITH THE ORDER OF THE
 	# reset_paths, record_from_linein_micbias,  here.  Previously 
@@ -141,12 +143,24 @@ function prepare_microphone {
 	if [ "$CLAC_AUDIO_SOURCE" = "linein" ] ; then
 	    log "setting record source to :$CLAC_AUDIO_SOURCE"
 	    /home/amon/clac/Record_from_lineIn_Micbias.sh -q  # with micbias!
+	    amixer -q -Dhw:sndrpiwsp cset name='IN3L Volume' $CLAC_VOL
+	    amixer -q -Dhw:sndrpiwsp cset name='IN3R Volume' $CLAC_VOL
+	    amixer -q -Dhw:sndrpiwsp cset name='IN3L Digital Volume' $CLAC_DIG_VOL
+	    amixer -q -Dhw:sndrpiwsp cset name='IN3R Digital Volume' $CLAC_DIG_VOL
         elif [ "$CLAC_AUDIO_SOURCE" = "dmic" ] ; then
 	    log "setting record source to :$CLAC_AUDIO_SOURCE"
 	    /home/amon/clac/Record_from_DMIC.sh -q  # dmic (onboard MEMS mics)
+	    amixer -q -Dhw:sndrpiwsp cset name='IN2L Volume' $CLAC_VOL
+	    amixer -q -Dhw:sndrpiwsp cset name='IN2R Volume' $CLAC_VOL
+	    amixer -q -Dhw:sndrpiwsp cset name='IN2L Digital Volume' $CLAC_DIG_VOL
+	    amixer -q -Dhw:sndrpiwsp cset name='IN2R Digital Volume' $CLAC_DIG_VOL
 	else
 	    log "WARNING: CLAC_AUDIO_SOURCE ($CLAC_AUDIO_SOURCE) not recognised - using default: \"dmic\""
 	    /home/amon/clac/Record_from_DMIC.sh -q
+	    amixer -q -Dhw:sndrpiwsp cset name='IN2L Volume' $CLAC_VOL
+	    amixer -q -Dhw:sndrpiwsp cset name='IN2R Volume' $CLAC_VOL
+	    amixer -q -Dhw:sndrpiwsp cset name='IN2L Digital Volume' $CLAC_DIG_VOL
+	    amixer -q -Dhw:sndrpiwsp cset name='IN2R Digital Volume' $CLAC_DIG_VOL
 	fi
 
 #	amixer -Dhw:sndrpiwsp cset name='Line Input Switch' off  # turn it off for safety
@@ -155,14 +169,7 @@ function prepare_microphone {
 #	   amixer -Dhw:sndrpiwsp cset name='Line Input Switch' on
 #        fi
 
-	[ ! $CLAC_VOL ]     && { log "choosing default for CLAC_DIG_VOL" ; CLAC_VOL=31 ;}
-	[ ! $CLAC_DIG_VOL ] && { log "choosing default for CLAC_DIG_VOL" ; CLAC_DIG_VOL=128 ;}
-	[ ! $CLAC_SAMPLERATE ] && { log "choosing default for CLAC_SAMPLERATE" ; CLAC_SAMPLERATE="-r16000" ;}
 
-	amixer -q -Dhw:sndrpiwsp cset name='IN3L Volume' $CLAC_VOL
-	amixer -q -Dhw:sndrpiwsp cset name='IN3R Volume' $CLAC_VOL
-	amixer -q -Dhw:sndrpiwsp cset name='IN3L Digital Volume' $CLAC_DIG_VOL
-	amixer -q -Dhw:sndrpiwsp cset name='IN3R Digital Volume' $CLAC_DIG_VOL
 	SAMPLERATE=$CLAC_SAMPLERATE
 	CHANNELS=$CLAC_CHANNELS
 #	AUDIODEVICE="-Dhw:sndrpiwsp" # override this, cos the above scripts set it all up nicely.

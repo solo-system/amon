@@ -462,7 +462,7 @@ function deep-clean {
     log "1 ... "
     sleep 1
 
-    rm -rvf *.log testrec.wav ${WAVDIR}/*
+    rm -rvf *.log testrec.wav ${WAVDIR}/* ${LOGDIR}/*
 
 }
 

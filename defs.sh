@@ -273,7 +273,10 @@ function start {
   # setup environment for arecord to correctly record
   prepare_microphone
 
-  cmd="arecord $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --max-file-time $MAXDURATION --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$SYSNAME-%Y-%m-%d_%H-%M-%S.wav"
+  # cmd="arecord $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --max-file-time $MAXDURATION --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$SYSNAME-%Y-%m-%d_%H-%M-%S.wav"
+
+  # Argh - max_file_duratino is also broken at the moment in arecord. So remove it for the moment, and hope the watchdog takes care of it.  Once arecord is working again (in 1.0.29, hopefully) we can reintroduce the --max-file-time...
+  cmd="arecord $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$SYSNAME-%Y-%m-%d_%H-%M-%S.wav"
 
   log "about to run: $cmd"
   $cmd  >& $ALOG &

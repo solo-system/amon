@@ -239,8 +239,13 @@ function testrec {
     kill -9 %1
     log "Done - hopefully recorded.  Check:"
     log "${WAVDIR}/testrec.wav or ${WAVDIR}/testrec.log"
-    ls -l ${WAVDIR}/testrec.wav or ${WAVDIR}/testrec.log
-    log "done testrec"
+    ls -l ${WAVDIR}/testrec.wav ${WAVDIR}/testrec.log
+    log "testrec finished"
+
+    if [ $1 ] ; then
+	log "copying to $1 - running scp..."
+	scp ${WAVDIR}/testrec.wav $1
+    fi
     
 #    if [ $? -ne 0 ] ; then
 #	log "testrec: ERROR: something went wrong (arecord already running? \"amon status\" to check)"

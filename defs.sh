@@ -206,6 +206,14 @@ function prepare_microphone {
 # perform a test recording to check microphone settings etc...
 function testrec {
 
+    # Argh - the -d option to arecord (duration) doesn't work pre arecord --version = 1.0.29
+    # Currently raspbian ships with:
+    # amon@solo:~/amon $ arecord --version
+    # arecord: version 1.0.28 by Jaroslav Kysela <perex@perex.cz>
+    # (april 21st 2016).
+    # see: http://comments.gmane.org/gmane.linux.alsa.user/38692
+    # so we have to do a "run in background and kill" - yuk.
+    
     s=`getstate`
     if [ $s != 'off' ] ; then
 	log "Refusing to undertake test recording: since state is not off (its $s)"
@@ -223,17 +231,24 @@ function testrec {
     
     log "Performing a test recording [ 3 seconds long ...]"
     prepare_microphone
-    cmd="arecord $ABUFFER $MMAP $AUDIODEVICE -d 3 -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE  testrec.wav"
+    cmd="arecord $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE ${WAVDIR}/testrec.wav"
     log "running: $cmd"
-    $cmd
-
-    if [ $? -ne 0 ] ; then
-	log "testrec: ERROR: something went wrong (arecord already running? \"amon status\" to check)"
-    else
-	log "Recording complete: see file testrec.wav"
-	file testrec.wav
-	log "scp testrec.wav jdmc2@t510j:"
-    fi
+    $cmd >& ${WAVDIR}/testrec.log &
+    log "waiting 3 seconds..."
+    sleep 3
+    kill -9 %1
+    log "Done - hopefully recorded.  Check:"
+    log "${WAVDIR}/testrec.wav or ${WAVDIR}/testrec.log"
+    ls -l ${WAVDIR}/testrec.wav or ${WAVDIR}/testrec.log
+    log "done testrec"
+    
+#    if [ $? -ne 0 ] ; then
+#	log "testrec: ERROR: something went wrong (arecord already running? \"amon status\" to check)"
+#    else
+#	log "Recording complete: see file testrec.wav"
+#	file testrec.wav
+#	log "scp testrec.wav jdmc2@t510j:"
+#   fi
 }
 
 # start recording - ignores "state" file.

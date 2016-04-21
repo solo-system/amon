@@ -490,6 +490,11 @@ function deloldest {
     ls -l $oldest.deleted
 }
 
+# show the user all the recorded files (and logs)
+function amonfind() {
+        find $AMONDATA -ls
+}
+
 function usage() { # TODO: tidy up: "help", "usage", "amonhelp", "amonusage"
     echo "Usage: amon status|ping|others"
     echo "Usage: amon usage  --- for more help"

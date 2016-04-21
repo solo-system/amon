@@ -242,7 +242,7 @@ function testrec {
     ls -l ${WAVDIR}/testrec.wav ${WAVDIR}/testrec.log
     log "testrec finished"
 
-    if [ $1 ] ; then
+    if [ -n "$1" ] ; then
 	log "copying to $1 - running scp..."
 	scp ${WAVDIR}/testrec.wav $1
     fi

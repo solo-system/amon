@@ -454,9 +454,11 @@ function amoncleanup {
    return 1
 }
 
-# this is dangerous - clears out all generated files (recordings logs etc...)
+# this is dangerous - clears out all generated files (recordings logs
+# etc...)  dont delete everything in $(LOGDIR} cos we loose amon.state
+# (the masterswitch) -> the next cronjob creates one by default in the
+# "on" position, which aint what we want.
 function deep-clean {
-
     s=`getstate`
     if [ $s != 'off' ] ; then
 	log "Refusing to deep-clean, since state is not off (its $s)"
@@ -470,7 +472,8 @@ function deep-clean {
     log "1 ... "
     sleep 1
 
-    rm -rvf *.log testrec.wav ${WAVDIR}/* ${LOGDIR}/*
+    #rm -rvf *.log testrec.wav ${WAVDIR}/* ${LOGDIR}/*
+    rm -rvf *.log testrec.wav ${WAVDIR}/* ${LOGDIR}/{amon.log,arecord.log}
 
 }
 

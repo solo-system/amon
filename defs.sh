@@ -205,6 +205,14 @@ function prepare_microphone {
 
 # perform a test recording to check microphone settings etc...
 function testrec {
+
+    s=`getstate`
+    if [ $s != 'off' ] ; then
+	log "Refusing to undertake test recording: since state is not off (its $s)"
+	log "do \"amon off\" first, then retry"
+	return 0
+    fi
+    
     log "Performing a test recording [ 3 seconds long ...]"
     prepare_microphone
     cmd="arecord $ABUFFER $MMAP $AUDIODEVICE -d 3 -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE  testrec.wav"

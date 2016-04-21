@@ -212,6 +212,14 @@ function testrec {
 	log "do \"amon off\" first, then retry"
 	return 0
     fi
+
+    # Don't do it around the turn of the minute - cos the watchdog
+    # will kill us.
+    while [ $(date +"%S") -gt 50 -o $(date +"%S") -lt 10 ] ; do
+	echo "Standby (avoiding watchdog at 0 seconds) ... waiting $(date)"
+	sleep 1
+    done
+    echo "safe to do - it's $(date)"
     
     log "Performing a test recording [ 3 seconds long ...]"
     prepare_microphone

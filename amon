@@ -21,9 +21,9 @@ source defs.sh
 [ ! -r amon.conf ] && echo "Fatal: no config file amon.conf. I give up." && exit -1
 source amon.conf
 
-[ -r /boot/amon.conf ] && { 
-#    echo "Reading additional config file: /boot/amon.conf" 
-    source /boot/amon.conf
+[ -r /boot/solo/amon.conf ] && { 
+#    echo "Reading additional config file: /boot/solo/amon.conf" 
+    source /boot/solo/amon.conf
 }
 
 if [ ! -d $AMONDATA ] ; then

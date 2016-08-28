@@ -586,7 +586,7 @@ function calendarTarget() {
 	return 0
     fi
 
-    if [ ${decision} != "yes" -a ${decision} != "no" ] ; then
+    if [ $decision != "yes" -a $decision != "no" ] ; then
 	log "Calendar script returned invalid answer \"$decision\"  - ignoring"
 	echo "on"
 	return 0

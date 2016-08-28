@@ -40,15 +40,17 @@ function watchdog {
 
     # first do some cleanup (test processes and procfile are in sync)
     amoncleanup
-    #retval=$?
-    #[ $? -ne 0] && log "amoncleanup killed everything - now starting / stop according to statefile"
+    retval=$?
+    
+    log "amoncleanup finished: exit status=[$retval] (0=no-op stopped, 1=no-op running, 2=killed everything)"
 
     if [ $s = "on" ]; then
         # log "state is [on] so starting recording, and split if it was already running"
         start -q
+	retval=$? # retval=1 => was already running
+	log "start -q just finished with retval=$retval (0=started, 1=no-op: already was running)"
 
 	# now tell arecord to split the audiofile.  Only if we didn't just start, and if the minute-of-day divides $DURATION
-	retval=$?
 	minute=`date +"%-M"`
 	rem=$(($minute % $DURATION))
         [ $retval == 1 ] && [ $rem == 0 ] && amonsplit
@@ -483,7 +485,7 @@ function amoncleanup {
      # We need the -n clause, because they must match AND be nonzero length
      if [ -n "$pidf" -a "$pidf" = "$procs" ] ; then
        log "no-op: [running] (pidfile [$pidf] matches ps [$procs])."
-       return 0
+       return 1
      fi
    fi
 
@@ -504,9 +506,10 @@ function amoncleanup {
        log "removing stale pidfile"
        rm -f $PIDFILE
    fi
-
+   sync; sleep 1 # let things settle (this situation is V rare, so no efficienty worries here).
+   
    # We took action, so tell caller
-   return 1
+   return 2
 }
 
 # this is dangerous - clears out all generated files (recordings logs
@@ -558,7 +561,7 @@ function deloldest {
 
 # show the user all the recorded files (and logs)
 function amonfind() {
-        find $AMONDATA -ls
+    find $AMONDATA -ls
 }
 
 function usage() { # TODO: tidy up: "help", "usage", "amonhelp", "amonusage"
@@ -583,7 +586,7 @@ function reboot() {
 
 # this function must return 0 - it mustn't fail.  It wraps the
 # calendar_script in error checking, and taking appropriate action -
-# we handle all errors here, and don't pass them on
+# we handle all errors here, and don't bubble them up.
 function calendarTarget() {
 
     # note - all the logging uses -q, so it doesn't go to stdout - we

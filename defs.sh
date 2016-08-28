@@ -586,7 +586,7 @@ function calendarTarget() {
 	return 0
     fi
 
-    if [ $decision != "yes" -a $decision != "no" ] ; then
+    if [ $decision != "on" -a $decision != "off" ] ; then
 	log "Calendar script returned invalid answer \"$decision\"  - ignoring"
 	echo "on"
 	return 0
@@ -596,4 +596,5 @@ function calendarTarget() {
     log "YAHOO: calendar returned a valid answer \"$decision\" - using it"
     echo "$decision"
     return 0
+
 } # end of calendarTarget()

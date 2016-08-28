@@ -321,6 +321,10 @@ function stop {
     # should check that the pid has a wc -w of one.
     log "Stopping (kill - SIGINT) process $pid.."
     kill -s SIGINT $pid
+    sleep 1 ; sync #added this 2016-08-28 cos PIDFILE was hanging
+		   #around, and the subsequent "status" (called from
+		   #watchdog()) was reporting "running".
+
     rogues=`pidof arecord`
     if [ -s "$rogues" ] ; then
 	log "WARNING: just killed $pid, but rogues remain : $rogues"

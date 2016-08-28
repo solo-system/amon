@@ -1,8 +1,8 @@
 #!/bin/bash -e
 
-echo "Calendar script running"
+echo "Calendar script running" 1>&2
 
-which date
+which date 1>&2
 
 year=$(date +"%Y")
 month=$(date +"%m")

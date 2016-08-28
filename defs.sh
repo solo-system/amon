@@ -602,7 +602,7 @@ function calendarTarget() {
     returnval=$?
 
     if [ $returnval -ne 0 ] ; then
-	log -q "calendar script didn't return with zero exit status, so giving up on calendar"
+	log -q "calendar script returnded nonzero exit status [$returnval], so giving up on calendar"
 	echo "on"
 	return 0
     fi

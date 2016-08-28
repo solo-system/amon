@@ -27,8 +27,8 @@ source amon.conf
 }
 
 if [ ! -d $AMONDATA ] ; then
-    echo "Warning: can't find output directory $AMONDATA - instead using $HOME/amontmp/"
-    AMONDATA=$HOME/amontmp
+    echo "Warning: can't find output directory $AMONDATA - instead using $AMONDIR/amondata"
+    AMONDATA=$AMONDIR/amondata
     mkdir -p $AMONDATA
 fi
 

@@ -73,7 +73,7 @@ function watchdog {
 	true
      fi
 
-    log "-- MARK : watchdog starting --"
+    log "-- MARK : watchdog finished --"
 } # end of watchdog
 
 # send signal to arecord to split the output file

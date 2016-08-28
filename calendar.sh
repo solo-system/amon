@@ -1,5 +1,9 @@
 #!/bin/bash -e
 
+echo "Calendar script running"
+
+which date
+
 year=$(date +"%Y")
 month=$(date +"%m")
 day=$(date +"%d")

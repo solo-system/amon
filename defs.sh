@@ -213,7 +213,7 @@ function prepare_microphone {
 	fi
 	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
     else
-	log "ERROR: warning - microphone not recognised. Doing no mic_preparation"
+	log "Warning - microphone not recognised [so not doing any mic_preparation()]"
     fi
 }
 

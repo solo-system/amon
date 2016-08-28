@@ -603,7 +603,7 @@ function calendarTarget() {
 	return 0
     fi
 
-    decision=$($CALENDAR_SCRIPT 2> /home/jdmc2/calendar.log)
+    decision=$($CALENDAR_SCRIPT 2>> $LOGDIR/calendar.log)
     returnval=$?
 
     if [ $returnval -ne 0 ] ; then

@@ -1,8 +1,17 @@
 #!/bin/bash -e
 
-echo "Calendar script running" 1>&2
+# this is a sample "calendar.sh" script.  It must print on or off and nothing else.
+# It must also return 0 (a clean exit status).
+# any info/debug output must go to stderr (and gets logged).  Keep
+# stdout clean for yes/no answer.  This is what the "1>&2" does.
+# also keep "-e" at the top for extra safety.
+# (this causes bash to exit with nonzero exit status if any command anywnere fails).
 
-which date 1>&2
+# Having said all that, the wrapper that calls this handles any bad
+# situation, and if this script produces nonsense results, the amon
+# assumes recording should continue (or start).
+
+# echo "Calendar script running" 1>&2
 
 year=$(date +"%Y")
 month=$(date +"%m")
@@ -13,7 +22,7 @@ minute=$(date +"%M")
 # if the clock isn't set, we can't do anything meaningful - so assume
 # recordings should be "on"
 if [ $year -lt 2016 -o $month -lt 6 ] ; then
-    # (>&2 echo "clock is not set - bailing out")
+    echo "clock is not set - bailing out" 1>&2
     echo "on"
     exit 0
 fi
@@ -24,7 +33,7 @@ fi
 # seconds are not meaningful.  onoff runs every minute, so seconds are
 # not viable.
 
-# ( >&2 echo year is $year, month is $month, day is $day, hour is $hour, minute is $minute)
+echo year is $year, month is $month, day is $day, hour is $hour, minute is $minute 1>&2
 
 # in Bash - the following integer compare operatiors:
 # -lt is less    than, -le is "less than or equal to"
@@ -38,4 +47,8 @@ if [ $(($minute % 10)) -lt 5 ] ; then
 fi
 
 echo "off"
+
+# echo "Calendar script finished" 1>&2
+
+# exit cleanly:
 exit 0

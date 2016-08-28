@@ -557,3 +557,43 @@ function reboot() {
     sudo reboot
     return 0
 }
+
+# this function must return 0 - it mustn't fail.  It wraps the
+# calendar_script in error checking, and taking appropriate action -
+# we handle all errors here, and don't pass them on
+function calendarTarget() {
+    log "Checking calendar state..."
+
+    if [ ! -f $CALENDAR_SCRIPT ] ; then
+	log "No calendar file: $CALENDAR_SCRIPT - assuming \"on\""
+	echo "on"
+	return 0
+    fi
+
+    if [ ! -x $CALENDAR_SCRIPT ] ; then
+	log "found calendar in $CALENDAR_SCRIPT but it's not executable"
+	echo "on"
+	return 0
+    fi
+
+
+    decision = $($CALENDAR_SCRIPT)
+    returnval = $?
+
+    if [ $returnval -ne 0 ] ; then
+	log "calendar script didn't return with zero exit status, so giving up on calendar"
+	echo "on"
+	return 0
+    fi
+
+    if [ ${decision} != "yes" -a ${decision} != "no" ] ; then
+	log "Calendar script returned invalid answer \"$decision\"  - ignoring"
+	echo "on"
+	return 0
+    fi
+
+    # if we passed all those tests, then we have a valid output from the calendar, and should return it
+    log "YAHOO: calendar returned a valid answer \"$decision\" - using it"
+    echo "$decision"
+    return 0
+} # end of calendarTarget()

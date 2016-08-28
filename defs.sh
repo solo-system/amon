@@ -394,7 +394,7 @@ function setstateoff {
 # write response/log to both logfile and (if it exists) the screen.
 function log {
 
-    if [ $1 -eq '-q' ] ; then
+    if [ "$1" -eq '-q' ] ; then
 	STDOUT=0
 	shift
     else

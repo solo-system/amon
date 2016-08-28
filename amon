@@ -26,6 +26,16 @@ source amon.conf
     source /boot/solo/amon.conf
 }
 
+# added this for desktop users, who want to have personalized config,
+# but don't want to make a /boot/solo directory on their desktop.
+# [its very useful in debug/dev work too, so git doesn't complain
+# about the local amon.conf being wrongly set up for the desktop audio
+# settings ]
+[ -r $HOME/.amon.conf ] && { 
+    echo "Reading additional config file: $HOME/.amon.conf" 
+    source $HOME/.amon.conf
+}
+
 if [ ! -d $AMONDATA ] ; then
     echo "Warning: can't find output directory $AMONDATA - instead using $AMONDIR/amondata"
     AMONDATA=$AMONDIR/amondata

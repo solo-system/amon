@@ -23,7 +23,7 @@ function amonoff {
 # This runs from crontab every minute.  Check sanity, then start/stop
 # according to "statefile".
 function watchdog {
-    log "-- MARK --"
+    log "-- MARK : watchdog starting --"
     s=`getstate`
     log "(desired) state=[$s]: will cleanup() then make it so."
 
@@ -73,6 +73,7 @@ function watchdog {
 	true
      fi
 
+    log "-- MARK : watchdog starting --"
 } # end of watchdog
 
 # send signal to arecord to split the output file

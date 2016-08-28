@@ -308,7 +308,8 @@ function start {
       # set led flash to "not recording"
   fi
 
-  return $?
+  # this return 0 is needed to stop amonsplit from running immediately after we start recording.
+  return 0
 }
 
 # stop recording (ignores state file)

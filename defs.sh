@@ -23,6 +23,7 @@ function amonoff {
 # This runs from crontab every minute.  Check sanity, then start/stop
 # according to "statefile".
 function watchdog {
+    log ""
     log "-- MARK : watchdog starting --"
 
     mainswitch=`getstate`

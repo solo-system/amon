@@ -393,6 +393,14 @@ function setstateoff {
 
 # write response/log to both logfile and (if it exists) the screen.
 function log {
+
+    if [ $1 -eq '-q' ] ; then
+	STDOUT=0
+	shift
+    else
+	STDOUT=1
+    fi
+    
     ts=`tstamp`
     msg="$1"
     lmsg="$ts: [amon[$AMONPID]->${FUNCNAME[1]}]: $msg"  # I've been reading "man bash".
@@ -400,8 +408,8 @@ function log {
     # could send this to a logfile if something is set...
     echo "$lmsg" >> $AMONLOG
 
-    # if stdin is a tty (interactive session) also print to stdout
-    tty -s && echo "$msg"
+    # if stdin is a tty (interactive session) also print to stdout - and we aren't in "-q" mode
+    [ $STDOUT -eq 1 ] && tty -s && echo "$msg"
 }
 
 function tstamp {

@@ -577,8 +577,8 @@ function calendarTarget() {
     fi
 
 
-    decision = $($CALENDAR_SCRIPT)
-    returnval = $?
+    decision=$($CALENDAR_SCRIPT)
+    returnval=$?
 
     if [ $returnval -ne 0 ] ; then
 	log "calendar script didn't return with zero exit status, so giving up on calendar"

@@ -589,7 +589,7 @@ function calendarTarget() {
     # note - all the logging uses -q, so it doesn't go to stdout - we
     # need stout clean for the yes/no answer
 
-    log -q "Checking calendar state by running $CALENDAR_SCRIPT"
+    log -q "Checking calendar: $CALENDAR_SCRIPT (logged into $LOGDIR/calendar.log)"
 
     if [ ! -f $CALENDAR_SCRIPT ] ; then
 	log -q "No calendar file: $CALENDAR_SCRIPT - assuming \"on\""

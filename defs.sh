@@ -24,6 +24,7 @@ function amonoff {
 # according to "statefile".
 function watchdog {
     log "-- MARK : watchdog starting --"
+
     mainswitch=`getstate`
     calendar=`calendarTarget`
 
@@ -32,7 +33,8 @@ function watchdog {
 	s=$calendar
     else
 	s="off"
-	
+    fi
+    
     log "(desired) mainswitch=[$mainswitch], calendarTarget=[$calendar], so target state s=[$s]: will cleanup() then make it so."
 
     # first do some cleanup (test processes and procfile are in sync)

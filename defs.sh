@@ -572,7 +572,7 @@ function reboot() {
 # calendar_script in error checking, and taking appropriate action -
 # we handle all errors here, and don't pass them on
 function calendarTarget() {
-    log "Checking calendar state..."
+    false | log "Checking calendar state..."
 
     if [ ! -f $CALENDAR_SCRIPT ] ; then
 	log "No calendar file: $CALENDAR_SCRIPT - assuming \"on\""

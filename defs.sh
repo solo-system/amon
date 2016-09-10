@@ -329,6 +329,7 @@ function stop {
 		   #watchdog()) was reporting "running".
 
     rogues=`pidof arecord`
+    # BUG TODO: surely the -s below (which is a file operator), should be -n ?
     if [ -s "$rogues" ] ; then
 	log "WARNING: just killed $pid, but rogues remain : $rogues"
     else
@@ -589,6 +590,12 @@ function reboot() {
 # calendar_script in error checking, and taking appropriate action -
 # we handle all errors here, and don't bubble them up.
 function calendarTarget() {
+
+    if [ -z $AMON_CALENDAR ] ; then
+	log -q "No calendar: config variable AMON_CALENDAR is empty assuming \"on\""
+	echo "on"
+	return 0
+    fi
 
     # note - all the logging uses -q, so it doesn't go to stdout - we
     # need stout clean for the yes/no answer

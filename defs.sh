@@ -593,21 +593,22 @@ function calendarTarget() {
     # note - all the logging uses -q, so it doesn't go to stdout - we
     # need stout clean for the yes/no answer
 
-    log -q "Checking calendar: $CALENDAR_SCRIPT (logged into $LOGDIR/calendar.log)"
+    log -q "Checking calendar: $AMON_CALENDAR (logged into $LOGDIR/calendar.log)"
 
-    if [ ! -f $CALENDAR_SCRIPT ] ; then
-	log -q "No calendar file: $CALENDAR_SCRIPT - assuming \"on\""
+    if [ ! -f $AMON_CALENDAR ] ; then
+	log -q "No calendar file: $AMON_CALENDAR - assuming \"on\""
 	echo "on"
 	return 0
     fi
 
-    if [ ! -x $CALENDAR_SCRIPT ] ; then
-	log -q "found calendar in $CALENDAR_SCRIPT but it's not executable"
-	echo "on"
-	return 0
-    fi
+# I disabled this, because: what does "executable" mean on a FAT partition (/boot/ is FAT).      
+#    if [ ! -x $AMON_CALENDAR ] ; then
+#	log -q "found calendar in $AMON_CALENDAR but it's not executable"
+#	echo "on"
+#	return 0
+#    fi
 
-    decision=$($CALENDAR_SCRIPT 2>> $LOGDIR/calendar.log)
+    decision=$($AMON_CALENDAR 2>> $LOGDIR/calendar.log)
     returnval=$?
 
     if [ $returnval -ne 0 ] ; then

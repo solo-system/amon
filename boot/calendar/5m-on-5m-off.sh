@@ -16,12 +16,19 @@
 
 # echo "Calendar script running" 1>&2
 
-# TODO: better to do this in one call, (too lazy to parse that though).
+# TODO: better to do this in one call, (too lazy to parse that
+# though).  gack - the minus signs in the following tell date to "NOT
+# PAD". eg the first day of month should not be 01, but just 1.  This
+# was causing problems later in the script since numbers with leading
+# zeros are interpreted (by bash's arithmetic evaluation) as being in
+# octal.  I got these errors in calendar.log:
+# /boot/solo/calendar/5m-on-5m-off.sh: line 41: 08: value too great for base (error token is "08")
+
 year=$(date +"%Y")
-month=$(date +"%m")
-day=$(date +"%d")
-hour=$(date +"%H")
-minute=$(date +"%M")
+month=$(date +"%-m")
+day=$(date +"%-d")
+hour=$(date +"%-H")
+minute=$(date +"%-M")
 
 # don't look at seconds - you can't do anything meaningful with
 # seconds.  This script is called every minute (at just a few seconds

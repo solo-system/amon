@@ -533,7 +533,7 @@ function deep-clean {
     sleep 1
 
     #rm -rvf *.log testrec.wav ${WAVDIR}/* ${LOGDIR}/*
-    rm -rvf *.log testrec.wav ${WAVDIR}/* ${LOGDIR}/{amon.log,arecord.log}
+    rm -rvf *.log testrec.wav ${WAVDIR}/* ${LOGDIR}/{amon.log,arecord.log,calendar.log,cron.log}
 
 }
 

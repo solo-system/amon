@@ -532,6 +532,7 @@ function deep-clean {
     log "1 ... "
     sleep 1
 
+    # could rm all $AMONDATA. but amon.state lives in there. (see note above)
     #rm -rvf *.log testrec.wav ${WAVDIR}/* ${LOGDIR}/*
     rm -rvf *.log testrec.wav ${WAVDIR}/* ${LOGDIR}/{amon.log,arecord.log,calendar.log,cron.log}
 

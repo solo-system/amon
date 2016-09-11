@@ -279,8 +279,8 @@ function start {
 
   if [ -f $ALOG ] ;then
       ts=`tstamp`
-      newname=${WAVDIR}/arecord-$ts.log
-      mv $ALOG $newname
+      newname=${LOGDIR}/arecord-$ts.log
+      mv -v $ALOG $newname
       log "backed up old arecord log file: $ALOG to $newname"
   fi
 

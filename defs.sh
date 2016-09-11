@@ -562,9 +562,9 @@ function deloldest {
     ls -l $oldest.deleted
 }
 
-# show the user all the recorded files (and logs)
+# show the user all the recorded files (and logs). Sort lexically on filename.
 function amonfind() {
-    find $AMONDATA -ls
+    find $AMONDATA -type f -printf '[%12s bytes]: %p\n' | sort -k4
 }
 
 function usage() { # TODO: tidy up: "help", "usage", "amonhelp", "amonusage"

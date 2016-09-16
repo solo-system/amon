@@ -111,8 +111,6 @@ function conf {
     echo "finished."
 }
 
-
-# This still needs lots of work - 
 function prepare_microphone {
     # choose and setup microphone.
     # how do they show up in /proc/asound/cards (or arecord -l)
@@ -133,27 +131,49 @@ function prepare_microphone {
     # be on that command line.  Probably better to set the $cmd
     # variable, but then can we still use testrec?  
 
-    if grep sndrpiwsp /proc/asound/cards > /dev/null ; then
-
+    if  grep "Snowflake" /proc/asound/cards > /dev/null ; then
+	log "Detected Blue:Snowflake microphone => preparing as audio source"
+	log "setting volume to $VOLUME ..."
+	AUDIODEVICE="-D hw:Snowflake"
+	amixer $AUDIODEVICE -q -c 1 set "Mic" $VOLUME
+	# MMAP="--mmap" # turned this off (may 2015) for no good reason.
+    elif grep "UltraMic 200K" /proc/asound/cards > /dev/null ; then
+	MICNAME="dodotronic-200k"
+	log "Detected \"$MICNAME\" microphone => preparing as audio source"
+	
+	conf=mics/$MICNAME.conf
+	if [ -f $conf ] ; then 
+	    log "reading microphone config file: $conf"
+	    #	    set -x
+	    . mics/$MICNAME.conf
+	    #	    set +x
+	    log "done reading microhpone config file"
+	else
+	    log "Can't find configuration for microphone $MICNAME - no mics/$MICNAME.conf file"
+	    log "Dunno what will happen - ..."
+	fi
+	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
+    elif grep sndrpiwsp /proc/asound/cards > /dev/null ; then
+	
 	log "detected Cirrus Logic Audio Card => preparing as audio source"
-
+	
 	[ ! $CLAC_VOL ]     && { log "choosing default for CLAC_DIG_VOL" ; CLAC_VOL=31 ;}
 	[ ! $CLAC_DIG_VOL ] && { log "choosing default for CLAC_DIG_VOL" ; CLAC_DIG_VOL=128 ;}
 	[ ! $CLAC_SAMPLERATE ] && { log "choosing default for CLAC_SAMPLERATE" ; CLAC_SAMPLERATE="-r16000" ;}
 	# TODO: why don't I check for channels here (and why do I call samplerate and channels CLAC_* ?)
-
+	
 	# WARNING : DON'T FIDDLE WITH THE ORDER OF THE
 	# reset_paths, record_from_linein_micbias,  here.  Previously 
 	# had other setup and it caused a hang: complaining:
 	# bmc_2708 DMA transfer could not be stopped. (or similar).
 	# The arecord (from amon testrec) hung, output 44 bytes, and 
 	# syslog (dmesg) showed above message.
-
+	
         # /home/pi/Record_from_DMIC.sh >> clac.log 2>&1
         # /home/pi/Record_from_Headset.sh >> clac.log 2>&1
         # /home/pi/Record_from_lineIn.sh >> clac.log 2>&1
 	/home/amon/clac/Reset_paths.sh -q  # initialize everything to safe values
-
+	
 	if [ "$CLAC_AUDIO_SOURCE" = "linein" ] ; then
 	    log "setting record source to: $CLAC_AUDIO_SOURCE"
 	    /home/amon/clac/Record_from_lineIn_Micbias.sh -q  # with micbias!
@@ -176,8 +196,8 @@ function prepare_microphone {
 	    amixer -q -Dhw:sndrpiwsp cset name='IN2L Digital Volume' $CLAC_DIG_VOL
 	    amixer -q -Dhw:sndrpiwsp cset name='IN2R Digital Volume' $CLAC_DIG_VOL
 	fi
-
-#	amixer -Dhw:sndrpiwsp cset name='Line Input Switch' off  # turn it off for safety
+	
+	#	amixer -Dhw:sndrpiwsp cset name='Line Input Switch' off  # turn it off for safety
 #	if [ "$CLAC_PIP" != "on" ] ; then
 #           log "WARNING: CLAC_PIP ($CLAC_PIP) (plug-in-power) is ON!"
 #	   amixer -Dhw:sndrpiwsp cset name='Line Input Switch' on
@@ -189,31 +209,8 @@ function prepare_microphone {
 	AUDIODEVICE="-Dclac"
 	MMAP=""
 	log "prepare_mic: [MICTYPE=CLAC] CHANNELS=$CHANNELS AUDIODEVICE=$AUDIODEVICE MMAP=$MMAP CLAC_VOL=$CLAC_VOL CLAC_DIG_VOL=$CLAC_DIG_VOL CLAC_AUDIO_SOURCE=$CLAC_AUDIO_SOURCE CLAC_PIP=$CLAC_PIP"
-
-    elif grep "Snowflake" /proc/asound/cards > /dev/null ; then
-	log "Detected Blue:Snowflake microphone => preparing as audio source"
-	log "setting volume to $VOLUME ..."
-	AUDIODEVICE="-D hw:Snowflake"
-	amixer $AUDIODEVICE -q -c 1 set "Mic" $VOLUME
-	# MMAP="--mmap" # turned this off (may 2015) for no good reason.
-    elif grep "UltraMic 200K" /proc/asound/cards > /dev/null ; then
-	MICNAME="dodotronic-200k"
-	log "Detected \"$MICNAME\" microphone => preparing as audio source"
-
-	conf=mics/$MICNAME.conf
-	if [ -f $conf ] ; then 
-	    log "reading microphone config file: $conf"
-#	    set -x
-	    . mics/$MICNAME.conf
-#	    set +x
-	    log "done reading microhpone config file"
-	else
-	    log "Can't find configuration for microphone $MICNAME - no mics/$MICNAME.conf file"
-	    log "Dunno what will happen - ..."
-	fi
-	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
     else
-	log "Warning - microphone not recognised [so not doing any mic_preparation()]"
+	log "Warning - microphone not recognised -> so not calling prepare_mic() - recording unlikely to work"
     fi
 }
 

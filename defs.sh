@@ -132,15 +132,14 @@ function prepare_microphone {
     # variable, but then can we still use testrec?  
 
     if  grep "Snowflake" /proc/asound/cards > /dev/null ; then
-	log "Detected Blue:Snowflake microphone => preparing as audio source"
-	log "setting volume to $VOLUME ..."
+	MICNAME="Blue:Snowflake"
 	AUDIODEVICE="-D hw:Snowflake"
-	amixer $AUDIODEVICE -q -c 1 set "Mic" $VOLUME
-	# MMAP="--mmap" # turned this off (may 2015) for no good reason.
+	SNOWFLAKE_VOLUME="100%"
+	log "Detected microphone: $MICNAME => preparing as audio source (volume set to $SNOWFLAKE_VOLUME)"
+	amixer $AUDIODEVICE -q -c 1 set "Mic" $SNOWFLAKE_VOLUME
     elif grep "UltraMic 200K" /proc/asound/cards > /dev/null ; then
 	MICNAME="dodotronic-200k"
-	log "Detected \"$MICNAME\" microphone => preparing as audio source"
-	
+	log "Detected microphone: \"$MICNAME\" microphone => preparing as audio source"
 	conf=mics/$MICNAME.conf
 	if [ -f $conf ] ; then 
 	    log "reading microphone config file: $conf"
@@ -159,7 +158,6 @@ function prepare_microphone {
 	
 	[ ! $CLAC_VOL ]     && { log "choosing default for CLAC_DIG_VOL" ; CLAC_VOL=31 ;}
 	[ ! $CLAC_DIG_VOL ] && { log "choosing default for CLAC_DIG_VOL" ; CLAC_DIG_VOL=128 ;}
-	[ ! $CLAC_SAMPLERATE ] && { log "choosing default for CLAC_SAMPLERATE" ; CLAC_SAMPLERATE="-r16000" ;}
 	# TODO: why don't I check for channels here (and why do I call samplerate and channels CLAC_* ?)
 	
 	# WARNING : DON'T FIDDLE WITH THE ORDER OF THE
@@ -203,9 +201,6 @@ function prepare_microphone {
 #	   amixer -Dhw:sndrpiwsp cset name='Line Input Switch' on
 #        fi
 
-	SAMPLERATE=$CLAC_SAMPLERATE
-	CHANNELS=$CLAC_CHANNELS
-#	AUDIODEVICE="-Dhw:sndrpiwsp" # override this, cos the above scripts set it all up nicely.
 	AUDIODEVICE="-Dclac"
 	MMAP=""
 	log "prepare_mic: [MICTYPE=CLAC] CHANNELS=$CHANNELS AUDIODEVICE=$AUDIODEVICE MMAP=$MMAP CLAC_VOL=$CLAC_VOL CLAC_DIG_VOL=$CLAC_DIG_VOL CLAC_AUDIO_SOURCE=$CLAC_AUDIO_SOURCE CLAC_PIP=$CLAC_PIP"

@@ -90,7 +90,7 @@ fi
 # about them.
 
 # must say something
-[ $# -eq 0 ] && { usage; exit 0;}
+[ $# -eq 0 ] && { amonhelp; exit 0;}
 
 if [ xx`type -t amon${1}` = xx"function" ] ; then
     amon${1} $*

@@ -158,7 +158,6 @@ function prepare_microphone {
 	
 	[ ! $CLAC_VOL ]     && { log "choosing default for CLAC_DIG_VOL" ; CLAC_VOL=31 ;}
 	[ ! $CLAC_DIG_VOL ] && { log "choosing default for CLAC_DIG_VOL" ; CLAC_DIG_VOL=128 ;}
-	# TODO: why don't I check for channels here (and why do I call samplerate and channels CLAC_* ?)
 	
 	# WARNING : DON'T FIDDLE WITH THE ORDER OF THE
 	# reset_paths, record_from_linein_micbias,  here.  Previously 
@@ -322,8 +321,7 @@ function stop {
 		   #watchdog()) was reporting "running".
 
     rogues=`pidof arecord`
-    # BUG TODO: surely the -s below (which is a file operator), should be -n ?
-    if [ -s "$rogues" ] ; then
+    if [ -n "$rogues" ] ; then
 	log "WARNING: just killed $pid, but rogues remain : $rogues"
     else
 	log "(no rogues)"
@@ -421,15 +419,18 @@ function tstamp {
 # unlikely to ever be up to date...
 function amonhelp {
     echo "---------- HELP: ---------------"
-    echo "amon stop - to stop recording"
-    echo "amon start - to start recording"
-    echo "amon on - turns on desired-state and starts"
-    echo "amon off - turns off desired-state and stops"
-    echo "amon log - show all log entries"
-    echo "amon testrec - perform a test recording into testrec.wav"
-    echo "amon ping - see if amon is listening and happy"
+    echo "amon ping       - see if amon is listening and happy"
+    echo "amon state      - what position is the materswitch?"
+    echo "amon status     - are we recording right now?"
+    echo "amon log        - show all log entries"
+    echo "amon diskusage  - show disk usage"
+    echo "amon find       - list all files recorded (and logs)" 
+    echo "amon stop       - to stop recording"
+    echo "amon start      - to start recording"
+    echo "amon on         - turns on desired-state and starts"
+    echo "amon off        - turns off desired-state and stops"
+    echo "amon testrec    - perform a test recording into testrec.wav"
     echo "amon deep-clean - deletes all data including logs *CAREFUL*"
-    echo "... There are lots more ... TODO"
     echo "--------------------------------"
 }
 
@@ -560,10 +561,6 @@ function amonfind() {
     find $AMONDATA -type f -printf '[%12s bytes]: %p\n' | sort -k4
 }
 
-function usage() { # TODO: tidy up: "help", "usage", "amonhelp", "amonusage"
-    echo "Usage: amon status|ping|others"
-    echo "Usage: amon usage  --- for more help"
-}
 
 # for debug
 function testargs() {

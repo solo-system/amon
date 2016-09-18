@@ -584,8 +584,8 @@ function reboot() {
 # we handle all errors here, and don't bubble them up.
 function calendarTarget() {
 
-    if [ -z $AMON_CALENDAR ] ; then
-	log -q "No calendar: config variable AMON_CALENDAR is empty assuming \"on\""
+    if [ -z $CALENDAR ] ; then
+	log -q "No calendar: config variable CALENDAR is empty assuming \"on\""
 	echo "on"
 	return 0
     fi
@@ -593,22 +593,22 @@ function calendarTarget() {
     # note - all the logging uses -q, so it doesn't go to stdout - we
     # need stout clean for the yes/no answer
 
-    log -q "Checking calendar: $AMON_CALENDAR (logged into $LOGDIR/calendar.log)"
+    log -q "Checking calendar: $CALENDAR (logged into $LOGDIR/calendar.log)"
 
-    if [ ! -f $AMON_CALENDAR ] ; then
-	log -q "No calendar file: $AMON_CALENDAR - assuming \"on\""
+    if [ ! -f $CALENDAR ] ; then
+	log -q "No calendar file: $CALENDAR - assuming \"on\""
 	echo "on"
 	return 0
     fi
 
 # I disabled this, because: what does "executable" mean on a FAT partition (/boot/ is FAT).      
-#    if [ ! -x $AMON_CALENDAR ] ; then
-#	log -q "found calendar in $AMON_CALENDAR but it's not executable"
+#    if [ ! -x $CALENDAR ] ; then
+#	log -q "found calendar in $CALENDAR but it's not executable"
 #	echo "on"
 #	return 0
 #    fi
 
-    decision=$($AMON_CALENDAR 2>> $LOGDIR/calendar.log)
+    decision=$($CALENDAR 2>> $LOGDIR/calendar.log)
     returnval=$?
 
     if [ $returnval -ne 0 ] ; then

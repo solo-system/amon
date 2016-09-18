@@ -270,8 +270,9 @@ function start {
   fi
 
   if [ -f $ALOG ] ;then
+      mkdir -p ${LOGDIR}/old/
       ts=`tstamp`
-      newname=${LOGDIR}/arecord-$ts.log
+      newname=${LOGDIR}/old/arecord-$ts.log
       mv -v $ALOG $newname
       log "backed up old arecord log file: $ALOG to $newname"
   fi

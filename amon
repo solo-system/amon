@@ -9,10 +9,6 @@ AMONPID=$$
 # always cd to amondir to make paths simple.
 AMONDIR=`dirname $0`
 cd ${AMONDIR}
-BASE=. # TODO: I think this can go.
-
-#STATEFILE=${BASE}/state
-#PIDFILE=${BASE}/pidfile
 
 ### read the config file(s) and function definitions.
 [ ! -r defs.sh ] && echo "Fatal: no config file defs.sh. I give up." && exit -1

@@ -152,6 +152,16 @@ function prepare_microphone {
 	    log "Dunno what will happen - ..."
 	fi
 	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
+    elif grep "USB-Audio - Sound Blaster Play! 2" /proc/asound/cards > /dev/null ; then
+	MICNAME="soundblasterplay"
+	conf=mics/$MICNAME.conf
+	if [ -f $conf ] ; then
+	    log "Detected microphone: \"$MICNAME\" microphone => reading config file \"$conf\""
+	    . mics/$MICNAME.conf
+	else
+	    log "ERROR: No such mic config file: \"$conf\". Dunno what will happen..."
+	fi
+	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
     elif grep sndrpiwsp /proc/asound/cards > /dev/null ; then
 	
 	log "detected Cirrus Logic Audio Card => preparing as audio source"
@@ -226,13 +236,15 @@ function testrec {
 	return 0
     fi
 
-    # Don't do it around the turn of the minute - cos the watchdog
-    # will kill us.
+    # remove the old log and wav file:
+    rm -vf ${WAVDIR}/testrec.log ${WAVDIR}/testrec.wav
+
+    # Avoid the watchdog (on the minute mark) - it will kill us.
     while [ $(date +"%S") -gt 50 -o $(date +"%S") -lt 10 ] ; do
 	echo "Standby (avoiding watchdog at 0 seconds) ... waiting $(date)"
 	sleep 1
     done
-    echo "safe to do - it's $(date)"
+    echo "[avoiding watchdog...] ... now safe to do - it's $(date)"
     
     log "Performing a test recording [ 3 seconds long ...]"
     prepare_microphone
@@ -242,7 +254,7 @@ function testrec {
     log "waiting 3 seconds..."
     sleep 3
     kill -9 %1
-    log "Done - hopefully recorded.  Check:"
+    log "Recording Done - see:"
     log "${WAVDIR}/testrec.wav or ${WAVDIR}/testrec.log"
     ls -l ${WAVDIR}/testrec.wav ${WAVDIR}/testrec.log
     log "testrec finished"

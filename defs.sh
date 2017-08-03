@@ -162,6 +162,16 @@ function prepare_microphone {
 	    log "ERROR: No such mic config file: \"$conf\". Dunno what will happen..."
 	fi
 	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
+    elif grep "USB-Audio - Sound Blaster Play! 3" /proc/asound/cards > /dev/null ; then
+	MICNAME="soundblasterplay3"
+	conf=mics/$MICNAME.conf
+	if [ -f $conf ] ; then
+	    log "Detected microphone: \"$MICNAME\" microphone => reading config file \"$conf\""
+	    . mics/$MICNAME.conf
+	else
+	    log "ERROR: No such mic config file: \"$conf\". Dunno what will happen..."
+	fi
+	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
     elif grep sndrpiwsp /proc/asound/cards > /dev/null ; then
 	
 	log "detected Cirrus Logic Audio Card => preparing as audio source"

@@ -172,7 +172,7 @@ function prepare_microphone {
 	    log "ERROR: No such mic config file: \"$conf\". Dunno what will happen..."
 	fi
 	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
-    elif grep sndrpiwsp /proc/asound/cards > /dev/null ; then
+    elif grep RPiCirrus /proc/asound/cards > /dev/null ; then
 	
 	log "detected Cirrus Logic Audio Card => preparing as audio source"
 	
@@ -194,30 +194,30 @@ function prepare_microphone {
 	if [ "$CLAC_AUDIO_SOURCE" = "linein" ] ; then
 	    log "setting record source to: $CLAC_AUDIO_SOURCE"
 	    /home/amon/clac/Record_from_lineIn_Micbias.sh -q  # with micbias!
-	    amixer -q -Dhw:sndrpiwsp cset name='IN3L Volume' $CLAC_VOL
-	    amixer -q -Dhw:sndrpiwsp cset name='IN3R Volume' $CLAC_VOL
-	    amixer -q -Dhw:sndrpiwsp cset name='IN3L Digital Volume' $CLAC_DIG_VOL
-	    amixer -q -Dhw:sndrpiwsp cset name='IN3R Digital Volume' $CLAC_DIG_VOL
+	    amixer -q -Dhw:RPiCirrus cset name='IN3L Volume' $CLAC_VOL
+	    amixer -q -Dhw:RPiCirrus cset name='IN3R Volume' $CLAC_VOL
+	    amixer -q -Dhw:RPiCirrus cset name='IN3L Digital Volume' $CLAC_DIG_VOL
+	    amixer -q -Dhw:RPiCirrus cset name='IN3R Digital Volume' $CLAC_DIG_VOL
         elif [ "$CLAC_AUDIO_SOURCE" = "dmic" ] ; then
 	    log "setting record source to: $CLAC_AUDIO_SOURCE"
 	    /home/amon/clac/Record_from_DMIC.sh -q  # dmic (onboard MEMS mics)
-	    amixer -q -Dhw:sndrpiwsp cset name='IN2L Volume' $CLAC_VOL
-	    amixer -q -Dhw:sndrpiwsp cset name='IN2R Volume' $CLAC_VOL
-	    amixer -q -Dhw:sndrpiwsp cset name='IN2L Digital Volume' $CLAC_DIG_VOL
-	    amixer -q -Dhw:sndrpiwsp cset name='IN2R Digital Volume' $CLAC_DIG_VOL
+	    amixer -q -Dhw:RPiCirrus cset name='IN2L Volume' $CLAC_VOL
+	    amixer -q -Dhw:RPiCirrus cset name='IN2R Volume' $CLAC_VOL
+	    amixer -q -Dhw:RPiCirrus cset name='IN2L Digital Volume' $CLAC_DIG_VOL
+	    amixer -q -Dhw:RPiCirrus cset name='IN2R Digital Volume' $CLAC_DIG_VOL
 	else
 	    log "WARNING: CLAC_AUDIO_SOURCE ($CLAC_AUDIO_SOURCE) not recognised - using default: \"dmic\""
 	    /home/amon/clac/Record_from_DMIC.sh -q
-	    amixer -q -Dhw:sndrpiwsp cset name='IN2L Volume' $CLAC_VOL
-	    amixer -q -Dhw:sndrpiwsp cset name='IN2R Volume' $CLAC_VOL
-	    amixer -q -Dhw:sndrpiwsp cset name='IN2L Digital Volume' $CLAC_DIG_VOL
-	    amixer -q -Dhw:sndrpiwsp cset name='IN2R Digital Volume' $CLAC_DIG_VOL
+	    amixer -q -Dhw:RPiCirrus cset name='IN2L Volume' $CLAC_VOL
+	    amixer -q -Dhw:RPiCirrus cset name='IN2R Volume' $CLAC_VOL
+	    amixer -q -Dhw:RPiCirrus cset name='IN2L Digital Volume' $CLAC_DIG_VOL
+	    amixer -q -Dhw:RPiCirrus cset name='IN2R Digital Volume' $CLAC_DIG_VOL
 	fi
 	
-	#	amixer -Dhw:sndrpiwsp cset name='Line Input Switch' off  # turn it off for safety
+	#	amixer -Dhw:RPiCirrus cset name='Line Input Switch' off  # turn it off for safety
 #	if [ "$CLAC_PIP" != "on" ] ; then
 #           log "WARNING: CLAC_PIP ($CLAC_PIP) (plug-in-power) is ON!"
-#	   amixer -Dhw:sndrpiwsp cset name='Line Input Switch' on
+#	   amixer -Dhw:RPiCirrus cset name='Line Input Switch' on
 #        fi
 
 	AUDIODEVICE="-Dclac"

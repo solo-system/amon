@@ -193,21 +193,21 @@ function prepare_microphone {
 	
 	if [ "$CLAC_AUDIO_SOURCE" = "linein" ] ; then
 	    log "setting record source to: $CLAC_AUDIO_SOURCE"
-	    /home/amon/clac/Record_from_lineIn_Micbias.sh -q  # with micbias!
+	    /home/amon/clac/Record_from_Linein_Micbias.sh  # with micbias!
 	    amixer -q -Dhw:RPiCirrus cset name='IN3L Volume' $CLAC_VOL
 	    amixer -q -Dhw:RPiCirrus cset name='IN3R Volume' $CLAC_VOL
 	    amixer -q -Dhw:RPiCirrus cset name='IN3L Digital Volume' $CLAC_DIG_VOL
 	    amixer -q -Dhw:RPiCirrus cset name='IN3R Digital Volume' $CLAC_DIG_VOL
         elif [ "$CLAC_AUDIO_SOURCE" = "dmic" ] ; then
 	    log "setting record source to: $CLAC_AUDIO_SOURCE"
-	    /home/amon/clac/Record_from_DMIC.sh -q  # dmic (onboard MEMS mics)
+	    /home/amon/clac/Record_from_DMIC.sh  # dmic (onboard MEMS mics)
 	    amixer -q -Dhw:RPiCirrus cset name='IN2L Volume' $CLAC_VOL
 	    amixer -q -Dhw:RPiCirrus cset name='IN2R Volume' $CLAC_VOL
 	    amixer -q -Dhw:RPiCirrus cset name='IN2L Digital Volume' $CLAC_DIG_VOL
 	    amixer -q -Dhw:RPiCirrus cset name='IN2R Digital Volume' $CLAC_DIG_VOL
 	else
 	    log "WARNING: CLAC_AUDIO_SOURCE ($CLAC_AUDIO_SOURCE) not recognised - using default: \"dmic\""
-	    /home/amon/clac/Record_from_DMIC.sh -q
+	    /home/amon/clac/Record_from_DMIC.sh
 	    amixer -q -Dhw:RPiCirrus cset name='IN2L Volume' $CLAC_VOL
 	    amixer -q -Dhw:RPiCirrus cset name='IN2R Volume' $CLAC_VOL
 	    amixer -q -Dhw:RPiCirrus cset name='IN2L Digital Volume' $CLAC_DIG_VOL

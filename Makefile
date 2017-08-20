@@ -13,10 +13,11 @@ alsaconf:
 # move the boot files into /boot/solo (amon.conf and calendars)
 bootfiles:
 	cp -rv boot/* /boot/solo/
+	chown -R amon.amon /boot/solo
 
 homefiles:
 	mkdir /home/amon/amon
 	cp -prv amon amon.conf defs.sh mics /home/amon/amon/
 	chown -R amon.amon /home/amon/amon/
 	chmod +x /home/amon/amon/amon
-	echo "PATH=$PATH:/home/amon/amon/" >> /home/amon/.bashrc
+	echo 'PATH=$PATH:/home/amon/amon/' >> /home/amon/.bashrc

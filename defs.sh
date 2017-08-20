@@ -258,12 +258,12 @@ function testrec {
     
     log "Performing a test recording [ 3 seconds long ...]"
     prepare_microphone
-    cmd="arecord $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE ${WAVDIR}/testrec.wav"
+    cmd="arecord -d 3 $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE ${WAVDIR}/testrec.wav"
     log "running: $cmd"
     $cmd >& ${WAVDIR}/testrec.log &
-    log "waiting 3 seconds..."
-    sleep 3
-    kill -9 %1
+    #log "waiting 3 seconds..."
+    #sleep 3
+    #kill -9 %1
     log "Recording Done - see:"
     log "${WAVDIR}/testrec.wav or ${WAVDIR}/testrec.log"
     ls -l ${WAVDIR}/testrec.wav ${WAVDIR}/testrec.log

@@ -255,12 +255,13 @@ function testrec {
 	sleep 1
     done
     echo "[avoiding watchdog...] ... now safe to do - it's $(date)"
-    
-    log "Performing a test recording [ 3 seconds long ...]"
+
+    TESTREC_LEN=3 # record for this many seconds
+    log "Performing a test recording [ $TESTREC_LEN seconds long ...]"
     prepare_microphone
-    cmd="arecord -d 3 $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE ${WAVDIR}/testrec.wav"
+    cmd="arecord -d $TESTREC_LEN $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE ${WAVDIR}/testrec.wav"
     log "running: $cmd"
-    $cmd >& ${WAVDIR}/testrec.log &
+    $cmd >& ${WAVDIR}/testrec.log
     #log "waiting 3 seconds..."
     #sleep 3
     #kill -9 %1
@@ -270,6 +271,9 @@ function testrec {
     log "testrec finished"
 
     if [ -n "$2" ] ; then
+	# TODO:
+	# should check that $2 has a colon at the end, and an @ symbol in it
+	# jdmc2@pcs isn't good enough, it just makes a local file called that.
 	log "copying to $2 - running scp..."
 	scp ${WAVDIR}/testrec.wav $2
     fi

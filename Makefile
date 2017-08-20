@@ -13,7 +13,7 @@ alsaconf:
 # move the boot files into /boot/solo (amon.conf and calendars)
 bootfiles:
 	cp -rv boot/* /boot/solo/
-	chown -R amon.amon /boot/solo
+# 	chown -R amon.amon /boot/solo # dont' do this - permission denied(!)
 
 homefiles:
 	mkdir /home/amon/amon

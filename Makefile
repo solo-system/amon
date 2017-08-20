@@ -20,4 +20,4 @@ homefiles:
 	cp -prv amon amon.conf defs.sh mics /home/amon/amon/
 	chown -R amon.amon /home/amon/amon/
 	chmod +x /home/amon/amon/amon
-	echo 'PATH=$PATH:/home/amon/amon/' >> /home/amon/.bashrc
+	echo 'PATH=$$PATH:/home/amon/amon' >> /home/amon/.bashrc

@@ -1,0 +1,41 @@
+### This file is part of Solo. (https://www.github.com/solo-system)
+###
+### .asoundrc for "amon"'s home directory.  
+### see: # http://www.alsa-project.org/alsa-doc/alsa-lib/pcm_plugins.html
+
+######################################################
+# Support for the CLAC - Cirrus Logic Audio Card.
+pcm.clac {
+	type plug
+        slave.pcm { type hw card RPiCirrus device 0 }
+        route_policy copy
+}
+
+#######################################################
+# Support for the USB dongle: Sound Blaster Play 2
+
+pcm.soundblasterplayhw {
+    type hw
+    card S2
+    device 0
+}
+
+# The "plug" type does #channel and samplerate conversion on demand.
+pcm.soundblasterplay {
+        type plug
+        slave.pcm "soundblasterplayhw"
+
+        # http://www.alsa-project.org/alsa-doc/alsa-lib/pcm_plugins.html
+        route_policy copy
+}
+
+############################################################
+# Support for: Creative Technology Ltd Sound Blaster Play! 3
+#
+# This is the first one where the "hw" is embedded in the plug.
+
+pcm.S3plug {
+      type plug
+      slave.pcm { type hw card S3 device 0 }
+      route_policy copy
+}

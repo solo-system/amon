@@ -16,8 +16,15 @@ bootfiles:
 # 	chown -R amon.amon /boot/solo # dont' do this - permission denied(!)
 
 homefiles:
-	mkdir -pv /home/amon/amon
+	if [ ! -d /home/amon/amon ] ; then
+		mkdir -pv /home/amon/amon
+	fi
 	cp -prv amon amon.conf defs.sh mics /home/amon/amon/
 	chown -R amon.amon /home/amon/amon/
 	chmod +x /home/amon/amon/amon
-	echo 'PATH=$$PATH:/home/amon/amon' >> /home/amon/.bashrc
+	if [ grep -q /home/amon/amon/ /home/amon/.bashrc ] ; then
+	   echo "adding path to bashrc"	
+	   echo 'PATH=$$PATH:/home/amon/amon' >> /home/amon/.bashrc
+	else
+	   echo "PATH already good"
+        fi

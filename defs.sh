@@ -35,13 +35,13 @@ function watchdog {
     else
 	s="off"
     fi
-    
+
     log "(desired) mainswitch=[$mainswitch], calendarTarget=[$calendar], so target state s=[$s]: will cleanup() then make it so."
 
     # first do some cleanup (test processes and procfile are in sync)
     amoncleanup
     retval=$?
-    
+
     log "amoncleanup finished: exit status=[$retval] (0=no-op stopped, 1=no-op running, 2=killed everything)"
 
     if [ $s = "on" ]; then
@@ -91,7 +91,7 @@ function watchdog {
 
 # send signal to arecord to split the output file
 function amonsplit {
-    
+
     if [ ! -f $PIDFILE ] ; then
 	log "No pidfile - can't do amonsplit"
 	return 0
@@ -172,6 +172,16 @@ function prepare_microphone {
 	    log "ERROR: No such mic config file: \"$conf\". Dunno what will happen..."
 	fi
 	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
+    elif grep -q "Fe-Pi_Audio" /proc/asound/cards ; then
+        MICNAME="fe-pi"
+        conf=mics/$MICNAME.conf
+        if [ -f $conf ] ; then
+            log "Detected microphone: \"$MICNAME\" microphone => reading config file \"$conf\""
+            . mics/$MICNAME.conf
+        else
+            log "ERROR: No such mic config file: \"$conf\". Dunno what will happen..."
+        fi
+        log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
     elif grep RPiCirrus /proc/asound/cards > /dev/null ; then
 	
 	log "detected Cirrus Logic Audio Card => preparing as audio source"

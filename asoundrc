@@ -39,3 +39,13 @@ pcm.S3plug {
       slave.pcm { type hw card S3 device 0 }
       route_policy copy
 }
+
+############################################################
+# Support for: fe-pi audio card
+# https://fe-pi.com/p/support-and-setup
+
+pcm.fepiplug {
+      type plug
+      slave.pcm { type hw card Audio device 0 }
+      route_policy copy
+}

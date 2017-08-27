@@ -16,7 +16,7 @@ bootfiles:
 # 	chown -R amon.amon /boot/solo # dont' do this - permission denied(!)
 
 homefiles:
-	mkdir /home/amon/amon
+	mkdir -pv /home/amon/amon
 	cp -prv amon amon.conf defs.sh mics /home/amon/amon/
 	chown -R amon.amon /home/amon/amon/
 	chmod +x /home/amon/amon/amon

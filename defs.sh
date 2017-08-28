@@ -25,6 +25,7 @@ function amonoff {
 function watchdog {
     log ""
     log "-- MARK : watchdog starting --"
+    log "System load (from /proc/loadavg): $(cat /proc/loadavg)"
 
     mainswitch=`getstate`
     calendar=`calendarTarget`
@@ -36,7 +37,7 @@ function watchdog {
 	s="off"
     fi
 
-    log "(desired) mainswitch=[$mainswitch], calendarTarget=[$calendar], so target state s=[$s]: will cleanup() then make it so."
+    log "status: state=[$mainswitch], calendar=[$calendar] -> desired-state=[$s]: will cleanup() then make it so."
 
     # first do some cleanup (test processes and procfile are in sync)
     amoncleanup
@@ -322,8 +323,11 @@ function start {
 
   log "about to run: $cmd"
   $cmd  >& $ALOG &
-  retval=$?
 
+  # This is a bit silly - there is no retval for a process that is running... TODO
+  # nicer to do a sleep 1, then look for the PIDFILE.  But either way, there's nothing changes in the logic or flow
+  # if arecord fails, there's nothing we can do here.
+  retval=$?
   log "startup recording process returned status value of $retval"
   if [ $retval -eq 0 ] ; then
       sleep 1
@@ -454,20 +458,20 @@ function tstamp {
 
 # unlikely to ever be up to date...
 function amonhelp {
-    echo "---------- HELP: ---------------"
-    echo "amon ping       - see if amon is listening and happy"
-    echo "amon state      - what position is the materswitch?"
-    echo "amon status     - are we recording right now?"
-    echo "amon log        - show all log entries"
-    echo "amon diskusage  - show disk usage"
-    echo "amon find       - list all files recorded (and logs)" 
-    echo "amon stop       - to stop recording"
-    echo "amon start      - to start recording"
-    echo "amon on         - turns on desired-state and starts"
-    echo "amon off        - turns off desired-state and stops"
-    echo "amon testrec    - perform a test recording into testrec.wav"
-    echo "amon deep-clean - deletes all data including logs *CAREFUL*"
-    echo "--------------------------------"
+    echo "---------- HELP: ---------------------------------------"
+    echo "amon ping           - see if amon is listening and happy"
+    echo "amon state          - what position is the materswitch?"
+    echo "amon status         - are we recording right now?"
+    echo "amon log            - show all log entries"
+    echo "amon diskusage      - show disk usage"
+    echo "amon find           - list all files recorded (and logs)"
+    echo "amon stop           - to stop recording"
+    echo "amon start          - to start recording"
+    echo "amon on             - turns on desired-state and starts"
+    echo "amon off            - turns off desired-state and stops"
+    echo "amon testrec [addr] - make test recording into testrec.wav [optionally scp to addr]"
+    echo "amon deep-clean     - deletes all data including logs *CAREFUL*"
+    echo "----------------------------------------------------------"
 }
 
 # Show the log file (only useful interactively)
@@ -646,7 +650,7 @@ function calendarTarget() {
     returnval=$?
 
     if [ $returnval -ne 0 ] ; then
-	log -q "calendar script returnded nonzero exit status [$returnval][\"$decision\"], so giving up on calendar"
+	log -q "calendar script returned nonzero exit status [$returnval][\"$decision\"], so giving up on calendar"
 	echo "on"
 	return 0
     fi

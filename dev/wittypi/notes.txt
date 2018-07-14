@@ -1,0 +1,162 @@
+Sat 14 Jul 2018
+---------------
+
+ok, that bounce complains if /dev/rtc0 is mounted.  So at the top of it, we should unmount it.
+
+Developing on the pi:
+
+Now want to do some dev work.  How to get git working...
+How to dev on a pi:
+  go to git repo on pi (/opt/git/amon  /opt/solo)
+  chown it all (cos it's roots):
+  sudo chown -R amon.amon amon/
+
+Now on shub, make a dev branch:
+  cd git/amon
+  git branch wpdev
+  <make a change and commit>
+
+Now back on the pi, pull from that branch.
+  git pull jdmc2@shub:git/amon wpdev (pulls from that branch).
+  sudo make install (to copy amon etc to /home/amon/amon).
+
+loop as needed.
+
+mv the wp stuff in git/tbox/wp into this dev branch:
+
+
+
+
+Fri 06 Jul 2018
+---------------
+set up back in Sheelynn.  Running:
+rsync -av jdmc2@shub:git/tbox/wittypi .          # (to sync)
+sudo ./wittypi/dev/wittyPi-dev3/wp.sh bounce     # to reboot in 1 minute
+sudo ./wittypi/dev/wittyPi-dev3/wp.sh status     # to show next reboot time. (and check clocks)
+
+Wed 27 Jun 2018
+---------------
+Set up in fingal now, with a repo within git/tbox that will do as a briefcase.
+REM: need to install gpio, and do the modules stuff.
+
+Now - the witty pi code is keen to keep the RTC umounted, becuse it
+wants to bit-twiddle the registers of the clock.  Fair enough.  We
+should let the witty pi software do this.  But it does mean that the
+timedatectl (or whatever) it is that SETS the RTC initially (or sync's
+it), will not be able to run, once the witty pi code has done
+anything, because the clock will be gone.  timedatectl registers no
+rtc, when it's unmounted, so clearly it won't set it after an NTP
+grab.  This is ok, cos witty pi stuff will only ever be run if the
+WITTYPI=yes is in the solo.conf file, and people won't do that when
+they are setting the clock. (ensure docs make this clear).
+
+
+Mon 25 Jun 2018
+---------------
+Did a test - it started after 2 days.  Yahoo.  I also did a battery change during that, (albeit a really quick one), and it still worked.
+
+Also just tested the audio with the soundblaster2play, and it worked with no buzzing, which is a relief.
+
+Set up a directory for development under dev here so won't lose code if sdcard corrupts.
+
+---------------------------------------------------------------------------
+
+Next time: it works - run the wittyPi.sh script to set a time, then choose hidden 9 to shutdown.  Yay it reboots.
+
+How to integrate: use calendar infrastructure, and if calendar call returns off XXX then set reboot time to XXX and shutdown.
+OR : use the witty pi stuff as is, and let users learn the witty pi format from the witty pi website.
+(which works better ?  Particularly for those who DON't have a witty pi?).
+
+
+Thu 21 Jun 2018
+---------------
+Type "amon off", then type "sudo poweroff", and current draw drops to 26mW (0.0053A).
+So - no it doesn't - the powerbank times out.  So moved the blue jumper "dummy load" to the "on" position.
+Now, when I do "sudo poweroff" it goes down to 0mW, 24mW, 500mW (500 every 10 seconds, for a quick blip).  This keeps the powerbank alive.
+
+Now need to see if I can get a "wake up at" thing going.  I hope for:
+
+1) install bits from https://github.com/uugear/Witty-Pi-2/blob/master/installWittyPi.sh
+   wget https://github.com/uugear/Witty-Pi-2/blob/master/installWittyPi.sh
+   wget fails... so look at it in a browser...
+   [dtparam stuff - I'm ignoring it.]
+   [i2c-tools is already installed.]
+   NEED: apt-get install -y wiringpi
+   INSTALL wittypi stuff:
+     wget http://www.uugear.com/repo/WittyPi2/LATEST -O wittyPi.zip
+     unzip wittyPi.zip -d wittyPi
+     sudo modprobe i2c-dev
+     Need to add this to provision:
+       echo "i2c-dev" >> /etc/modules (or on command line, from /boot/config.txt?)
+2) find the "set wakeup time" bit of their code.
+3) run it.
+4) call poweroff.
+5) wait for it to reboot.
+And it did - once.  Then I "cleared all registers", and now it won't.  Grrr.
+sudo i2cset -y 0x01 0x68 0x0E 0x05 (to enable alarm A - Startup alarm).
+Nope that didn't work.
+
+So I've hacked wittyPi.sh (the CLI) to have a secret option 9), which shutsdown now.  And it works.
+Leaving it here for tonight - it works!!!
+
+
+Older notes:
+------------
+Before doing this work:  Got these numbers from normal running solos.  The clac was really good.  The snowflake is ok, the SB3 is pisspoor.
+snowflake=112mA, SB3=150mA, nousb-noclac=85mA, clac=85mA (same)
+
+Notes from todo.txt:
+
+Solo scheduler (with witty pi):
+ compatible with existing calendars?
+ does powerbank time out (and how does witty pi handle it).
+ Problem: At shutdown time, need to set wakeup time.  How do I find "next" wakeuptime.
+---------------------------------------------------------------------------
+
+Wed 06 Jun 2018
+---------------
+booted a+ with "witty pi 2" on an ethernet dongle.
+
+Noticed /dev/rtc0 detected as an DS1307 device.  And noticed "timedatectl", that rtc0 has been set from NTP and looks good.
+
+All jumpers are in the "left" position.  Typed amon off to stop attempts to record audio.
+
+What to do next? - get their software:
+
+https://github.com/uugear/Witty-Pi-2/blob/master/installWittyPi.sh
+
+does various things to initialise a raspbian system...  Looking through:
+ installs wiringpi (from drogon), and then builds it.  ( I notice it's in apt-cache).
+ installs wittypi2/LATEST from their own website.
+ removes hw-clock-fake and other update-rc.d things.
+ optionally installs QT5 (for some sort of GUI), which might be usable.
+
+Goals:
+	find out power usage when sleeping.
+	fing out power usage when running (no diff?)
+	but do the above with no ethernet connection (since it confuses power).
+	 - install the power monitor now.
+ 	find the command that does "set wake time to 14:00", sleep - "sleepTill(wakeTime)"
+
+	- does the power bank "time out". (what does the dummy load do).
+
+	- find a way to get solo recording as soon as it boots (don't wait for first cron job).
+	  - use a @boot entry in crontab?
+
+        - get a red flash when recording is going (good for debug during witty-dev, and generally).
+	  - get power readings with and without LED on.
+
+
+Find a way for unsophisticated users to communicate their schedules to /boot/solo/wittypi/config.txt
+
+---------------------------------------------------------------------------
+LED experiments:
+Turn both leds off:
+root@solo:/sys/class/leds# echo default-on > led0/trigger
+root@solo:/sys/class/leds# echo default-on > led1/trigger
+
+with both on:  0.0769 mA (ethernet dongle is off, but going through witty pi2).
+with both off: 0.0722 mA (diference of ~50mA)
+---------------------------------------------------------------------------
+
+

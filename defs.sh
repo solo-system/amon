@@ -24,7 +24,7 @@ function amonoff {
 # according to "statefile".
 function watchdog {
     log ""
-    log "-- MARK : watchdog starting --"
+    log "-- MARK (wpdev) : watchdog starting --"
     log "System load (from /proc/loadavg): $(cat /proc/loadavg)"
 
     mainswitch=`getstate`

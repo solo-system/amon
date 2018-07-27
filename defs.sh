@@ -41,26 +41,57 @@ function watchdog {
 
     # first do some cleanup (test processes and procfile are in sync)
     amoncleanup
-    retval=$?
+    cleanupcode=$?
 
-    log "amoncleanup finished: exit status=[$retval] (0=no-op stopped, 1=no-op running, 2=killed everything)"
+    log "amoncleanup finished: exit status=[$cleanupcode] (0=noproblem + stopped, 1=noproblem + running, 2=problem: killed everything)"
 
-    if [ $s = "on" ]; then
-        # log "state is [on] so starting recording, and split if it was already running"
-        start -q
-	retval=$? # retval=1 => was already running
-	log "start -q just finished with retval=$retval (0=started, 1=no-op: already was running)"
+    # TODO: this logic is way too careful. It _always_ calls a start
+    # or stop, no matter what.  it should be rewritten with the return value $cleanupcode
+    # from above as the outerloop. and the $s target state as the
+    # inner loop.
 
-	# now tell arecord to split the audiofile.  Only if we didn't just start, and if the minute-of-day divides $DURATION
-	minute=`date +"%-M"`
-	rem=$(($minute % $DURATION))
-        [ $retval == 1 ] && [ $rem == 0 ] && amonsplit
-    elif [ $s = "off" ]; then
-        # log "state is [off] so stopping recording"
-        stop -q
+    # here's a go at rewriting it.
+
+    if [ $cleanupcode == 0 ] ; then
+	# cleanup says : "stopped with no problems"
+	# Therefore we have to start, if that's waht's wanted.
+	if [ $s = "on" ] ; then
+	    start
+	fi
+    elif [ $cleanupcode == 1 ] ; then
+	# cleanup says: "running with no problems"
+	# Therefore stop if we need to, otherwise consider a split.
+	if [ $s = "off" ] ; then
+	    stop
+	else
+	    # possibly split the audiofile, if the minute-of-day divides $DURATION
+	    minute=`date +"%-M"`
+	    rem=$(($minute % $DURATION))
+            [ $rem == 0 ] && amonsplit
+	fi
+    elif [ $cleanupcode == 2 ] ; then
+	log "since amoncleanup had to kill things, watchdog does nothing more on this pass"
     else
-        log "ERROR: state file is confused [$s].  This is a code error"
+	log "cleanupcode is not 0, 1 or 2 - this is a code error!"
     fi
+    
+    # and here's the old way:
+    # if [ $s = "on" ]; then
+    #     # log "state is [on] so starting recording, and split if it was already running"
+    #     start -q
+    # 	retval=$? # retval=1 => was already running
+    # 	log "start -q just finished with retval=$retval (0=started, 1=no-op: already was running)"
+
+    # 	# now tell arecord to split the audiofile.  Only if we didn't just start, and if the minute-of-day divides $DURATION
+    # 	minute=`date +"%-M"`
+    # 	rem=$(($minute % $DURATION))
+    #     [ $retval == 1 ] && [ $rem == 0 ] && amonsplit
+    # elif [ $s = "off" ]; then
+    #     # log "state is [off] so stopping recording"
+    #     stop -q
+    # else
+    #     log "ERROR: state file is confused [$s].  This is a code error"
+    # fi
 
     status # print status for the log
 
@@ -493,7 +524,7 @@ function amoncleanup {
 
    if [ ! -f $PIDFILE -a $numprocs -eq 0 ] ; then
       log "no-op: [stopped] no procs and no procfile."
-      return 0
+      return 0 # all is clean AND stopped
    fi
 
    # Also OK if pidfile matches ps output.
@@ -505,7 +536,7 @@ function amoncleanup {
      # We need the -n clause, because they must match AND be nonzero length
      if [ -n "$pidf" -a "$pidf" = "$procs" ] ; then
        log "no-op: [running] (pidfile [$pidf] matches ps [$procs])."
-       return 1
+       return 1 # all is clean AND running
      fi
    fi
 
@@ -529,7 +560,7 @@ function amoncleanup {
    sync; sleep 1 # let things settle (this situation is V rare, so no efficienty worries here).
    
    # We took action, so tell caller
-   return 2
+   return 2 # there was a problem, so I killed everything.
 }
 
 # this is dangerous - clears out all generated files (recordings logs

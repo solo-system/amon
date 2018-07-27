@@ -138,7 +138,7 @@ function prepare_microphone {
 	SNOWFLAKE_VOLUME="100%"
 	log "Detected microphone: $MICNAME => preparing as audio source (volume set to $SNOWFLAKE_VOLUME)"
 	amixer $AUDIODEVICE -q -c 1 set "Mic" $SNOWFLAKE_VOLUME
-    elif grep -q -l -i dodotronic /proc/asound/card*/stream0 ; then
+    elif grep -q -l -i dodotronic /proc/asound/card*/stream0 2>/dev/null; then
 	conf=mics/dodotronic.conf
 	log "prepare_mic: Found one of the dodotronic microphone types, sourcing $conf ..."
 	. $conf

@@ -20,4 +20,4 @@ homefiles:
 	cp -prv amon amon.conf defs.sh mics /home/amon/amon/
 	chown -R amon.amon /home/amon/amon/
 	chmod +x /home/amon/amon/amon
-	if ! grep -q /home/amon/amon /home/amon/.bashrc ; then echo "adding path to bashrc" ; echo 'PATH=$$PATH:/home/amon/amon' >> /home/amon/.bashrc ; else echo "PATH already good" ; fi
+	if ! grep -q /home/amon/amon /home/amon/.bashrc ; then echo "adding path to bashrc" ; echo 'PATH=/opt/upgrade-alsa/installdir/bin:$$PATH:/home/amon/amon' >> /home/amon/.bashrc ; else echo "PATH already good" ; fi

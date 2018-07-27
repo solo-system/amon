@@ -107,16 +107,16 @@ function watchdog {
       fi
     fi # end of "if DO_MEM_STUFF"
 
-    # check if we should reboot
-    hourmin=`date +"%H:%M"`
-    if [ $NIGHTLYREBOOT -a $NIGHTLYREBOOT = $hourmin ] ; then
-	log "rebooting since $hourmin = $NIGHTLYREBOOT"
-        reboot
-    else
-	# log "not calling reboot since $hourmin != $NIGHTLYREBOOT"
-	# those log messages were getting boring.
-	true
-     fi
+    # # check if we should reboot
+    # hourmin=`date +"%H:%M"`
+    # if [ $NIGHTLYREBOOT -a $NIGHTLYREBOOT = $hourmin ] ; then
+    # 	log "rebooting since $hourmin = $NIGHTLYREBOOT"
+    #     reboot
+    # else
+    # 	# log "not calling reboot since $hourmin != $NIGHTLYREBOOT"
+    # 	# those log messages were getting boring.
+    # 	true
+    #  fi
 
     log "-- MARK : watchdog finished --"
 } # end of watchdog
@@ -356,7 +356,21 @@ function start {
 
   # this return 0 is needed to stop amonsplit from running immediately after we start recording.
   # we return with 1 (at the top of this function) if we were already running.
-  return 0
+
+  # but we can at least _look_ to see if the start worked, and show the arecord.log file if it failed:
+  sleep 2
+  
+  if [ -f $PIDFILE ] ; then
+      log "recording running running as [`cat $PIDFILE`]"
+  else
+      log "recording failed to start (no pidfile).  output of arecord.log follows:"
+      log "$(cat $ALOG)"
+  fi
+
+  # whether we started or not, 0 means we tried. TODO - this could be
+  # improved by introducing a third return value for Tried-and-failed,
+  # and Tried-and-succeeded.
+  return 0 
 }
 
 # stop recording (ignores state file)

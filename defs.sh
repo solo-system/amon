@@ -288,8 +288,11 @@ function testrec {
 #   fi
 }
 
-# start recording - ignores "state" file.
+# start recording - ignores "state" file. Return:
 function start {
+  # return: 1 if already runing (no-op)
+  # return: 0 if we started (or at least, tried to start).
+    
   if [ -f $PIDFILE ] ; then
       log "already running as [`cat $PIDFILE`]"
       return 1
@@ -311,26 +314,17 @@ function start {
   # Argh - max_file_duratino is also broken at the moment in arecord. So remove it for the moment, and hope the watchdog takes care of it.  Once arecord is working again (in 1.0.29, hopefully) we can reintroduce the --max-file-time...
   cmd="arecord $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$SYSNAME-%Y-%m-%d_%H-%M-%S.wav"
 
-  log "about to run: $cmd"
+  log "starting recording with: $cmd"
   $cmd  >& $ALOG &
 
-  # This is a bit silly - there is no retval for a process that is running... TODO
-  # nicer to do a sleep 1, then look for the PIDFILE.  But either way, there's nothing changes in the logic or flow
-  # if arecord fails, there's nothing we can do here.
-  retval=$?
-  log "startup recording process returned status value of $retval"
-  if [ $retval -eq 0 ] ; then
-      sleep 1
-      log "arecord process started as pid=[`cat $PIDFILE`]"
-      # set led flash to "recording"
-  else
-      log "arecord process failed to start returning error code $retval"
-      log "I suppose it'll try again in a minute..."
-      # could look for the error here
-      # set led flash to "not recording"
-  fi
+  # We can't capture the retval and do anything here, because there is
+  # no retval for a running process (and we hope arecord is running!).
+  # Note: even if it failed, the way we've called (in bg) it prohibits
+  # us getting the retval without a "wait ..." of somesuch.  But
+  # that's ok, the watchdog will catch any problems next time around.
 
   # this return 0 is needed to stop amonsplit from running immediately after we start recording.
+  # we return with 1 (at the top of this function) if we were already running.
   return 0
 }
 

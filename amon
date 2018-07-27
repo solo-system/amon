@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# explicitly set path, since from cron, we don't inherit it (or read .bashrc).
+export PATH=/opt/upgrade-alsa/installdir/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/amon/amon
+
 # umask to ensure others can read files we generate
 umask 0022 
 

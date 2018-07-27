@@ -142,23 +142,7 @@ function prepare_microphone {
 	conf=mics/dodotronic.conf
 	log "prepare_mic: Found one of the dodotronic microphone types, sourcing $conf ..."
 	. $conf
-	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
-	log "prepare_mic: Done setting up dodotronic mic."
-    elif grep "UltraMic 200K" /proc/asound/cards > /dev/null ; then
-	MICNAME="dodotronic-200k"
-	log "Detected microphone: \"$MICNAME\" microphone => preparing as audio source"
-	conf=mics/$MICNAME.conf
-	if [ -f $conf ] ; then 
-	    log "reading microphone config file: $conf"
-	    #	    set -x
-	    . mics/$MICNAME.conf
-	    #	    set +x
-	    log "done reading microhpone config file"
-	else
-	    log "Can't find configuration for microphone $MICNAME - no mics/$MICNAME.conf file"
-	    log "Dunno what will happen - ..."
-	fi
-	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
+	log "prepare_mic: AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
     elif grep "USB-Audio - Sound Blaster Play! 2" /proc/asound/cards > /dev/null ; then
 	MICNAME="soundblasterplay"
 	conf=mics/$MICNAME.conf

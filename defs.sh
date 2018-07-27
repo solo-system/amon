@@ -43,7 +43,7 @@ function watchdog {
     amoncleanup
     cleanupcode=$?
 
-    log "amoncleanup finished: exit status=[$cleanupcode] (0=noproblem + stopped, 1=noproblem + running, 2=problem: killed everything)"
+    log "amoncleanup finished: exit status=$cleanupcode (0=noproblem + stopped, 1=noproblem + running, 2=problem: killed everything)"
 
     # TODO: this logic is way too careful. It _always_ calls a start
     # or stop, no matter what.  it should be rewritten with the return value $cleanupcode
@@ -523,7 +523,7 @@ function amoncleanup {
    numprocs=`countprocs`
 
    if [ ! -f $PIDFILE -a $numprocs -eq 0 ] ; then
-      log "no-op: [stopped] no procs and no procfile."
+      log "no-op: [stopped and happy] no procs and no procfile. returning 0"
       return 0 # all is clean AND stopped
    fi
 
@@ -535,12 +535,12 @@ function amoncleanup {
 
      # We need the -n clause, because they must match AND be nonzero length
      if [ -n "$pidf" -a "$pidf" = "$procs" ] ; then
-       log "no-op: [running] (pidfile [$pidf] matches ps [$procs])."
+       log "no-op: [running and happy] (pidfile [$pidf] matches ps [$procs]) returning 1"
        return 1 # all is clean AND running
      fi
    fi
 
-   log "We have a problem:  stop/kill all procs and removing pidfile... pidf=$pidf AND procs=$procs"
+   log "We have a problem:  stop/kill all procs and removing pidfile... pidf=$pidf AND procs=$procs and return 2"
 
    # actually do the cleanup.
    # kill all the processes

@@ -7,6 +7,7 @@ NEXT: Take the new sosi.  Run it,
 	       Then start the dev cycle:
 	       -- clone wpdev into /opt/git/amon2 (or sumfink).
 	       -- get bounce to work.
+	       -- edit the wp.sh file, to make it do anything new (just lumbering up...)
 	       -- do the dev outlined below, and loop till it works.
 
 ??? move wittypi hardware over to model B (for audio and ethernet simultaneously).

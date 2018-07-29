@@ -1,3 +1,35 @@
+Sun 29 Jul 2018
+---------------
+git merge master (to get all the recent changes and keep in step with master).
+But this will break (cos don't have new arecord).  Except that's just apath thing, so forget it.
+
+Really need to 
+
+
+try bounce a few times.
+move wittypi hardware over to model B (for audio and ethernet simultaneously).
+
+git merge - master into amon. (will it conflict).
+
+
+make directory calendars/wp/
+put a first25mins.sh calendar in there.  It returns 2 things on/off and time-of-restart (in local time).
+./first25mins.sh
+on xzulu
+or...
+off 22:00.
+
+
+Main script has a WITTYPI2=yes.
+if [ $WITTYPI2 = "yes" ] then
+   onoff xzulu = $(/wherever/calendars/wittypi/first24mins.sh)
+   amon off
+   set reboot time to xzulu
+   poweroff.
+fi
+
+   
+
 Sat 14 Jul 2018
 ---------------
 
@@ -23,8 +55,6 @@ Now back on the pi, pull from that branch.
 loop as needed.
 
 mv the wp stuff in git/tbox/wp into this dev branch:
-
-
 
 
 Fri 06 Jul 2018
@@ -158,5 +188,3 @@ root@solo:/sys/class/leds# echo default-on > led1/trigger
 with both on:  0.0769 mA (ethernet dongle is off, but going through witty pi2).
 with both off: 0.0722 mA (diference of ~50mA)
 ---------------------------------------------------------------------------
-
-

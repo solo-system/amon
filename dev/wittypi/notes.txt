@@ -1,16 +1,15 @@
 Sun 29 Jul 2018
 ---------------
-git merge master (to get all the recent changes and keep in step with master).
-But this will break (cos don't have new arecord).  Except that's just apath thing, so forget it.
+NEXT: Take the new sosi.  Run it, 
+      	       -- then look below at what's needed to get it running (grodon's gpio lib).
+	       -- consider adding that stuff to the general build
+	       -- make a new (internal) image with 200M of space.
+	       Then start the dev cycle:
+	       -- clone wpdev into /opt/git/amon2 (or sumfink).
+	       -- get bounce to work.
+	       -- do the dev outlined below, and loop till it works.
 
-Really need to 
-
-
-try bounce a few times.
-move wittypi hardware over to model B (for audio and ethernet simultaneously).
-
-git merge - master into amon. (will it conflict).
-
+??? move wittypi hardware over to model B (for audio and ethernet simultaneously).
 
 make directory calendars/wp/
 put a first25mins.sh calendar in there.  It returns 2 things on/off and time-of-restart (in local time).

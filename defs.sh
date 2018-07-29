@@ -41,26 +41,57 @@ function watchdog {
 
     # first do some cleanup (test processes and procfile are in sync)
     amoncleanup
-    retval=$?
+    cleanupcode=$?
 
-    log "amoncleanup finished: exit status=[$retval] (0=no-op stopped, 1=no-op running, 2=killed everything)"
+    log "amoncleanup finished: exit status=$cleanupcode (0=noproblem + stopped, 1=noproblem + running, 2=problem: killed everything)"
 
-    if [ $s = "on" ]; then
-        # log "state is [on] so starting recording, and split if it was already running"
-        start -q
-	retval=$? # retval=1 => was already running
-	log "start -q just finished with retval=$retval (0=started, 1=no-op: already was running)"
+    # TODO: this logic is way too careful. It _always_ calls a start
+    # or stop, no matter what.  it should be rewritten with the return value $cleanupcode
+    # from above as the outerloop. and the $s target state as the
+    # inner loop.
 
-	# now tell arecord to split the audiofile.  Only if we didn't just start, and if the minute-of-day divides $DURATION
-	minute=`date +"%-M"`
-	rem=$(($minute % $DURATION))
-        [ $retval == 1 ] && [ $rem == 0 ] && amonsplit
-    elif [ $s = "off" ]; then
-        # log "state is [off] so stopping recording"
-        stop -q
+    # here's a go at rewriting it.
+
+    if [ $cleanupcode == 0 ] ; then
+	# cleanup says : "stopped with no problems"
+	# Therefore we have to start, if that's waht's wanted.
+	if [ $s = "on" ] ; then
+	    start
+	fi
+    elif [ $cleanupcode == 1 ] ; then
+	# cleanup says: "running with no problems"
+	# Therefore stop if we need to, otherwise consider a split.
+	if [ $s = "off" ] ; then
+	    stop
+	else
+	    # possibly split the audiofile, if the minute-of-day divides $DURATION
+	    minute=`date +"%-M"`
+	    rem=$(($minute % $DURATION))
+            [ $rem == 0 ] && amonsplit
+	fi
+    elif [ $cleanupcode == 2 ] ; then
+	log "since amoncleanup had to kill things, watchdog does nothing more on this pass"
     else
-        log "ERROR: state file is confused [$s].  This is a code error"
+	log "cleanupcode is not 0, 1 or 2 - this is a code error!"
     fi
+    
+    # and here's the old way:
+    # if [ $s = "on" ]; then
+    #     # log "state is [on] so starting recording, and split if it was already running"
+    #     start -q
+    # 	retval=$? # retval=1 => was already running
+    # 	log "start -q just finished with retval=$retval (0=started, 1=no-op: already was running)"
+
+    # 	# now tell arecord to split the audiofile.  Only if we didn't just start, and if the minute-of-day divides $DURATION
+    # 	minute=`date +"%-M"`
+    # 	rem=$(($minute % $DURATION))
+    #     [ $retval == 1 ] && [ $rem == 0 ] && amonsplit
+    # elif [ $s = "off" ]; then
+    #     # log "state is [off] so stopping recording"
+    #     stop -q
+    # else
+    #     log "ERROR: state file is confused [$s].  This is a code error"
+    # fi
 
     status # print status for the log
 
@@ -76,16 +107,16 @@ function watchdog {
       fi
     fi # end of "if DO_MEM_STUFF"
 
-    # check if we should reboot
-    hourmin=`date +"%H:%M"`
-    if [ $NIGHTLYREBOOT -a $NIGHTLYREBOOT = $hourmin ] ; then
-	log "rebooting since $hourmin = $NIGHTLYREBOOT"
-        reboot
-    else
-	# log "not calling reboot since $hourmin != $NIGHTLYREBOOT"
-	# those log messages were getting boring.
-	true
-     fi
+    # # check if we should reboot
+    # hourmin=`date +"%H:%M"`
+    # if [ $NIGHTLYREBOOT -a $NIGHTLYREBOOT = $hourmin ] ; then
+    # 	log "rebooting since $hourmin = $NIGHTLYREBOOT"
+    #     reboot
+    # else
+    # 	# log "not calling reboot since $hourmin != $NIGHTLYREBOOT"
+    # 	# those log messages were getting boring.
+    # 	true
+    #  fi
 
     log "-- MARK : watchdog finished --"
 } # end of watchdog
@@ -138,21 +169,11 @@ function prepare_microphone {
 	SNOWFLAKE_VOLUME="100%"
 	log "Detected microphone: $MICNAME => preparing as audio source (volume set to $SNOWFLAKE_VOLUME)"
 	amixer $AUDIODEVICE -q -c 1 set "Mic" $SNOWFLAKE_VOLUME
-    elif grep "UltraMic 200K" /proc/asound/cards > /dev/null ; then
-	MICNAME="dodotronic-200k"
-	log "Detected microphone: \"$MICNAME\" microphone => preparing as audio source"
-	conf=mics/$MICNAME.conf
-	if [ -f $conf ] ; then 
-	    log "reading microphone config file: $conf"
-	    #	    set -x
-	    . mics/$MICNAME.conf
-	    #	    set +x
-	    log "done reading microhpone config file"
-	else
-	    log "Can't find configuration for microphone $MICNAME - no mics/$MICNAME.conf file"
-	    log "Dunno what will happen - ..."
-	fi
-	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
+    elif grep -q -l -i dodotronic /proc/asound/card*/stream0 2>/dev/null; then
+	conf=mics/dodotronic.conf
+	log "prepare_mic: Found one of the dodotronic microphone types, sourcing $conf ..."
+	. $conf
+	log "prepare_mic: AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
     elif grep "USB-Audio - Sound Blaster Play! 2" /proc/asound/cards > /dev/null ; then
 	MICNAME="soundblasterplay"
 	conf=mics/$MICNAME.conf
@@ -298,8 +319,11 @@ function testrec {
 #   fi
 }
 
-# start recording - ignores "state" file.
+# start recording - ignores "state" file. Return:
 function start {
+  # return: 1 if already runing (no-op)
+  # return: 0 if we started (or at least, tried to start).
+    
   if [ -f $PIDFILE ] ; then
       log "already running as [`cat $PIDFILE`]"
       return 1
@@ -321,27 +345,32 @@ function start {
   # Argh - max_file_duratino is also broken at the moment in arecord. So remove it for the moment, and hope the watchdog takes care of it.  Once arecord is working again (in 1.0.29, hopefully) we can reintroduce the --max-file-time...
   cmd="arecord $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$SYSNAME-%Y-%m-%d_%H-%M-%S.wav"
 
-  log "about to run: $cmd"
+  log "starting recording with: $cmd"
   $cmd  >& $ALOG &
 
-  # This is a bit silly - there is no retval for a process that is running... TODO
-  # nicer to do a sleep 1, then look for the PIDFILE.  But either way, there's nothing changes in the logic or flow
-  # if arecord fails, there's nothing we can do here.
-  retval=$?
-  log "startup recording process returned status value of $retval"
-  if [ $retval -eq 0 ] ; then
-      sleep 1
-      log "arecord process started as pid=[`cat $PIDFILE`]"
-      # set led flash to "recording"
-  else
-      log "arecord process failed to start returning error code $retval"
-      log "I suppose it'll try again in a minute..."
-      # could look for the error here
-      # set led flash to "not recording"
-  fi
+  # We can't capture the retval and do anything here, because there is
+  # no retval for a running process (and we hope arecord is running!).
+  # Note: even if it failed, the way we've called (in bg) it prohibits
+  # us getting the retval without a "wait ..." of somesuch.  But
+  # that's ok, the watchdog will catch any problems next time around.
 
   # this return 0 is needed to stop amonsplit from running immediately after we start recording.
-  return 0
+  # we return with 1 (at the top of this function) if we were already running.
+
+  # but we can at least _look_ to see if the start worked, and show the arecord.log file if it failed:
+  sleep 2
+  
+  if [ -f $PIDFILE ] ; then
+      log "recording running running as [`cat $PIDFILE`]"
+  else
+      log "recording failed to start (no pidfile).  output of arecord.log follows:"
+      log "$(cat $ALOG)"
+  fi
+
+  # whether we started or not, 0 means we tried. TODO - this could be
+  # improved by introducing a third return value for Tried-and-failed,
+  # and Tried-and-succeeded.
+  return 0 
 }
 
 # stop recording (ignores state file)
@@ -508,8 +537,8 @@ function amoncleanup {
    numprocs=`countprocs`
 
    if [ ! -f $PIDFILE -a $numprocs -eq 0 ] ; then
-      log "no-op: [stopped] no procs and no procfile."
-      return 0
+      log "no-op: [stopped and happy] no procs and no procfile. returning 0"
+      return 0 # all is clean AND stopped
    fi
 
    # Also OK if pidfile matches ps output.
@@ -520,12 +549,12 @@ function amoncleanup {
 
      # We need the -n clause, because they must match AND be nonzero length
      if [ -n "$pidf" -a "$pidf" = "$procs" ] ; then
-       log "no-op: [running] (pidfile [$pidf] matches ps [$procs])."
-       return 1
+       log "no-op: [running and happy] (pidfile [$pidf] matches ps [$procs]) returning 1"
+       return 1 # all is clean AND running
      fi
    fi
 
-   log "We have a problem:  stop/kill all procs and removing pidfile... pidf=$pidf AND procs=$procs"
+   log "We have a problem:  stop/kill all procs and removing pidfile... pidf=$pidf AND procs=$procs and return 2"
 
    # actually do the cleanup.
    # kill all the processes
@@ -545,7 +574,7 @@ function amoncleanup {
    sync; sleep 1 # let things settle (this situation is V rare, so no efficienty worries here).
    
    # We took action, so tell caller
-   return 2
+   return 2 # there was a problem, so I killed everything.
 }
 
 # this is dangerous - clears out all generated files (recordings logs

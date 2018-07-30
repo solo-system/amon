@@ -20,9 +20,10 @@ if [ -e /dev/rtc ] ; then
 fi
 
 function JCrbt_set(){
-    echo this is JCrbt_set $# args are: $*
     shift
-    echo AFTER SHIFT: this is JCrbt_set $# args are: $*
+    echo JCrbt_set: reboot time sought is: $*
+    echo "about to set_startup_time date=$2 hour=$3 minute=$4 second=$4"
+#    set_startup_time 
 }
 
 

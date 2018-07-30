@@ -53,11 +53,17 @@ if [ $(( $minute % 10 )) -lt 5 ] ; then
     exit 0
 fi
 
-# so we know we will return "off", but what about the rbt?
-# Maths:  we add ten minutes, then round to ten minutes (by / then *).  Then mod 60 to wrap the hour.
-rbt=$((  (($minute+10) / 10)*10 % 60    ))
+# We will return "off", so calculate the reboot time (rst)
 
-echo "off $year $month $day $hour $rbt 0"
+# The time in 10 mins is:
+read -a rst <<< $(date  +"%Y %-m %-d %-H %-M %-S" -d "10 minutes")
+
+# munge it: "minutes" rounds to be multiple of ten, and zero the "seconds" element.
+rst[4]=$((   ${rst[4]} / 10 * 10   ))
+rst[5]=0
+
+# print the output.
+echo "off ${rst[@]}"
 
 # echo "Calendar script finished" 1>&2
 

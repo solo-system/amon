@@ -115,6 +115,10 @@ function watchdog {
     # 	true
     #  fi
 
+    log "just before we finish watchdog, lets run status on wp.sh"
+    sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh status
+    log "done running status on wp.sh"
+    
     log "-- MARK : watchdog finished --"
 } # end of watchdog
 

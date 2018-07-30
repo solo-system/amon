@@ -78,20 +78,30 @@ function watchdog {
 	    stop
 	    log "watchdog: stopped recording"
 	    log "TODO: could look to reboot here, but chickening out to next pass"
-	else # good - we are not running 
-	    log "watchdog: we are off, as we should be - but should we reboot? (TODO)"
-	    if [ "$rbt" ] ; then
-		log "And rbt is $rbt, so could call wp.sh $rbt, instead will call status..."
-		sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh setrbt $rbt
-		sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh status
-		# TODO actually call the reboot here.
-		log "Calling the shutdown now.... !!!!!!!!!!! (Will I see you again?)"
-		sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh shutdown
+	    log "calling sync after stopping recording"
+	    sync
+	    log "finished calling sync after stopping recording"
+	fi
 
-	    fi
+	log "watchdog: we are off, as we should be.  Rest."
+	WITTYPI=yes
+	if [ $WITTYPI == "yes" -a "$rbt" ] ; then
+	    log "And rbt is $rbt, so could call wp.sh $rbt, instead will call status..."
+	    sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh setrbt $rbt
+	    sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh status
+	    # TODO actually call the reboot here.
+	    log "Calling the shutdown now.... !!!!!!!!!!! (Will I see you again?)"
+	    sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh shutdown
+	    
 	fi
     fi
 
+    log "AAAAAAA start test of logging"
+
+    log <<< (sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh status)
+    
+    log "ZZZZZZZ END test of logging"
+    
     
 #    log "status: state=[$mainswitch], calendarDecision=[$calendarDecision] -> desired-state=[$s]: will cleanup() then make it so."
 

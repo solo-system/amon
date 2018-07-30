@@ -96,7 +96,7 @@ elif [ "$1" == "status" ] ; then
     sut=$(get_startup_time) # ; supl=$(get_local_date_time "$sdt")
     echo "INFO:. Schedule next startup [$sut]"
     exit
-elif [ "$1" == "status" ] ; then
+elif [ "$1" == "setrbt" ] ; then
     # call JCrbt_set
     echo "calling JCrbt_set"
     JCrbt_set

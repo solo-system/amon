@@ -82,7 +82,10 @@ function watchdog {
 	    log "watchdog: we are off, as we should be - but should we reboot? (TODO)"
 	    if [ $rst ] ; then
 		log "And rst is $rst, so could call wp.sh $rst, instead will call status..."
+		sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh setrbt $rbt
 		sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh status
+		# TODO actually call the reboot here.
+#		sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh reboot
 	    fi
 	fi
     fi

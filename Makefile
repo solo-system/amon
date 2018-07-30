@@ -17,7 +17,7 @@ bootfiles:
 
 homefiles:
 	if [ ! -d /home/amon/amon ] ; then mkdir -pv /home/amon/amon; fi
-	cp -prv amon amon.conf defs.sh mics wp.sh WPutils.sh /home/amon/amon/
+	cp -prv amon amon.conf defs.sh mics wp.sh wp-utils.sh /home/amon/amon/
 	chown -R amon.amon /home/amon/amon/
 	chmod +x /home/amon/amon/amon
 	if ! grep -q /home/amon/amon /home/amon/.bashrc ; then echo "adding path to bashrc" ; echo 'PATH=/opt/upgrade-alsa/installdir/bin:$$PATH:/home/amon/amon' >> /home/amon/.bashrc ; else echo "PATH already good" ; fi

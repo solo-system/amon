@@ -82,9 +82,10 @@ function watchdog {
 	if [ $WITTYPI == "yes" -a "$rbt" ] ; then
 	    log "Wittypi: setting reboot time to rbt=$rbt"
 	    sudo /home/amon/amon/wp.sh setrbt $rbt
-	    sudo /home/amon/amon/wp.sh status
+	    # sudo /home/amon/amon/wp.sh status
+	    log "Wittypi: syncing discs"
+	    sync ; sync # good ol' fasioned paranoia.
 	    log "Wittypi: *** Calling shutdown now: Bye. ***"
-	    sync
 	    sudo /home/amon/amon/wp.sh shutdown # change this to shutdown-prep.
 	    # call the actual shutdown ourselves.
 	    # sudo poweroff.

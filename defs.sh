@@ -27,10 +27,10 @@ function watchdog {
     log "-- MARK (wpdev+WITTY) : watchdog starting --"
     log "System load (from /proc/loadavg): $(cat /proc/loadavg)"
 
-    log "watchdog: first thing we do is cleanup()" # (test processes and procfile are in sync)
+    # log "watchdog: first thing we do is cleanup()" # (test processes and procfile are in sync)
     amoncleanup
     cleanupcode=$?
-    log "amoncleanup() exit status=$cleanupcode (0=noprobs+stopped, 1=noprobs+running, 2=problem: killed everything)"
+    # log "amoncleanup() exit status=$cleanupcode (0=noprobs+stopped, 1=noprobs+running, 2=problem: killed everything)"
 
     if [ $cleanupcode == 2 ] ; then
 	log "since amoncleanup() had to kill things, watchdog does nothing more on this pass, watchdog exiting."
@@ -40,33 +40,31 @@ function watchdog {
     # If mainswitch says off, then turn off, and do no more.
     mainswitch=`getstate`
     if [ $mainswitch = "off" ] ; then
-	log "main switch is off, so ensuring we are off"
+	log "mainswitch is OFF, so ensuring we are not recording"
 	stop # strictly, we only need to stop if cleancode is 1 (running)
-	log "watchdog finished".
 	return
     fi
 
     # If we get to here: there were no problems (cleanup), and mainswitch is ON.
     calendarDecision=$(calendarTarget)
-    log "calendarDecision returned : \"$calendarDecision\""
+    # log "calendarDecision returned : \"$calendarDecision\""
     read calonoff rbt <<< $calendarDecision
     if [ "$rbt" ] ; then
-	log "watchdog: Calendar says we should be off with a rbt of $rbt"
+	log "Calendar says OFF with reboot time of $rbt"
     elif [ $calonoff == "on" ] ; then
-	log "watchdog: Calendar says we should be on"
+	log "Calendar says ON"
     elif [ $calonoff = "off" ] ; then 
-	log "watchdog: Calendar says we should be off (but offers no rbt)"
+	log "Calendar says OFF (offers no reboot time)"
     fi
-
 
     # This is the main action (4 way choice)
     if [ $calonoff = "on" ] ; then # we should be recording
 	if [ $cleanupcode == 0 ] ; then  # but we are stopped
 	    # Therefore we have to start:
-	    log "we are stopped, but we should be started, so starting..."
+	    log "we are stopped, but we should be recording, so starting..."
 	    start
 	else # we are already recording
-	    log "we are recording, as we should be. Consider a split...".
+	    log "we are recording, just as we should be."
 	    # possibly split the audiofile, if the minute-of-day divides $DURATION
 	    minute=`date +"%-M"`
 	    rem=$(( $minute % $DURATION ))
@@ -74,16 +72,12 @@ function watchdog {
 	fi
     elif [ $calonoff = "off" ] ; then # we should be stopped
 	if [ $cleanupcode == 1 ] ; then  # but we are running.
-	    log "watchdog: calonoff is off ($calonoff), but we are running, so stop... "
+	    log "we are running, but we should be stopped, so stop... "
 	    stop
-	    log "watchdog: stopped recording"
-	    log "TODO: could look to reboot here, but chickening out to next pass"
-	    log "calling sync after stopping recording"
-	    sync
-	    log "finished calling sync after stopping recording"
+	else	
+	    log "we are stopped, just as we should be. All is calm."
 	fi
-
-	log "watchdog: we are off, as we should be.  Rest."
+	
 	WITTYPI=yes
 	if [ $WITTYPI == "yes" -a "$rbt" ] ; then
 	    log "Wittypi: setting reboot time to rbt=$rbt"

@@ -85,7 +85,8 @@ function watchdog {
 		sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh setrbt $rbt
 		sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh status
 		# TODO actually call the reboot here.
-#		sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh reboot
+#		sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh shutdown
+		log "NEARLY but didnt call the shutdown!!!!!!!!!!!"
 	    fi
 	fi
     fi

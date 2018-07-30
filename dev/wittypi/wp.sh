@@ -119,6 +119,10 @@ elif [ "$1" == "setrbt" ] ; then
     echo "wp.sh[setrbt]: calling JCrbt_set with $# args"
     JCrbt_set $*
     echo "wp.sh[setrbt]: done calling JCrbt_set"
+elif [ "$1" == "shutdown" ] ; then
+    # do the shutdown
+    echo "wp.sh[shutdown]: calling JCrbt_set with $# args"
+    do_shutdown 4 17 0
 else    
     echo "command line not recognised. (try: status, bounce)"
     exit

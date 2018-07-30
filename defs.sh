@@ -48,6 +48,7 @@ function watchdog {
 
     # If we get to here: there were no problems (cleanup), and mainswitch is ON.
     calendarDecision=$(calendarTarget)
+    log "calendarDecision returned : \"$calendarDecision\""
     read calonoff rst <<< $calendarDecision
     if [ $rst ] ; then
 	log "watchdog: Calendar says we should be off with a rst of $rst"
@@ -79,6 +80,10 @@ function watchdog {
 	    log "TODO: could look to reboot here, but chickening out to next pass"
 	else # good - we are not running 
 	    log "watchdog: we are off, as we should be - but should we reboot? (TODO)"
+	    if [ $rst ] ; then
+		log "And rst is $rst, so could call wp.sh $rst, instead will call status..."
+		sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh status
+	    fi
 	fi
     fi
 

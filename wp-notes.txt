@@ -15,13 +15,17 @@ Set the Calendar variable in /boot/amon.conf (and the WITTYPI=yes)
 Finally:  Leave a system running with 5 minute cycle time overnight.
 
 TODO:
-Can I just merge the two repos?  (test in sandpit)
-what should happen to the old wp stuff in wpdev?
-what should happen to this file (solomisc?)
-is the code from uugear redistributable ?
+Done: Can I just merge the two repos?  (test in sandpit)
+Done: what should happen to the old wp stuff in wpdev?
+Done: what should happen to this file (solomisc?)
+Done: is the code from uugear redistributable ?
+Done: mv the wittypi dev stuff into solomisc.git
 
-mv the wittypi dev stuff into solomisc.git
+Done: look around for other things to do...
 
+now add the 2 things to provision.sh
+get all the repos in sync and push to github.
+run dailyProvision.sh
 
 ---------------------------------------------------------------------------
 
@@ -30,6 +34,7 @@ the output doesnt get into amon.log - that's not good enough. And I
 don't want to TOO closely integrate witty pi stuff, as many (most)
 people won't use it.  bring higher level functions into defs.sh (witty defs .sh?) starting wp-????() and use those to do logging and stuff, and they can call wp.sh for the low level stuff.  What groups do I need to be in to get rid of the sudo stuff?  (i2cdev/gpio)
 
+what abuot touch /tmp/solo-boot.started at top of solo-boot, and solo-boot.finished at end of it.  amon (the executable) can print a warning.  And watchdog can then to a wait loop for 40 seconds, then clear up and exit, waiting for next watchdog. (but if watchdogs are stacking at boot time, this might be unsafe).
 
 Why do cronjobs seem to cluster at boot time?  Are they buffered? or is it anacron or sumfink?
 Think about a solo-boot.sh touching /var/run/solo-boot.done file, which amon checks for and either
@@ -40,16 +45,17 @@ can we glide over a reboot time set in the wittypi alarm, and just be up and sta
 
 wakeup early protection against falling asleep again.
 
-Put WITTYPI=yes in (amon.git or solo.git?)
+put some pointers and examples in solo.git/boot/solo.conf and solo.git/solo.conf for acceptable timezones.  Also update doc on githubpages.
+
 Change solo.git/boot/solo.conf to have GMT not London/Europe.
 change solo.git/solo.conf to have UTC (how can we tell where you are?)
+
+line 691 of defs.sh - should do slightly better check that rbt only supplied for an "off" situation from the calendar.
 
 There's only a few things we need from wp.sh:
 - set the time
 - show the time.
 - prepare for shutdown (?)
-
-remove the YAHOO line in the calendar stuff.
 
 Mon 30 Jul 2018
 ---------------
@@ -59,7 +65,7 @@ echo "i2c-dev" >> /etc/modules (or sudo modprobe i2c-dev). Q: how should we leav
  clock as it sees fit?  (is that load/unload loop corrupting?).
 
 NEXT: write wp.sh "set rbt" to take a hextime. DONE
-THEN: change watchdog to do the alg below.#
+THEN: change watchdog to do the alg below.
 THEN: add CALENDAR to /boot/amon.conf and see what happens.
 
 TODO:

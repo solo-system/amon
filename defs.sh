@@ -654,29 +654,16 @@ function reboot() {
 # we handle all errors here, and don't bubble them up.
 function calendarTarget() {
 
-    if [ -z $CALENDAR ] ; then
-	log -q "No calendar: config variable CALENDAR is empty assuming \"on\""
-	echo "on"
-	return 0
-    fi
-
     # note - all the logging uses -q, so it doesn't go to stdout - we
     # need stout clean for the yes/no answer
 
-    log -q "Checking calendar: $CALENDAR (logged into $LOGDIR/calendar.log)"
-
-    if [ ! -f $CALENDAR ] ; then
-	log -q "No such calendar file: $CALENDAR - assuming \"on\""
+    if [ -z $CALENDAR -o ! -f $CALENDAR ] ; then
+	log -q "Unspecified or nonexistent calendar (\"$CALENDAR\").  So default to \"on\"."
 	echo "on"
 	return 0
     fi
 
-# I disabled this, because: what does "executable" mean on a FAT partition (/boot/ is FAT).      
-#    if [ ! -x $CALENDAR ] ; then
-#	log -q "found calendar in $CALENDAR but it's not executable"
-#	echo "on"
-#	return 0
-#    fi
+    log -q "Checking calendar: $CALENDAR (output logged into $LOGDIR/calendar.log)"
 
     # now run the calendar file, grabbing the output.
     decision=$($CALENDAR 2>> $LOGDIR/calendar.log)
@@ -688,19 +675,25 @@ function calendarTarget() {
 	return 0
     fi
 
-    # This is new for wittypi - decision might include a reboot time.
-    log -q "This is new for wittypi"
-    read yesno rst <<< $decision
-    log -q "split the decision=\"$decision\" into yesno=\"$yesno\" and rst=\"$rst\". End."
-    
+    # This is new for wittypi - decision might include a reboot time, so split it.
+    read yesno rbt <<< $decision
+
     if [ $yesno != "on" -a $yesno != "off" ] ; then
-	log -q "Calendar script returned invalid answer \"$decision\"  - ignoring"
+	log -q "Calendar must return yes/no as first token. Invalid: \"$decision\"  (assuming \"on\")"
 	echo "on"
 	return 0
     fi
 
+    # See if the calendar returned a reboot time.
+    if [ "$rbt" ] ; then
+	log -q "Calendar returned yesno=\"$yesno\" with rbt=\"$rbt\""
+    else
+	log -q "Calendar returned yesno=\"$yesno\""
+    fi
+    
+
     # if we passed all those tests, then we have a valid output from the calendar, and should return it
-    log -q "YAHOO: calendar returned a valid answer \"$decision\" - using it"
+    # log -q "calendar returned a valid answer \"$decision\" - using it"
     echo "$decision"
     return 0
 

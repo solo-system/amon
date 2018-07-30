@@ -24,74 +24,63 @@ function amonoff {
 # according to "statefile".
 function watchdog {
     log ""
-    log "-- MARK (wpdev) : watchdog starting --"
+    log "-- MARK (wpdev+WITTY) : watchdog starting --"
     log "System load (from /proc/loadavg): $(cat /proc/loadavg)"
 
-    mainswitch=`getstate`
-    calendar=`calendarTarget`
-
-    # merge the two information sources:
-    if [ $mainswitch = "on" ] ; then
-	s=$calendar
-    else
-	s="off"
-    fi
-
-    log "status: state=[$mainswitch], calendar=[$calendar] -> desired-state=[$s]: will cleanup() then make it so."
-
-    # first do some cleanup (test processes and procfile are in sync)
+    log "watchdog: first thing we do is cleanup()" # (test processes and procfile are in sync)
     amoncleanup
     cleanupcode=$?
+    log "amoncleanup() exit status=$cleanupcode (0=noprobs+stopped, 1=noprobs+running, 2=problem: killed everything)"
 
-    log "amoncleanup finished: exit status=$cleanupcode (0=noproblem + stopped, 1=noproblem + running, 2=problem: killed everything)"
-
-    # TODO: this logic is way too careful. It _always_ calls a start
-    # or stop, no matter what.  it should be rewritten with the return value $cleanupcode
-    # from above as the outerloop. and the $s target state as the
-    # inner loop.
-
-    # here's a go at rewriting it.
-
-    if [ $cleanupcode == 0 ] ; then
-	# cleanup says : "stopped with no problems"
-	# Therefore we have to start, if that's waht's wanted.
-	if [ $s = "on" ] ; then
-	    start
-	fi
-    elif [ $cleanupcode == 1 ] ; then
-	# cleanup says: "running with no problems"
-	# Therefore stop if we need to, otherwise consider a split.
-	if [ $s = "off" ] ; then
-	    stop
-	else
-	    # possibly split the audiofile, if the minute-of-day divides $DURATION
-	    minute=`date +"%-M"`
-	    rem=$(($minute % $DURATION))
-            [ $rem == 0 ] && amonsplit
-	fi
-    elif [ $cleanupcode == 2 ] ; then
-	log "since amoncleanup had to kill things, watchdog does nothing more on this pass"
-    else
-	log "cleanupcode is not 0, 1 or 2 - this is a code error!"
+    if [ $cleanupcode == 2 ] ; then
+	log "since amoncleanup() had to kill things, watchdog does nothing more on this pass, watchdog exiting."
+	return
     fi
     
-    # and here's the old way:
-    # if [ $s = "on" ]; then
-    #     # log "state is [on] so starting recording, and split if it was already running"
-    #     start -q
-    # 	retval=$? # retval=1 => was already running
-    # 	log "start -q just finished with retval=$retval (0=started, 1=no-op: already was running)"
+    # If mainswitch says off, then turn off, and do no more.
+    mainswitch=`getstate`
+    if [ $mainswitch = "on" ] ; then
+	log "main switch is off, so ensuring we are off"
+	stop # strictly, we only need to stop if cleancode is 1 (running)
+	log "watchdog finished".
+	return
+    fi
 
-    # 	# now tell arecord to split the audiofile.  Only if we didn't just start, and if the minute-of-day divides $DURATION
-    # 	minute=`date +"%-M"`
-    # 	rem=$(($minute % $DURATION))
-    #     [ $retval == 1 ] && [ $rem == 0 ] && amonsplit
-    # elif [ $s = "off" ]; then
-    #     # log "state is [off] so stopping recording"
-    #     stop -q
-    # else
-    #     log "ERROR: state file is confused [$s].  This is a code error"
-    # fi
+    # If we get to here: there were no problems (cleanup), and mainswitch is ON.
+    calendarDecision=$(calendarTarget)
+    read calonoff rst <<< $calendarDecision
+    if [ $rst ] ; then
+	log "watchdog: Calendar says we should be off with a rst of $rst"
+    elif [ $calonoff == "on" ] ; then
+	log "watchdog: Calendar says we should be on"
+    elif [ $calonoff = "off" ] ; then 
+	log "watchdog: Calendar says we should be off (but offers no rst)"
+    fi
+
+    # if we should be on, then either start, or consider a split.
+    if [ $calonoff = "on" ] ; then # we should be recording
+	if [ $cleanupcode == 0 ] ; then  # but we are stopped
+	    # Therefore we have to start:
+	    log "we are stopped, but we should be started, so starting..."
+	    start
+	else # we are already recording
+	    log "we are recording, as we should be. Consider a split...".
+	    # possibly split the audiofile, if the minute-of-day divides $DURATION
+	    minute=`date +"%-M"`
+	    rem=$(( $minute % $DURATION ))
+            [ $rem == 0 ] && amonsplit
+	fi
+    elif [ $calonoff = "off" ] ; then # we should be stopped
+	if [ $cleanupcode == 1 ] ; then  # but we are running.
+	    log "watchdog: calonoff is off ($calonoff), but we are running, so stop... "
+	    stop
+	    log "watchdog: stopped recording"
+	    log "TODO: could look to reboot here, but chickening out to next pass"
+	else # good - we are not running 
+	    log "watchdog: we are off, as we should be - but should we reboot? (TODO)"
+	fi
+    
+#    log "status: state=[$mainswitch], calendarDecision=[$calendarDecision] -> desired-state=[$s]: will cleanup() then make it so."
 
     status # print status for the log
 
@@ -663,7 +652,7 @@ function calendarTarget() {
     log -q "Checking calendar: $CALENDAR (logged into $LOGDIR/calendar.log)"
 
     if [ ! -f $CALENDAR ] ; then
-	log -q "No calendar file: $CALENDAR - assuming \"on\""
+	log -q "No such calendar file: $CALENDAR - assuming \"on\""
 	echo "on"
 	return 0
     fi
@@ -675,6 +664,7 @@ function calendarTarget() {
 #	return 0
 #    fi
 
+    # now run the calendar file, grabbing the output.
     decision=$($CALENDAR 2>> $LOGDIR/calendar.log)
     returnval=$?
 
@@ -684,7 +674,12 @@ function calendarTarget() {
 	return 0
     fi
 
-    if [ $decision != "on" -a $decision != "off" ] ; then
+    # This is new for wittypi - decision might include a reboot time.
+    log -q "This is new for wittypi"
+    read yesno rst <<< $decision
+    log -q "split the decision=\"$decision\" into yesno=\"$yesno\" and rst=\"$rst\". End."
+    
+    if [ $yesno != "on" -a $yesno != "off" ] ; then
 	log -q "Calendar script returned invalid answer \"$decision\"  - ignoring"
 	echo "on"
 	return 0

@@ -86,22 +86,19 @@ function watchdog {
 	log "watchdog: we are off, as we should be.  Rest."
 	WITTYPI=yes
 	if [ $WITTYPI == "yes" -a "$rbt" ] ; then
-	    log "And rbt is $rbt, so could call wp.sh $rbt, instead will call status..."
-	    sudo wp.sh setrbt $rbt
-	    sudo wp.sh status
-	    # TODO actually call the reboot here.
-	    log "Calling the shutdown now.... !!!!!!!!!!! (Will I see you again?)"
-	    sudo wp.sh shutdown
+	    log "Wittypi: setting reboot time to rbt=$rbt"
+	    sudo /home/amon/amon/wp.sh setrbt $rbt
+	    sudo /home/amon/amon/wp.sh status
+	    log "Wittypi: Calling shutdown now: Bye."
+	    sync
+	    sudo wp.sh shutdown # change this to shutdown-prep.
+	    # call the actual shutdown ourselves.
+	    # sudo poweroff.
 	    
 	fi
     fi
 
-    log "AAAAAAA start test of logging"
-    read str <<< $(sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh status)
-    log "$str"
-    log "ZZZZZZZ END test of logging"
-    
-    
+
 #    log "status: state=[$mainswitch], calendarDecision=[$calendarDecision] -> desired-state=[$s]: will cleanup() then make it so."
 
     status # print status for the log

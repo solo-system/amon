@@ -50,7 +50,7 @@ function watchdog {
     calendarDecision=$(calendarTarget)
     log "calendarDecision returned : \"$calendarDecision\""
     read calonoff rst <<< $calendarDecision
-    if [ $rst ] ; then
+    if [ "$rst" ] ; then
 	log "watchdog: Calendar says we should be off with a rst of $rst"
     elif [ $calonoff == "on" ] ; then
 	log "watchdog: Calendar says we should be on"

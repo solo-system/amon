@@ -20,6 +20,7 @@ if [ -e /dev/rtc ] ; then
 fi
 
 function JCrbt_set(){
+    echo "JCrbt_set: before shift: arge are: $*"
     shift
     echo "JCrbt_set: reboot time sought is: $*"
     echo "JCrbt_set: about to set_startup_time date=$3 hour=$4 minute=$5 second=$6"
@@ -104,9 +105,14 @@ elif [ "$1" == "status" ] ; then
     exit
 elif [ "$1" == "setrbt" ] ; then
     # call JCrbt_set
-    echo "calling JCrbt_set with $# args"
+    if [ $# -ne 7 ] ; then
+	echo "wp.sh[setrbt] ERROR: didn't get 7 args. Exiting"
+	exit -1
+    fi
+    
+    echo "wp.sh[setrbt]: calling JCrbt_set with $# args"
     JCrbt_set $*
-    echo "done calling JCrbt_set"
+    echo "wp.sh[setrbt]: done calling JCrbt_set"
 else    
     echo "command line not recognised. (try: status, bounce)"
     exit

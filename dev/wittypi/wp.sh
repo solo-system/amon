@@ -106,5 +106,5 @@ else
     exit
 fi
 
-echo "Fell through the if loop... exiting"
+echo "At end of wp.sh ... exiting"
 exit

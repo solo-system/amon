@@ -21,6 +21,8 @@ fi
 
 function JCrbt_set(){
     echo this is JCrbt_set $# args are: $*
+    shift
+    echo AFTER SHIFT: this is JCrbt_set $# args are: $*
 }
 
 

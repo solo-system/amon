@@ -21,13 +21,12 @@ fi
 
 function JCrbt_set(){
     shift
-    echo JCrbt_set: reboot time sought is: $*
-    echo "about to set_startup_time date=$3 hour=$4 minute=$5 second=$6"
+    echo "JCrbt_set: reboot time sought is: $*"
+    echo "JCrbt_set: about to set_startup_time date=$3 hour=$4 minute=$5 second=$6"
     set_startup_time $3 $4 $5 $6
-    echo JCrbt_set - check it worked...
+    echo "JCrbt_set: done - now check it.."
     sut=$(get_startup_time)  ; supl=$(get_local_date_time "$sut")
-#    echo "INFO:. Schedule next startup [$sut]"
-    echo "INFO:. Schedule next startup sut=[$sut] supl=[$supl]"
+    echo "JCrbt_set: next reboot time is: sut=[$sut] supl=[$supl]"
 }
 
 

@@ -39,7 +39,7 @@ function watchdog {
     
     # If mainswitch says off, then turn off, and do no more.
     mainswitch=`getstate`
-    if [ $mainswitch = "on" ] ; then
+    if [ $mainswitch = "off" ] ; then
 	log "main switch is off, so ensuring we are off"
 	stop # strictly, we only need to stop if cleancode is 1 (running)
 	log "watchdog finished".

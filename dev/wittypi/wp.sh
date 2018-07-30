@@ -21,6 +21,7 @@ fi
 
 function JCrbt_set(){
     echo this is JCrbt_set
+    echo called with $# args: $*
 }
 
 
@@ -98,8 +99,8 @@ elif [ "$1" == "status" ] ; then
     exit
 elif [ "$1" == "setrbt" ] ; then
     # call JCrbt_set
-    echo "calling JCrbt_set"
-    JCrbt_set
+    echo "calling JCrbt_set with $# args"
+    JCrbt_set $*
     echo "done calling JCrbt_set"
 else    
     echo "command line not recognised. (try: status, bounce)"

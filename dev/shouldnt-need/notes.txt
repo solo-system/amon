@@ -1,7 +1,17 @@
 !!!Must put bluetack over the raspberry pi 's power socket!!!!
 
+Beware: ensure if we wake early, and a watchdog catches us, it doesn't power down for 1 minute!.  Need a "if rbt - now < 3 mins, forgetit) (use epoch for this).
+
 amon stop SEEMS to leave a bedraggled (or perhaps not - try it properly)! send an amon split just before reboot call - cos we know that does a nice job (does it???)
 
+can we glide over a reboot time set in the wittypi alarm, and just be up and stay up? (or should we keep zeroing that alarm?)
+
+do a sync beofre shutdown.
+
+move the "mics" directory into /boot/
+
+Change solo.git/boot/solo.conf to have GMT not London/Europe.
+change solo.git/solo.conf to have UTC (how can we tell where you are?)
 
 Mon 30 Jul 2018
 ---------------
@@ -10,20 +20,24 @@ git clone jdmc2@shub:git/amon
 echo "i2c-dev" >> /etc/modules (or sudo modprobe i2c-dev). Q: how should we leave the clock - as usual?  And expect wp.sh to unload and reload
  clock as it sees fit?  (is that load/unload loop corrupting?).
 
+NEXT: write wp.sh "set rbt" to take a hextime. DONE
+THEN: change watchdog to do the alg below.#
+THEN: add CALENDAR to /boot/amon.conf and see what happens.
+
 TODO:
 	every minute the watchdog will look at the calendar scripts.
 	if it's a wittypi calendar (detect through command line), then call it.
 	if it says on,
-	    do nothing.
+	    turn on the recording!
 	if it says off,
-	    call it again with the rbt command line arg.
-	    get the rbt
-	    set the rbt
+	    ensure the rst is at least 2 mins in future...
+	    set the rbt as rst - 1
+	    call wittypisetRBT to rbt
 	    call split (to clean audio)
 	    call amon stop
 	    call poweroff.
 	    
-edit wp.sh to take "set rbt", but not shutdown.
+
 
 
 Sun 29 Jul 2018
@@ -216,3 +230,6 @@ root@solo:/sys/class/leds# echo default-on > led1/trigger
 with both on:  0.0769 mA (ethernet dongle is off, but going through witty pi2).
 with both off: 0.0722 mA (diference of ~50mA)
 ---------------------------------------------------------------------------
+
+TODO:
+1. tidy up the old calendar files with the new "IFS=S read" trick from wittypi people (avoid multiple calls to date).

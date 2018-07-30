@@ -87,11 +87,11 @@ function watchdog {
 	WITTYPI=yes
 	if [ $WITTYPI == "yes" -a "$rbt" ] ; then
 	    log "And rbt is $rbt, so could call wp.sh $rbt, instead will call status..."
-	    sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh setrbt $rbt
-	    sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh status
+	    sudo wp.sh setrbt $rbt
+	    sudo wp.sh status
 	    # TODO actually call the reboot here.
 	    log "Calling the shutdown now.... !!!!!!!!!!! (Will I see you again?)"
-	    sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh shutdown
+	    sudo wp.sh shutdown
 	    
 	fi
     fi

@@ -33,7 +33,7 @@ function JCrbt_set(){
 }
 
 
-JCbounce()
+function JCbounce()
 {
     echo "JCBounce() here: lets bounce back in 1 minute:"
 
@@ -92,21 +92,17 @@ reset_data()
 
 
 # MAIN loop is below, but if command line arg is "bounce" then bounce.
-
 if [ "$1" == "bounce" ] ; then
     JCbounce
 elif [ "$1" == "status" ] ; then
-    systime='>>> Your system time is: '
-    systime+="$(get_sys_time)"
-    echo "$systime"
-
-    # output RTC time
-    rtctime='>>> Your RTC time is:    '
-    rtctime+="$(get_rtc_time)"
-    echo "$rtctime"
-
-    sut=$(get_startup_time) # ; supl=$(get_local_date_time "$sdt")
-    echo "INFO:. Schedule next startup [$sut]"
+    systime="$(get_sys_time)"
+    rtctime="$(get_rtc_time)"
+    echo "System time is: $systime"
+    echo "RTC time is   : $rtctime"
+    
+    sut=$(get_startup_time)
+    supl=$(get_local_date_time "$sut")
+    echo "Startup time is: [$sut] [$supl]"
     exit
 elif [ "$1" == "setrbt" ] ; then
     # call JCrbt_set

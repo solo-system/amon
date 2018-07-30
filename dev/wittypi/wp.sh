@@ -42,9 +42,12 @@ JCbounce()
     IFS=' ' read -r date timestr <<< "$rbt"
     IFS=':' read -r hour minute second <<< "$timestr"
 
-    echo "Bounce: will be back on: $date at: $hour:$minute:$second (UTC)"
+    echo "JCbounce: will be back on: $date at: $hour:$minute:$second (UTC)"
     
     set_startup_time $date $hour $minute $second
+
+    sut=$(get_startup_time)  ; supl=$(get_local_date_time "$sut")
+    echo "JCbounce: next reboot time is: sut=[$sut] supl=[$supl]"
     
     do_shutdown 4 17 0
 }

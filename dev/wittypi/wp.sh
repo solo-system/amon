@@ -24,7 +24,10 @@ function JCrbt_set(){
     echo JCrbt_set: reboot time sought is: $*
     echo "about to set_startup_time date=$3 hour=$4 minute=$5 second=$6"
     set_startup_time $3 $4 $5 $6
-    echo JCrbt_set: all Done.
+    echo JCrbt_set - check it worked...
+    sut=$(get_startup_time) # ; supl=$(get_local_date_time "$sdt")
+#    echo "INFO:. Schedule next startup [$sut]"
+    echo "INFO:. Schedule next startup sut=[$sut] supl=[$supl]"
 }
 
 

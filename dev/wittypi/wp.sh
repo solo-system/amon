@@ -23,7 +23,8 @@ function JCrbt_set(){
     shift
     echo JCrbt_set: reboot time sought is: $*
     echo "about to set_startup_time date=$3 hour=$4 minute=$5 second=$6"
-#    set_startup_time 
+    set_startup_time $3 $4 $5 $6
+    echo JCrbt_set: all Done.
 }
 
 

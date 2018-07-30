@@ -20,8 +20,10 @@ if [ -e /dev/rtc ] ; then
 fi
 
 function JCrbt_set(){
-    echo "JCrbt_set: before shift: arge are: $*"
-    shift
+    if [ $# -ne 6 ] ; then
+	echo "JCrbt_set ERROR: didn't get 6 args. Exiting"
+	exit -1
+    fi
     echo "JCrbt_set: reboot time sought is: $*"
     echo "JCrbt_set: about to set_startup_time date=$3 hour=$4 minute=$5 second=$6"
     set_startup_time $3 $4 $5 $6
@@ -105,8 +107,9 @@ elif [ "$1" == "status" ] ; then
     exit
 elif [ "$1" == "setrbt" ] ; then
     # call JCrbt_set
-    if [ $# -ne 7 ] ; then
-	echo "wp.sh[setrbt] ERROR: didn't get 7 args. Exiting"
+    shift
+    if [ $# -ne 6 ] ; then
+	echo "wp.sh[setrbt] ERROR: didn't get 6 args. Exiting"
 	exit -1
     fi
     

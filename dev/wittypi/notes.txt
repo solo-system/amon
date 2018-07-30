@@ -1,3 +1,31 @@
+!!!Must put bluetack over the raspberry pi 's power socket!!!!
+
+amon stop SEEMS to leave a bedraggled (or perhaps not - try it properly)! send an amon split just before reboot call - cos we know that does a nice job (does it???)
+
+
+Mon 30 Jul 2018
+---------------
+apt-get install -y wiringpi
+git clone jdmc2@shub:git/amon 
+echo "i2c-dev" >> /etc/modules (or sudo modprobe i2c-dev). Q: how should we leave the clock - as usual?  And expect wp.sh to unload and reload
+ clock as it sees fit?  (is that load/unload loop corrupting?).
+
+TODO:
+	every minute the watchdog will look at the calendar scripts.
+	if it's a wittypi calendar (detect through command line), then call it.
+	if it says on,
+	    do nothing.
+	if it says off,
+	    call it again with the rbt command line arg.
+	    get the rbt
+	    set the rbt
+	    call split (to clean audio)
+	    call amon stop
+	    call poweroff.
+	    
+edit wp.sh to take "set rbt", but not shutdown.
+
+
 Sun 29 Jul 2018
 ---------------
 NEXT: Take the new sosi.  Run it, 

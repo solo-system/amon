@@ -2,7 +2,8 @@
 # file: utilities.sh
 #
 # This script provides some useful utility functions
-#
+# This file is from UUGear's distribution of software for the wittyPi
+# hacked somewhat for the Solo project (www.solo-system.org)
 
 has_internet()
 {

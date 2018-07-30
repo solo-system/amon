@@ -98,7 +98,7 @@ function watchdog {
 
     log "AAAAAAA start test of logging"
 
-    log <<< (sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh status)
+    log <<< $(sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh status)
     
     log "ZZZZZZZ END test of logging"
     

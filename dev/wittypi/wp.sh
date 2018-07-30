@@ -20,8 +20,7 @@ if [ -e /dev/rtc ] ; then
 fi
 
 function JCrbt_set(){
-    echo this is JCrbt_set
-    echo called with $# args: $*
+    echo this is JCrbt_set $# args are: $*
 }
 
 

@@ -57,7 +57,8 @@ function watchdog {
 	log "watchdog: Calendar says we should be off (but offers no rst)"
     fi
 
-    # if we should be on, then either start, or consider a split.
+
+    # This is the main action (4 way choice)
     if [ $calonoff = "on" ] ; then # we should be recording
 	if [ $cleanupcode == 0 ] ; then  # but we are stopped
 	    # Therefore we have to start:
@@ -79,6 +80,8 @@ function watchdog {
 	else # good - we are not running 
 	    log "watchdog: we are off, as we should be - but should we reboot? (TODO)"
 	fi
+    fi
+
     
 #    log "status: state=[$mainswitch], calendarDecision=[$calendarDecision] -> desired-state=[$s]: will cleanup() then make it so."
 

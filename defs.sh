@@ -89,9 +89,9 @@ function watchdog {
 	    log "Wittypi: setting reboot time to rbt=$rbt"
 	    sudo /home/amon/amon/wp.sh setrbt $rbt
 	    sudo /home/amon/amon/wp.sh status
-	    log "Wittypi: Calling shutdown now: Bye."
+	    log "Wittypi: *** Calling shutdown now: Bye. ***"
 	    sync
-	    sudo wp.sh shutdown # change this to shutdown-prep.
+	    sudo /home/amon/amon/wp.sh shutdown # change this to shutdown-prep.
 	    # call the actual shutdown ourselves.
 	    # sudo poweroff.
 	    
@@ -126,10 +126,6 @@ function watchdog {
     # 	true
     #  fi
 
-    log "just before we finish watchdog, lets run status on wp.sh"
-    sudo /opt/git/wittypiamon/amon/dev/wittypi/wp.sh status
-    log "done running status on wp.sh"
-    
     log "-- MARK : watchdog finished --"
 } # end of watchdog
 

@@ -19,6 +19,10 @@ if [ -e /dev/rtc ] ; then
   unload_rtc
 fi
 
+function JCrbt_set(){
+    echo this is JCrbt_set
+}
+
 
 JCbounce()
 {
@@ -92,6 +96,11 @@ elif [ "$1" == "status" ] ; then
     sut=$(get_startup_time) # ; supl=$(get_local_date_time "$sdt")
     echo "INFO:. Schedule next startup [$sut]"
     exit
+elif [ "$1" == "status" ] ; then
+    # call JCrbt_set
+    echo "calling JCrbt_set"
+    JCrbt_set
+    echo "done calling JCrbt_set"
 else    
     echo "command line not recognised. (try: status, bounce)"
     exit

@@ -395,6 +395,9 @@ function stop {
 
     pid=$(cat $PIDFILE)
     # should check that the pid has a wc -w of one.
+    log "Sending a split signal first (so we don't leave bad header on last meaningful wav file)"
+    kill -USR1  $pid
+    # perhaps sleep here?
     log "Stopping (kill - SIGINT) process $pid.."
     kill -s SIGINT $pid
     sleep 1 ; sync #added this 2016-08-28 cos PIDFILE was hanging

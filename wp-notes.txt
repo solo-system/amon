@@ -1,5 +1,19 @@
 Tue 31 Jul 2018
 ---------------
+
+arecord's -USR1 signal splits.  the Man page says that kill INTR ABRT AND (another?) close the output file and exit.  But it doesn't properly handle the wav header.  It's a shame, because the USR1 _does_ do this, and under harder circumstances (gotta keep recording, man).  maybe look at the code one day.
+
+In the mean time, find a "sleep" number that gives us enough time to clean up, but not enough so that the new file is hefty enough to feel real.  Could either look at the code and fix (aplay.c) or could put in a line to "find the last file recorded and delete it if it's really small".  Remember, we can take time and cpu over this, as the machine isn't recording.  Actually, we could find the final file and FIX IT! (even better!).
+
+But need a hex dump tool to read RIFF wav headers, as we don't have soxi, and it's too onerous to do this by hand copying to shub every time.
+
+TODO: write a hexdump line to read wav headers.http://www.topherlee.com/software/pcm-tut-wavformat.html
+      There are 2 places where the number of samples occurs (file length and data length).
+
+amon off (and therefore amon stop?) leaves radgged header on file. WOW THIS NEEDS FIXED.
+
+does dailyProvision end by printing a list of all files in / ?  It would be good to get a final list (uing find?) orderable by size?  MOTIVATION?: check that /var/log is empty.  Look: auth.log has 32k already (a fe hours).
+
 always check cron.log for spurious output.  It's bedlam in there.
 
 can we count reboots ?
@@ -15,9 +29,8 @@ Documentation:
   put some pointers and examples in solo.git/boot/solo.conf and solo.git/solo.conf for acceptable timezones.  Also update doc on githubpages.
   !!!Must put bluetack over the raspberry pi 's power socket!!!!
 
-
 TODO: compare images with imgCompare:
-   does amon stop leave ragged ends on wav files? (split doesn't - right?)
+   does amon stop leave ragged ends on wav files? (split doesn't.  TRUE - split doesn't)
    generally, what changes (system analysis, not just audio).
    syslog gets very long (but see the img in imgcompare.)
 

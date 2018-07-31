@@ -332,12 +332,12 @@ function start {
       return 1
   fi
 
-  if [ -f $ALOG ] ;then
+  if [ -f $ARECLOG ] ;then
       mkdir -p ${LOGDIR}/old/
       ts=`tstamp`
       newname=${LOGDIR}/old/arecord-$ts.log
-      mv -v $ALOG $newname
-      log "backed up old arecord log file: $ALOG to $newname"
+      mv -v $ARECLOG $newname
+      log "backed up old arecord log file: $ARECLOG to $newname"
   fi
 
   # setup environment for arecord to correctly record
@@ -349,7 +349,7 @@ function start {
   cmd="arecord $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$SYSNAME-%Y-%m-%d_%H-%M-%S.wav"
 
   log "starting recording with: $cmd"
-  $cmd  >& $ALOG &
+  $cmd  >& $ARECLOG &
 
   # We can't capture the retval and do anything here, because there is
   # no retval for a running process (and we hope arecord is running!).
@@ -367,7 +367,7 @@ function start {
       log "recording running running as [`cat $PIDFILE`]"
   else
       log "recording failed to start (no pidfile).  output of arecord.log follows:"
-      log "$(cat $ALOG)"
+      log "$(cat $ARECLOG)"
   fi
 
   # whether we started or not, 0 means we tried. TODO - this could be

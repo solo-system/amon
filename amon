@@ -41,10 +41,10 @@ if [ ! -d $AMONDATA ] ; then
     mkdir -p $AMONDATA
 fi
 
-### these must come AFTER reading the configs (really?)
+### these must come AFTER rejigging AMONDATA above.
 WAVDIR=${AMONDATA}/wavs
 LOGDIR=${AMONDATA}/logs
-ALOG=${LOGDIR}/arecord.log
+ARECLOG=${LOGDIR}/arecord.log
 AMONLOG=${LOGDIR}/amon.log
 STATEFILE=${LOGDIR}/amon.state
 PIDFILE=${LOGDIR}/arecord.pid
@@ -67,7 +67,7 @@ if [ ! -r $STATEFILE ] ; then
 
   # Perhaps conf prescribed "off" or "on"???
   # choose logic so that if it is _anything_ but "off", we are on.
-  if [ -n "$MASTERSWITCH" ] ; then
+  if [ -n "$MASTERSWITCH" ] ; then # This never hits, cos MASTERSWITCH is not defined anywhere.
       log "Read MASTERSWITCH value from conf of \"$MASTERSWITCH\""
       if [ "$MASTERSWITCH" != "off" -a "$MASTERSWITCH" != "on"] ; then
 	  log "Warning: badly formed MASTERSWITCH value of $MASTERSWITCH.  Assuming: \"on\""

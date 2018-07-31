@@ -23,12 +23,26 @@ function amonoff {
 # This runs from crontab every minute.  Check sanity, then start/stop
 # according to "statefile".
 function watchdog {
+
+    # count the number of watchdogs
+    numothers=$(ls -l /tmp/amon* 2>/dev/null | wc -l)
+    if [ $numothers -gt 1 ] ; then
+	log "there are more than one ($numothers) watchdogs running"
+    elif [ $numothers -eq 1 ] ; then
+	log "there is only me ($numothers) watchdogs running"
+    else
+	log "gasp - there are zero ($numothers) watchdogs running"
+    fi
+
+    lockfile=/tmp/amon-watchdog-$$.running
+    touch $lockfile
+
     log ""
-    log "---MARK--- watchdog starting. -------------"
+    log "---MARK--- watchdog starting. (locked by: $lockfile)"
     log "System load (from /proc/loadavg): $(cat /proc/loadavg)"
 
     [ "$DEBUG" == yes ] && log " disk free: $(df /boot / /mnt/sdcard/)"
-    
+
     # log "watchdog: first thing we do is cleanup()" # (test processes and procfile are in sync)
     amoncleanup
     cleanupcode=$?
@@ -36,6 +50,8 @@ function watchdog {
 
     if [ $cleanupcode == 2 ] ; then
 	log "since amoncleanup() had to kill things, watchdog does nothing more on this pass, watchdog exiting."
+	rm -v $lockfile
+	log "-- MARK -- : watchdog finished (removed $lockfile)--"
 	return
     fi
     
@@ -44,6 +60,8 @@ function watchdog {
     if [ $mainswitch = "off" ] ; then
 	log "mainswitch is OFF, so ensuring we are not recording"
 	stop # strictly, we only need to stop if cleancode is 1 (running)
+	rm -v $lockfile
+	log "-- MARK -- : watchdog finished (removed $lockfile)--"
 	return
     fi
 
@@ -109,17 +127,8 @@ function watchdog {
       fi
     fi # end of "if DO_MEM_STUFF"
 
-    # # check if we should reboot
-    # hourmin=$(date +"%H:%M")
-    # if [ $NIGHTLYREBOOT -a $NIGHTLYREBOOT = $hourmin ] ; then
-    # 	log "rebooting since $hourmin = $NIGHTLYREBOOT"
-    #     reboot
-    # else
-    # 	# log "not calling reboot since $hourmin != $NIGHTLYREBOOT"
-    # 	# those log messages were getting boring.
-    # 	true
-    #  fi
-
+    rm -v $lockfile
+    [ "$DEBUG" ] && log "removed lockfile"
     log "-- MARK -- : watchdog finished --"
 } # end of watchdog
 

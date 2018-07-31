@@ -414,9 +414,9 @@ function stop {
 # be doing.  If all is well, they match.
 function status {
     if [ -f "$PIDFILE" ] ; then
-	log "running as pid=[$(cat $PIDFILE)]"
+	log "arecord is running as pid=[$(cat $PIDFILE)]"
     else
-	log "not running (no pid file)"
+	log "arecord is not running (no pid file)"
     fi
     # PSOUT=$(ps -C arecord -o pid=,comm=)
     # log "ps output is $PSOUT"

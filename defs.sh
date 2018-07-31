@@ -24,20 +24,19 @@ function amonoff {
 # according to "statefile".
 function watchdog {
 
+    log ""
+
     # count the number of watchdogs
     numothers=$(ls -l /tmp/amon* 2>/dev/null | wc -l)
-    if [ $numothers -gt 1 ] ; then
-	log "there are more than one ($numothers) watchdogs running"
-    elif [ $numothers -eq 1 ] ; then
-	log "there is only me ($numothers) watchdogs running"
+    if [ $numothers -gt 0 ] ; then
+	log "[WARNING: there are ($numothers) other watchdogs running]"
     else
-	log "gasp - there are zero ($numothers) watchdogs running"
+	log "[Good: there are zero ($numothers) other watchdogs running]"
     fi
 
     lockfile=/tmp/amon-watchdog-$$.running
     touch $lockfile
 
-    log ""
     log "---MARK--- watchdog starting. (locked by: $lockfile)"
     log "System load (from /proc/loadavg): $(cat /proc/loadavg)"
 
@@ -51,7 +50,7 @@ function watchdog {
     if [ $cleanupcode == 2 ] ; then
 	log "since amoncleanup() had to kill things, watchdog does nothing more on this pass, watchdog exiting."
 	rm -v $lockfile
-	log "-- MARK -- : watchdog finished (removed $lockfile)--"
+	log "-- MARK -- : watchdog finished (removed $lockfile) --"
 	return
     fi
     
@@ -61,7 +60,7 @@ function watchdog {
 	log "mainswitch is OFF, so ensuring we are not recording"
 	stop # strictly, we only need to stop if cleancode is 1 (running)
 	rm -v $lockfile
-	log "-- MARK -- : watchdog finished (removed $lockfile)--"
+	log "-- MARK -- : watchdog finished (removed $lockfile) --"
 	return
     fi
 
@@ -129,7 +128,9 @@ function watchdog {
 
     rm -v $lockfile
     [ "$DEBUG" ] && log "removed lockfile"
-    log "-- MARK -- : watchdog finished --"
+
+    log "-- MARK -- : watchdog finished (removed $lockfile) --"
+
 } # end of watchdog
 
 # send signal to arecord to split the output file

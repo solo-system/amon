@@ -49,7 +49,7 @@ function watchdog {
 
     if [ $cleanupcode == 2 ] ; then
 	log "since amoncleanup() had to kill things, watchdog does nothing more on this pass, watchdog exiting."
-	rm -v $lockfile
+	rm $lockfile
 	log "-- MARK -- : watchdog finished (removed $lockfile) --"
 	return
     fi
@@ -59,7 +59,7 @@ function watchdog {
     if [ $mainswitch = "off" ] ; then
 	log "mainswitch is OFF, so ensuring we are not recording"
 	stop # strictly, we only need to stop if cleancode is 1 (running)
-	rm -v $lockfile
+	rm $lockfile
 	log "-- MARK -- : watchdog finished (removed $lockfile) --"
 	return
     fi
@@ -126,7 +126,7 @@ function watchdog {
       fi
     fi # end of "if DO_MEM_STUFF"
 
-    rm -v $lockfile
+    rm $lockfile
     [ "$DEBUG" ] && log "removed lockfile"
 
     log "-- MARK -- : watchdog finished (removed $lockfile) --"

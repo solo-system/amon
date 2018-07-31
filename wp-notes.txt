@@ -1,5 +1,7 @@
 Tue 31 Jul 2018
 ---------------
+always check cron.log for spurious output.  It's bedlam in there.
+
 can we count reboots ?
 
 GOAL: [For tonight]: run a 1 hour on, 1 hour off calendar.

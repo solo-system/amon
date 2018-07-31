@@ -666,12 +666,18 @@ function calendarTarget() {
     # note - all the logging uses -q, so it doesn't go to stdout - we
     # need stout clean for the yes/no answer
 
-    if [ -z "$CALENDAR" -o ! -f "$CALENDAR" ] ; then
-	log -q "Unspecified or nonexistent calendar (\"$CALENDAR\").  So default to \"on\"."
+    if [ -z "$CALENDAR" ] ; then
+	log -q "No calendar specified.  So default to \"on\"."
 	echo "on"
 	return 0
     fi
 
+    if [  -f "$CALENDAR" ] ; then
+	log -q "WARNING: No such calendar: \"$CALENDAR\".  So default to \"on\"."
+	echo "on"
+	return 0
+    fi
+    
     log -q "Checking calendar: $CALENDAR (output logged into $LOGDIR/calendar.log)"
 
     # now run the calendar file, grabbing the output.

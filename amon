@@ -10,7 +10,7 @@ umask 0022
 AMONPID=$$
 
 # always cd to amondir to make paths simple.
-AMONDIR=`dirname $0`
+AMONDIR=$(dirname $0)
 cd ${AMONDIR}
 
 ### read the config file(s) and function definitions.
@@ -95,9 +95,9 @@ fi
 # must say something
 [ $# -eq 0 ] && { amonhelp; exit 0;}
 
-if [ xx`type -t amon${1}` = xx"function" ] ; then
+if [ $(type -t amon${1})xx = "function"xx ] ; then
     amon${1} $*
-elif [ xx`type -t $1` = xx"function" ] ; then
+elif [ $(type -t $1)xx = "function"xx ] ; then
     $1 $*
 else
     echo "amon: \"$1\": command not known to amon"

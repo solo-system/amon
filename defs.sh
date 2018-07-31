@@ -1,7 +1,7 @@
 ### function definitions for amon
 
 function amonon {
-    s=`getstate`
+    s=$(getstate)
     if [ "$s" = "on" ]; then
 	log "already [on], so doing nothing"
 	return 0
@@ -11,7 +11,7 @@ function amonon {
 }
 
 function amonoff {
-    s=`getstate`
+    s=$(getstate)
     if [ "$s" = "off" ]; then
         log "already [off], so doing nothing"
 	return 0
@@ -40,7 +40,7 @@ function watchdog {
     fi
     
     # If mainswitch says off, then turn off, and do no more.
-    mainswitch=`getstate`
+    mainswitch=$(getstate)
     if [ $mainswitch = "off" ] ; then
 	log "mainswitch is OFF, so ensuring we are not recording"
 	stop # strictly, we only need to stop if cleancode is 1 (running)
@@ -68,7 +68,7 @@ function watchdog {
 	else # we are already recording
 	    log "we are recording, just as we should be."
 	    # possibly split the audiofile, if the minute-of-day divides $DURATION
-	    minute=`date +"%-M"`
+	    minute=$(date +"%-M")
 	    rem=$(( $minute % $DURATION ))
             [ $rem == 0 ] && amonsplit
 	fi
@@ -100,7 +100,7 @@ function watchdog {
     # log "MEM: Performing memory management"
     DO_MEM_STUFF=no
     if [ $DO_MEM_STUFF != "no" ] ; then
-      freek=`df -k /mnt/sdcard | tail -1 | awk '{print $4}'`
+      freek=$(df -k /mnt/sdcard | tail -1 | awk '{print $4}')
       if [ ${freek} -lt ${MINMEMFREE} ] ; then
           log "MEM: too little free space (${freek} < ${MINMEMFREE}) => calling deloldest()"
           deloldest
@@ -110,7 +110,7 @@ function watchdog {
     fi # end of "if DO_MEM_STUFF"
 
     # # check if we should reboot
-    # hourmin=`date +"%H:%M"`
+    # hourmin=$(date +"%H:%M")
     # if [ $NIGHTLYREBOOT -a $NIGHTLYREBOOT = $hourmin ] ; then
     # 	log "rebooting since $hourmin = $NIGHTLYREBOOT"
     #     reboot
@@ -131,7 +131,7 @@ function amonsplit {
 	return 0
     fi
 
-    pid=`cat $PIDFILE`
+    pid=$(cat $PIDFILE)
     kill -USR1  $pid
     log "Sent split signal [USR1] to arecord process [pid=$pid]"
 }
@@ -273,7 +273,7 @@ function testrec {
     # see: http://comments.gmane.org/gmane.linux.alsa.user/38692
     # so we have to do a "run in background and kill" - yuk.
     
-    s=`getstate`
+    s=$(getstate)
     if [ $s != 'off' ] ; then
 	log "Refusing to undertake test recording: since state is not off (its $s)"
 	log "do \"amon off\" first, then retry"
@@ -327,13 +327,13 @@ function start {
   # return: 0 if we started (or at least, tried to start).
     
   if [ -f $PIDFILE ] ; then
-      log "already running as [`cat $PIDFILE`]"
+      log "already running as [$(cat $PIDFILE)]"
       return 1
   fi
 
   if [ -f $ARECLOG ] ;then
       mkdir -p ${LOGDIR}/old/
-      ts=`tstamp`
+      ts=$(tstamp)
       newname=${LOGDIR}/old/arecord-$ts.log
       mv -v $ARECLOG $newname
       log "backed up old arecord log file: $ARECLOG to $newname"
@@ -363,7 +363,7 @@ function start {
   sleep 2
   
   if [ -f $PIDFILE ] ; then
-      log "recording running running as [`cat $PIDFILE`]"
+      log "recording running running as [$(cat $PIDFILE)]"
   else
       log "recording failed to start (no pidfile).  output of arecord.log follows:"
       log "$(cat $ARECLOG)"
@@ -383,7 +383,7 @@ function stop {
       return 0
     fi
 
-    pid=`cat $PIDFILE`
+    pid=$(cat $PIDFILE)
     # should check that the pid has a wc -w of one.
     log "Stopping (kill - SIGINT) process $pid.."
     kill -s SIGINT $pid
@@ -391,7 +391,7 @@ function stop {
 		   #around, and the subsequent "status" (called from
 		   #watchdog()) was reporting "running".
 
-    rogues=`pidof arecord`
+    rogues=$(pidof arecord)
     if [ -n "$rogues" ] ; then
 	log "WARNING: just killed $pid, but rogues remain : $rogues"
     else
@@ -404,11 +404,11 @@ function stop {
 # be doing.  If all is well, they match.
 function status {
     if [ -f "$PIDFILE" ] ; then
-	log "running as pid=[`cat $PIDFILE`]"
+	log "running as pid=[$(cat $PIDFILE)]"
     else
 	log "not running (no pid file)"
     fi
-    # PSOUT=`ps -C arecord -o pid=,comm=`
+    # PSOUT=$(ps -C arecord -o pid=,comm=)
     # log "ps output is $PSOUT"
 }
 
@@ -429,7 +429,7 @@ function getstate {
        exit -1
     fi
 
-    s=`cat $STATEFILE`
+    s=$(cat $STATEFILE)
 
     if [ "$s" = "on" -o "$s" = "off" ] ;then
       echo "$s"
@@ -441,7 +441,7 @@ function getstate {
 }
 
 function setstateon {
-    s=`getstate`
+    s=$(getstate)
 
     if [ "$s" = "on" ] ; then
       log "state already [on] => doing nothing"
@@ -452,7 +452,7 @@ function setstateon {
 }
 
 function setstateoff {
-    s=`getstate`
+    s=$(getstate)
 
     if [ "$s" = "off" ] ; then
 	log "state already [off] => doing nothing"
@@ -472,7 +472,7 @@ function log {
 	STDOUT=1
     fi
     
-    ts=`tstamp`
+    ts=$(tstamp)
     msg="$1"
     lmsg="$ts: [amon[$AMONPID]->${FUNCNAME[1]}]: $msg"  # I've been reading "man bash".
 
@@ -517,7 +517,7 @@ function amonping {
 }
 
 function diskusage {
-    str=`df -h $WAVDIR | tail -1`
+    str=$(df -h $WAVDIR | tail -1)
 
     log "$str"
 }
@@ -536,7 +536,7 @@ function amoncleanup {
    # 1 process AND pidfile matches single processid.
 
    # first situation - nopidf and no processes
-   numprocs=`countprocs`
+   numprocs=$(countprocs)
 
    if [ ! -f $PIDFILE -a $numprocs -eq 0 ] ; then
       log "no-op: [stopped and happy] no procs and no procfile. returning 0"
@@ -546,8 +546,8 @@ function amoncleanup {
    # Also OK if pidfile matches ps output.
    if [ -f $PIDFILE ] ; then
      # get a list of the processes and the pid from the file:
-     procs=`procids`
-     pidf=`cat $PIDFILE`
+     procs=$(procids)
+     pidf=$(cat $PIDFILE)
 
      # We need the -n clause, because they must match AND be nonzero length
      if [ -n "$pidf" -a "$pidf" = "$procs" ] ; then
@@ -584,7 +584,7 @@ function amoncleanup {
 # (the masterswitch) -> the next cronjob creates one by default in the
 # "on" position, which aint what we want.
 function deep-clean {
-    s=`getstate`
+    s=$(getstate)
     if [ $s != 'off' ] ; then
 	log "Refusing to deep-clean, since state is not off (its $s)"
 	return 0
@@ -605,19 +605,19 @@ function deep-clean {
 
 # count the number of "arecord" processes running"
 function countprocs {
-   n=`ps --no-headers -C arecord | wc -l`
+   n=$(ps --no-headers -C arecord | wc -l)
    echo $n
 }
 
 # print the list of pids of the arecord process
 function procids {
-  ids=`ps --no-headers -C arecord -o pid | sed 's:^ *::g'`
+  ids=$(ps --no-headers -C arecord -o pid | sed 's:^ *::g')
   echo $ids
 }
 
 # remove the wav file that's oldest (memory management)
 function deloldest {
-    oldest=`find "$WAVDIR" -type f -name \*.wav -printf '%T+ %p\n' | sort | head -n 1 | awk '{print $2}'`
+    oldest=$(find "$WAVDIR" -type f -name \*.wav -printf '%T+ %p\n' | sort | head -n 1 | awk '{print $2}')
     if [ ! -f ${oldest} ] ; then
 	log "MEM: couldn't find a file to delete... giving up."
     fi

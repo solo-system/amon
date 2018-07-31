@@ -1,3 +1,10 @@
+Tue 31 Jul 2018
+---------------
+TODO: add a df /mnt/sdcard / to log (same line as uptime load?)
+TODO: compare images with imgCompare
+TODO: add a solo-boot.sh.started and solo-boot.sh.finished to solo-boot-sh (in /tmp? or /var/run)
+
+
 Mon 30 Jul 2018
 ---------------
 

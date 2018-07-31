@@ -672,7 +672,7 @@ function calendarTarget() {
 	return 0
     fi
 
-    if [  -f "$CALENDAR" ] ; then
+    if [ ! -f "$CALENDAR" ] ; then
 	log -q "WARNING: No such calendar: \"$CALENDAR\".  So default to \"on\"."
 	echo "on"
 	return 0

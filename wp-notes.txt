@@ -1,68 +1,46 @@
 Tue 31 Jul 2018
 ---------------
-TODO: add a df /mnt/sdcard / to log (same line as uptime load?)
-TODO: compare images with imgCompare
-TODO: add a solo-boot.sh.started and solo-boot.sh.finished to solo-boot-sh (in /tmp? or /var/run)
+can we count reboots ?
+
+GOAL: [For tonight]: run a 1 hour on, 1 hour off calendar.
+
+line 691 of defs.sh - should do slightly better check that rbt only supplied for an "off" situation from the calendar.
+tidy up the old calendar files with the new "IFS=S read" trick from wittypi people (avoid multiple calls to date).
+
+amon look for solo-boot.started but NOT solo-boot.finished, and waits (or exits).
+
+Documentation: 
+  put some pointers and examples in solo.git/boot/solo.conf and solo.git/solo.conf for acceptable timezones.  Also update doc on githubpages.
+  !!!Must put bluetack over the raspberry pi 's power socket!!!!
 
 
-Mon 30 Jul 2018
----------------
+TODO: compare images with imgCompare:
+   does amon stop leave ragged ends on wav files? (split doesn't - right?)
+   generally, what changes (system analysis, not just audio).
+   syslog gets very long (but see the img in imgcompare.)
 
-It's now 8pm, and I have a system flakily working on 5min cycle, but
-the whole dev thing is a mess.  So need to consolidate before the day
-is done:
+tidying up wp.sh <--> amon interface:
+ what time format should we use to talk to each other:
+   a. want users calendars to output "things sensible to the user".
+   b. want to have a format within amon that we can "take 90 seconde off of" to account for boot time.
+   c. need snooze protection - ensure we don't fall asleep again if we wake early.
 
-Plan for tonight.
+ There's only a few things we need from wp.sh:
+   - set the time
+   - show the time.
+   - prepare for shutdown (?)
 
-
-aims:
-build things into a new sosi.
-flash the sosi
-Set the Calendar variable in /boot/amon.conf (and the WITTYPI=yes) 
-Finally:  Leave a system running with 5 minute cycle time overnight.
-
-TODO:
-Done: Can I just merge the two repos?  (test in sandpit)
-Done: what should happen to the old wp stuff in wpdev?
-Done: what should happen to this file (solomisc?)
-Done: is the code from uugear redistributable ?
-Done: mv the wittypi dev stuff into solomisc.git
-
-Done: look around for other things to do...
-
-now add the 2 things to provision.sh
-get all the repos in sync and push to github.
-run dailyProvision.sh
-
----------------------------------------------------------------------------
+Other questions:
+   Why do cronjobs seem to cluster at boot time?  Are they buffered? or is it anacron or sumfink?
+   can we glide over a reboot time set in the wittypi alarm, and just be up and stay up? (or should we keep zeroing that alarm?)
 
 sort out the logging in wp.sh (it needs to be root (or does it), but
 the output doesnt get into amon.log - that's not good enough. And I
 don't want to TOO closely integrate witty pi stuff, as many (most)
 people won't use it.  bring higher level functions into defs.sh (witty defs .sh?) starting wp-????() and use those to do logging and stuff, and they can call wp.sh for the low level stuff.  What groups do I need to be in to get rid of the sudo stuff?  (i2cdev/gpio)
 
-what abuot touch /tmp/solo-boot.started at top of solo-boot, and solo-boot.finished at end of it.  amon (the executable) can print a warning.  And watchdog can then to a wait loop for 40 seconds, then clear up and exit, waiting for next watchdog. (but if watchdogs are stacking at boot time, this might be unsafe).
+as more and more reboots happen, does the boot get slower?  Is that a fsck on /mnt/sdcard issue? what is the systemd command to trace boot times etc...
 
-Why do cronjobs seem to cluster at boot time?  Are they buffered? or is it anacron or sumfink?
-Think about a solo-boot.sh touching /var/run/solo-boot.done file, which amon checks for and either
-
-amon stop SEEMS to leave a bedraggled (or perhaps not - try it properly)! send an amon split just before reboot call - cos we know that does a nice job (does it???)
-
-can we glide over a reboot time set in the wittypi alarm, and just be up and stay up? (or should we keep zeroing that alarm?)
-
-wakeup early protection against falling asleep again.
-
-put some pointers and examples in solo.git/boot/solo.conf and solo.git/solo.conf for acceptable timezones.  Also update doc on githubpages.
-
-Change solo.git/boot/solo.conf to have GMT not London/Europe.
-change solo.git/solo.conf to have UTC (how can we tell where you are?)
-
-line 691 of defs.sh - should do slightly better check that rbt only supplied for an "off" situation from the calendar.
-
-There's only a few things we need from wp.sh:
-- set the time
-- show the time.
-- prepare for shutdown (?)
 
 Mon 30 Jul 2018
 ---------------
@@ -70,26 +48,6 @@ apt-get install -y wiringpi
 git clone jdmc2@shub:git/amon 
 echo "i2c-dev" >> /etc/modules (or sudo modprobe i2c-dev). Q: how should we leave the clock - as usual?  And expect wp.sh to unload and reload
  clock as it sees fit?  (is that load/unload loop corrupting?).
-
-NEXT: write wp.sh "set rbt" to take a hextime. DONE
-THEN: change watchdog to do the alg below.
-THEN: add CALENDAR to /boot/amon.conf and see what happens.
-
-TODO:
-	every minute the watchdog will look at the calendar scripts.
-	if it's a wittypi calendar (detect through command line), then call it.
-	if it says on,
-	    turn on the recording!
-	if it says off,
-	    ensure the rst is at least 2 mins in future...
-	    set the rbt as rst - 1
-	    call wittypisetRBT to rbt
-	    call split (to clean audio)
-	    call amon stop
-	    call poweroff.
-	    
-
-
 
 Sun 29 Jul 2018
 ---------------
@@ -111,17 +69,6 @@ put a first25mins.sh calendar in there.  It returns 2 things on/off and time-of-
 on xzulu
 or...
 off 22:00.
-
-
-Main script has a WITTYPI2=yes.
-if [ $WITTYPI2 = "yes" ] then
-   onoff xzulu = $(/wherever/calendars/wittypi/first24mins.sh)
-   amon off
-   set reboot time to xzulu
-   poweroff.
-fi
-
-   
 
 Sat 14 Jul 2018
 ---------------
@@ -281,7 +228,3 @@ root@solo:/sys/class/leds# echo default-on > led1/trigger
 with both on:  0.0769 mA (ethernet dongle is off, but going through witty pi2).
 with both off: 0.0722 mA (diference of ~50mA)
 ---------------------------------------------------------------------------
-
-TODO:
-1. tidy up the old calendar files with the new "IFS=S read" trick from wittypi people (avoid multiple calls to date).
-2. !!!Must put bluetack over the raspberry pi 's power socket!!!!

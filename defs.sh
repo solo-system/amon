@@ -24,9 +24,11 @@ function amonoff {
 # according to "statefile".
 function watchdog {
     log ""
-    log "-- MARK (wpdev+WITTY) : watchdog starting --"
+    log "---MARK--- watchdog starting. -------------"
     log "System load (from /proc/loadavg): $(cat /proc/loadavg)"
 
+    [ "$DEBUG" == yes ] && log " disk free: $(df /boot / /mnt/sdcard/)"
+    
     # log "watchdog: first thing we do is cleanup()" # (test processes and procfile are in sync)
     amoncleanup
     cleanupcode=$?
@@ -93,9 +95,6 @@ function watchdog {
 	fi
     fi
 
-
-#    log "status: state=[$mainswitch], calendarDecision=[$calendarDecision] -> desired-state=[$s]: will cleanup() then make it so."
-
     status # print status for the log
 
     # log "MEM: Performing memory management"
@@ -121,7 +120,7 @@ function watchdog {
     # 	true
     #  fi
 
-    log "-- MARK : watchdog finished --"
+    log "-- MARK -- : watchdog finished --"
 } # end of watchdog
 
 # send signal to arecord to split the output file

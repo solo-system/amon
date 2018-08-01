@@ -1,5 +1,45 @@
 Tue 31 Jul 2018
 ---------------
+add hexdump to amon.
+Also put lencheck - which takes: file length, a and 2 hexcumps and validates they are all consistent,
+Also put lenfix - which fixes the 2 numbers inside the riff wave to be consistent with the file length.
+
+My new solo this morning started with :
+ 2018-08-01_06-33-08: [amon[633]->main]: INFO: No statefile "/mnt/sdcard/amondata/logs/amon.state" - creating one ...
+ 2018-08-01_06-33-08: [amon[633]->main]: Creating statefile: amon MASTERSWITCH is "on"
+
+TODO: run the headless (networkless) solo with a calendar+witty to see if time stuff works without network.
+
+capturing sub-commands is hard to log.  Do we need a exelog() command that achieves it in amon?
+
+hexdump "recent" | logcatter
+
+function exelog() {
+	 shift
+	 cmd="$*"
+	 log "about to run and capture cmd=\"$cmd\""
+	 ls -l /etc/ | whle read line ; do
+	   log "$line"
+	 done
+	   
+Should we change watchdogs to halt/pause/exit if solo-boot.sh hasn't stopped.  THEY could at least report that solo-boot.sh.started was unaccompanied by i's friend .finished?
+
+Does it support witty pi 1?
+
+/var/lib/apt/lists contins a 60M "Packages", and various less big ones.  And an inRelease file (small).  Find the apt cache clean command that gets rid of all this guff.  Or do it by hand.
+
+Deal with "we got an RBT from the calendar, but there is no witty pi.  Warning".
+
+add better led flash code, so the heartbeat happens only when we are actually recording (or the red light flashes than).
+
+also add "amon witty wittypi status" and "amon wittypi setrrbt XXX XXX" (and others?)
+
+Also - we call "stop" somwerher, but should we not be calling "off".  Why do we not see solo's return from witty poweroff, and sit dumbly in the "off" position?.  AHA - it's _because_ we use stop.  But then _why_ does the calendar (withtout witty) not turn on again at first watchdog encounter?
+
+With calendar: a stop will be "fixed" at next watchdog.
+               a off  will never be recovered from (because statefile trumps calendar response).
+Do we need to re-instate MASTERSWITCH in /boot/amon.conf?
+
 
 arecord's -USR1 signal splits.  the Man page says that kill INTR ABRT AND (another?) close the output file and exit.  But it doesn't properly handle the wav header.  It's a shame, because the USR1 _does_ do this, and under harder circumstances (gotta keep recording, man).  maybe look at the code one day.
 

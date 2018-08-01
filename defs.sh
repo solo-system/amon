@@ -497,6 +497,15 @@ function log {
     [ $STDOUT -eq 1 ] && tty -s && echo "$msg"
 }
 
+# properly log the output of external commands, throug a while loop calls to log()
+function logexe {
+    shift
+    local cmd="$*"
+    log "about to run cmd=\"$cmd\""
+    ( $cmd ) | while read line ; do log "$line" ; done
+    log "finished running cmd=\"$cmd\""
+}
+
 function tstamp {
     date +"%Y-%m-%d_%H-%M-%S"
 }

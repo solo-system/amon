@@ -97,7 +97,6 @@ function watchdog {
 	    log "we are stopped, just as we should be. All is calm."
 	fi
 	
-	WITTYPI=yes
 	if [ $WITTYPI == "yes" -a "$rbt" ] ; then
 	    log "Wittypi: setting reboot time to rbt=$rbt"
 	    sudo /home/amon/amon/wp.sh setrbt $rbt
@@ -715,8 +714,14 @@ function calendarTarget() {
     # See if the calendar returned a reboot time.
     if [ "$rbt" ] ; then
 	log -q "Calendar returned yesno=\"$yesno\" with rbt=\"$rbt\""
+	if [ "$WITTYPI" != yes ]; then
+	    log -q "WARNING: Calendar returned reboot time for nonexistent Witty Pi - ignoring rbt"
+	fi
     else
 	log -q "Calendar returned yesno=\"$yesno\""
+	if [ "$WITTYPI" = yes ]; then
+	    log -q "WARNING: Calendar fails to provide a reboot time for the Witty Pi.  So stopping, but not shutting down"
+	fi
     fi
     
 

@@ -145,7 +145,7 @@ function amonsplit {
     log "Sent split signal [USR1] to arecord process [pid=$pid]"
 }
 
-# show the configuration options.
+# show the configuration options. (this is not useful)
 function conf {
     echo "configuration is as follows:"
     echo "-----------------------------------"
@@ -486,7 +486,8 @@ function log {
     fi
     
     ts=$(tstamp)
-    msg="$1"
+    msg="$1" # WOW - only taking the first arg!!!! try adding them all!!!
+    msg="$*"
     lmsg="$ts: [amon[$AMONPID]->${FUNCNAME[1]}]: $msg"  # I've been reading "man bash".
 
     # could send this to a logfile if something is set...
@@ -731,3 +732,19 @@ function calendarTarget() {
     return 0
 
 } # end of calendarTarget()
+
+function checkwav() {
+
+    if [ $# -ne 1 ] ; then
+	log "error: checkwav takes 1 filename argument"
+	return -1
+    fi
+
+    log "would check file \"$1\""
+
+    ls -l "$1"
+
+    log "should incorporate the details from hd.sh here TODO"
+
+    log "checkwav finished"
+}

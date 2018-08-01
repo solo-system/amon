@@ -1,10 +1,12 @@
 Tue 31 Jul 2018
 ---------------
 TODO:
- add logexe() to amon.defs (see below)
- (needs logexe() first) add hexdump to amon (from amon.git/hd.sh)
+ [hold] add logexe() to amon.defs (see below) 
+ add hexdump to amon (from amon.git/hd.sh)
  write "validate-wav-header" which compares all 3. (for later use)
- Deal with "we got an RBT from the calendar, but there is no witty pi.  Warning".
+ msg="$1" # WOW - only taking the first arg!!!! try adding them all!!!
+ log "should incorporate the details from hd.sh here TODO"
+ 
 
 logexe("sudo wp.sh setrbt 2018 1 1 1 1 1")
 function exelog() {

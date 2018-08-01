@@ -1,78 +1,62 @@
 Tue 31 Jul 2018
 ---------------
-add hexdump to amon.
-Also put lencheck - which takes: file length, a and 2 hexcumps and validates they are all consistent,
-Also put lenfix - which fixes the 2 numbers inside the riff wave to be consistent with the file length.
+TODO:
+ add logexe() to amon.defs (see below)
+ (needs logexe() first) add hexdump to amon (from amon.git/hd.sh)
+ write "validate-wav-header" which compares all 3. (for later use)
+ Deal with "we got an RBT from the calendar, but there is no witty pi.  Warning".
 
-My new solo this morning started with :
- 2018-08-01_06-33-08: [amon[633]->main]: INFO: No statefile "/mnt/sdcard/amondata/logs/amon.state" - creating one ...
- 2018-08-01_06-33-08: [amon[633]->main]: Creating statefile: amon MASTERSWITCH is "on"
-
-TODO: run the headless (networkless) solo with a calendar+witty to see if time stuff works without network.
-
-capturing sub-commands is hard to log.  Do we need a exelog() command that achieves it in amon?
-
-hexdump "recent" | logcatter
-
+logexe("sudo wp.sh setrbt 2018 1 1 1 1 1")
 function exelog() {
 	 shift
 	 cmd="$*"
 	 log "about to run and capture cmd=\"$cmd\""
-	 ls -l /etc/ | whle read line ; do
-	   log "$line"
+
+	( $cmd ) | while read outline ; do
+	  echo "LINE: $outline" ; done
+	  log "$line"
 	 done
-	   
-Should we change watchdogs to halt/pause/exit if solo-boot.sh hasn't stopped.  THEY could at least report that solo-boot.sh.started was unaccompanied by i's friend .finished?
+  	 log "finished logging command about to run and capture cmd=\"$cmd\""
+}
 
-Does it support witty pi 1?
+img-compare.sh:
+  1. test original with "run for 10 mins without calendar".
+  2. test original against "run overnight on a 1h-on-1h-off.sh calendar.
+  3. test original against "run overnight on a witty pi and 1h-on-1h-off-calendar.
 
-/var/lib/apt/lists contins a 60M "Packages", and various less big ones.  And an inRelease file (small).  Find the apt cache clean command that gets rid of all this guff.  Or do it by hand.
+WAV Ragged Headers:
+  -USR1 (split) does this right - why not with (the harder) exit?
+  try the other three signals (SIGINT, SIGTERM and SIGABRT) - does that do it?
+  inspect aplay.c code (see upgrade-alsa.sh), to confirm it's broken (in 1.1.6)
 
-Deal with "we got an RBT from the calendar, but there is no witty pi.  Warning".
+  Workaround 1: use "sleep" duration before kill [ with extra cleanup of tinies ]
+  Workaround 3: write "header-fix" which actually fixes the fields (in hexedit).
 
-add better led flash code, so the heartbeat happens only when we are actually recording (or the red light flashes than).
+MASTERSWITCH:
+ My new solo this morning started with :
+ 2018-08-01_06-33-08: [amon[633]->main]: INFO: No statefile "/mnt/sdcard/amondata/logs/amon.state" - creating one ...
+ 2018-08-01_06-33-08: [amon[633]->main]: Creating statefile: amon MASTERSWITCH is "on"
 
-also add "amon witty wittypi status" and "amon wittypi setrrbt XXX XXX" (and others?)
-
-Also - we call "stop" somwerher, but should we not be calling "off".  Why do we not see solo's return from witty poweroff, and sit dumbly in the "off" position?.  AHA - it's _because_ we use stop.  But then _why_ does the calendar (withtout witty) not turn on again at first watchdog encounter?
+ ?calendar=off -> we call "stop" (right?). Without a witty pi, watchdog should turn us on again.  Why not?.
 
 With calendar: a stop will be "fixed" at next watchdog.
                a off  will never be recovered from (because statefile trumps calendar response).
 Do we need to re-instate MASTERSWITCH in /boot/amon.conf?
 
 
-arecord's -USR1 signal splits.  the Man page says that kill INTR ABRT AND (another?) close the output file and exit.  But it doesn't properly handle the wav header.  It's a shame, because the USR1 _does_ do this, and under harder circumstances (gotta keep recording, man).  maybe look at the code one day.
+TESTING:
+  (without network) - A+ running now by eth-switch.
+  try a CLAC
+  always check in cron.log for spurious output.  It's bedlam in there.
 
-In the mean time, find a "sleep" number that gives us enough time to clean up, but not enough so that the new file is hefty enough to feel real.  Could either look at the code and fix (aplay.c) or could put in a line to "find the last file recorded and delete it if it's really small".  Remember, we can take time and cpu over this, as the machine isn't recording.  Actually, we could find the final file and FIX IT! (even better!).
+watchdog locking:
+  What should watchdog do if solo-boot.sh.started is still there.
+  Should watchdogs kill each other? Wait?
+  Check the "grep" (look at code, then run one by hand to overlap
 
-But need a hex dump tool to read RIFF wav headers, as we don't have soxi, and it's too onerous to do this by hand copying to shub every time.
-
-TODO: write a hexdump line to read wav headers.http://www.topherlee.com/software/pcm-tut-wavformat.html
-      There are 2 places where the number of samples occurs (file length and data length).
-
-amon off (and therefore amon stop?) leaves radgged header on file. WOW THIS NEEDS FIXED.
-
-does dailyProvision end by printing a list of all files in / ?  It would be good to get a final list (uing find?) orderable by size?  MOTIVATION?: check that /var/log is empty.  Look: auth.log has 32k already (a fe hours).
-
-always check cron.log for spurious output.  It's bedlam in there.
-
-can we count reboots ?
-
-GOAL: [For tonight]: run a 1 hour on, 1 hour off calendar.
-
-line 691 of defs.sh - should do slightly better check that rbt only supplied for an "off" situation from the calendar.
-tidy up the old calendar files with the new "IFS=S read" trick from wittypi people (avoid multiple calls to date).
-
-amon look for solo-boot.started but NOT solo-boot.finished, and waits (or exits).
-
-Documentation: 
-  put some pointers and examples in solo.git/boot/solo.conf and solo.git/solo.conf for acceptable timezones.  Also update doc on githubpages.
-  !!!Must put bluetack over the raspberry pi 's power socket!!!!
-
-TODO: compare images with imgCompare:
-   does amon stop leave ragged ends on wav files? (split doesn't.  TRUE - split doesn't)
-   generally, what changes (system analysis, not just audio).
-   syslog gets very long (but see the img in imgcompare.)
+dailyProvision.sh:
+  /var/lib/apt/lists has a 60M "Packages" file
+  dailyProvision to also produce list of all files in / ordered by size
 
 tidying up wp.sh <--> amon interface:
  what time format should we use to talk to each other:
@@ -81,20 +65,26 @@ tidying up wp.sh <--> amon interface:
    c. need snooze protection - ensure we don't fall asleep again if we wake early.
 
  There's only a few things we need from wp.sh:
-   - set the time
-   - show the time.
-   - prepare for shutdown (?)
+   - set the rbttime
+   - show the rbttime.
+   - prepare for shutdown (? - what does it do?)
 
-Other questions:
-   Why do cronjobs seem to cluster at boot time?  Are they buffered? or is it anacron or sumfink?
-   can we glide over a reboot time set in the wittypi alarm, and just be up and stay up? (or should we keep zeroing that alarm?)
+RBT compliance:
+ New policy:  The solo starts rebooting at the time you put in calendar.  It takes about 90 seconds to start recording.
+ reboot times grow as sdcard fills up (is that it?) try a deep-clean to see.
+ is there a fsck.log?
+ Is there a systemd tool to profile reboot timings.
 
-sort out the logging in wp.sh (it needs to be root (or does it), but
-the output doesnt get into amon.log - that's not good enough. And I
-don't want to TOO closely integrate witty pi stuff, as many (most)
-people won't use it.  bring higher level functions into defs.sh (witty defs .sh?) starting wp-????() and use those to do logging and stuff, and they can call wp.sh for the low level stuff.  What groups do I need to be in to get rid of the sudo stuff?  (i2cdev/gpio)
 
-as more and more reboots happen, does the boot get slower?  Is that a fsck on /mnt/sdcard issue? what is the systemd command to trace boot times etc...
+TODO (but not today)
+  old calendars to use "IFS=S read" trick obviating multiple calls to date.
+  amon look for solo-boot.started but NOT solo-boot.finished, and waits (or exits).
+  Does it support witty pi 1?
+  add better led flash code, so the heartbeat happens only when we are actually recording (or the red light flashes than).
+  put some pointers and examples in solo.git/boot/solo.conf and solo.git/solo.conf for acceptable timezones.  Also update doc on githubpages.
+  !!!Must put bluetack over the raspberry pi 's power socket!!!!
+  Why do cronjobs seem to cluster at boot time?  Are they buffered? or is it anacron or sumfink?
+  can we glide over a reboot time set in the wittypi alarm, and just be up and stay up? (or should we keep zeroing that alarm?)
 
 
 Mon 30 Jul 2018

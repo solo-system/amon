@@ -301,7 +301,6 @@ function testrec {
     log "testrec finished"
 
     if [ -n "$2" ] ; then
-	# TODO:
 	# should check that $2 has a colon at the end, and an @ symbol in it
 	# jdmc2@pcs isn't good enough, it just makes a local file called that.
 	log "copying to $2 - running scp..."

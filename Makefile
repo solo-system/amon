@@ -12,7 +12,9 @@ alsaconf:
 
 # move the boot files into /boot/solo (amon.conf and calendars)
 bootfiles:
+	if [ -f /boot/solo/amon.conf ] ; then cp /boot/solo/amon.conf /boot/solo/amon.conf.bak
 	cp -rv boot/* /boot/solo/
+	if [ -f /boot/solo/amon.conf.bak ] ; then cp /boot/solo/amon.conf /boot/solo/amon.conf.dist ; cp /boot/solo/amon.conf.bak /boot/solo/amon.conf.bak ; echo KEPT OLD AMON.conf ; fi
 # 	chown -R amon.amon /boot/solo # dont' do this - permission denied(!)
 
 homefiles:

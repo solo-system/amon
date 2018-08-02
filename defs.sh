@@ -162,17 +162,10 @@ function prepare_microphone {
     # Dodotronic ultrasound mic (200k) -> "bits"
     # New microphone here
 
-    # Todo : This Setup won't work in long run.  For example, I bet
-    # dodotronic 250k mic also shows up as "bits" in alsa.  And we
-    # need a "per-mic" configuration file (in /boot)
-    # micsetup.DODOTRONIC, so users can easily change their
-    # preferences for each mic (from windows quite easily).  Can also
-    # then support new mics by simply adding new micsetup.conf file.
-
-    # Also question of whether the prepare_mic routine should SET the
-    # cmdline for arecord (or whatever), or should set the values to
-    # be on that command line.  Probably better to set the $cmd
-    # variable, but then can we still use testrec?  
+    # I _think_ the arecord cmd line needs format,channnels,rate.
+    # all other setup needs done inside the mic's setup file (eg vol).
+    # if it appears in /proc/asound/card0/stream0 -> arecord needs it
+    # however, if it appears in amixer, do it in the mic setup file.
 
     if  grep "Snowflake" /proc/asound/cards > /dev/null ; then
 	MICNAME="Blue:Snowflake"
@@ -257,12 +250,6 @@ function prepare_microphone {
 	    amixer -q -Dhw:RPiCirrus cset name='IN2R Digital Volume' $CLAC_DIG_VOL
 	fi
 	
-	#	amixer -Dhw:RPiCirrus cset name='Line Input Switch' off  # turn it off for safety
-#	if [ "$CLAC_PIP" != "on" ] ; then
-#           log "WARNING: CLAC_PIP ($CLAC_PIP) (plug-in-power) is ON!"
-#	   amixer -Dhw:RPiCirrus cset name='Line Input Switch' on
-#        fi
-
 	AUDIODEVICE="-Dclac"
 	MMAP=""
 	log "prepare_mic: [MICTYPE=CLAC] CHANNELS=$CHANNELS AUDIODEVICE=$AUDIODEVICE MMAP=$MMAP CLAC_VOL=$CLAC_VOL CLAC_DIG_VOL=$CLAC_DIG_VOL CLAC_AUDIO_SOURCE=$CLAC_AUDIO_SOURCE CLAC_PIP=$CLAC_PIP"
@@ -321,13 +308,6 @@ function testrec {
 	scp ${WAVDIR}/testrec.wav $2
     fi
     
-#    if [ $? -ne 0 ] ; then
-#	log "testrec: ERROR: something went wrong (arecord already running? \"amon status\" to check)"
-#    else
-#	log "Recording complete: see file testrec.wav"
-#	file testrec.wav
-#	log "scp testrec.wav jdmc2@t510j:"
-#   fi
 }
 
 # start recording - ignores "state" file. Return:
@@ -351,9 +331,6 @@ function start {
   # setup environment for arecord to correctly record
   prepare_microphone
 
-  # cmd="arecord $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --max-file-time $MAXDURATION --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$SYSNAME-%Y-%m-%d_%H-%M-%S.wav"
-
-  # Argh - max_file_duratino is also broken at the moment in arecord. So remove it for the moment, and hope the watchdog takes care of it.  Once arecord is working again (in 1.0.29, hopefully) we can reintroduce the --max-file-time...
   cmd="arecord $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$SYSNAME-%Y-%m-%d_%H-%M-%S.wav"
 
   log "starting recording with: $cmd"
@@ -365,10 +342,6 @@ function start {
   # us getting the retval without a "wait ..." of somesuch.  But
   # that's ok, the watchdog will catch any problems next time around.
 
-  # this return 0 is needed to stop amonsplit from running immediately after we start recording.
-  # we return with 1 (at the top of this function) if we were already running.
-
-  # but we can at least _look_ to see if the start worked, and show the arecord.log file if it failed:
   sleep 2
   
   if [ -f $PIDFILE ] ; then
@@ -378,7 +351,7 @@ function start {
       log "$(cat $ARECLOG)"
   fi
 
-  # whether we started or not, 0 means we tried. TODO - this could be
+  # whether we started or not, 0 means we tried. This could be
   # improved by introducing a third return value for Tried-and-failed,
   # and Tried-and-succeeded.
   return 0 

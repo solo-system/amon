@@ -13,7 +13,6 @@ pcm.clac {
 
 #######################################################
 # Support for the USB dongle: Sound Blaster Play 2
-
 pcm.soundblasterplayhw {
     type hw
     card S2
@@ -24,8 +23,6 @@ pcm.soundblasterplayhw {
 pcm.soundblasterplay {
         type plug
         slave.pcm "soundblasterplayhw"
-
-        # http://www.alsa-project.org/alsa-doc/alsa-lib/pcm_plugins.html
         route_policy copy
 }
 

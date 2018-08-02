@@ -1,12 +1,21 @@
 Tue 31 Jul 2018
 ---------------
 TODO:
+ tidy up names of sbplay2 and sbplay3 in asound.conf here.  Need to also change defs.sh at same time (and grep for others)
+ tieyp up SB_VOLUME=20 in boot/amon.conf to be SB2_volume perhaps.
+rename this file TODO.txt, and incorporate all other todo stuff (grep for them).
+ Merge? the solo.git/todo file too?
  [hold] add logexe() to amon.defs (see below) 
  add hexdump to amon (from amon.git/hd.sh)
  write "validate-wav-header" which compares all 3. (for later use)
  msg="$1" # WOW - only taking the first arg!!!! try adding them all!!!
  log "should incorporate the details from hd.sh here TODO"
- 
+
+CC (copy card?) It should be this, right?
+lastpart=`fdisk -l /dev/sdf | head -2 | cut -f3`
+dd if=/dev/sdf of=cc.img
+
+
 
 logexe("sudo wp.sh setrbt 2018 1 1 1 1 1")
 function exelog() {

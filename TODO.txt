@@ -1,6 +1,7 @@
 Tue 31 Jul 2018
 ---------------
 TODO:
+ did the change to amonlog make a difference?
  tidy up names of sbplay2 and sbplay3 in asound.conf here.  Need to also change defs.sh at same time (and grep for others)
  tieyp up SB_VOLUME=20 in boot/amon.conf to be SB2_volume perhaps.
 rename this file TODO.txt, and incorporate all other todo stuff (grep for them).

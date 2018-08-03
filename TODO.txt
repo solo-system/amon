@@ -1,6 +1,18 @@
 Tue 31 Jul 2018
 ---------------
 
+get wavdump take arg or not.
+test it.
+leave it behind.
+
+Move to make a new release.
+
+Then take card from A+, and write CC on the basis of it.
+
+then do the comparison using img-compare.sh
+
+
+
 TODO:
  did the change to amonlog make a difference?
 

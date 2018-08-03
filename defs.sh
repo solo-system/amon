@@ -726,7 +726,7 @@ function wavdump(){
     file=$(find $AMONDATA -type f -printf '[%12s bytes]: %p\n' | sort -k 4  | awk '{print $4}' | tail -2 | head -1)
 
     log "about to wavdump.sh $file"
-    /home/amon/amon/wp.sh
+    /home/amon/amon/wavdump.sh $file
     log "Done: to wavdump.sh $file"
 
 }

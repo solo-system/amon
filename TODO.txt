@@ -1,35 +1,10 @@
 Tue 31 Jul 2018
 ---------------
 
-get wavdump take arg or not.
-test it.
-leave it behind.
-
-Move to make a new release.
-
-Then take card from A+, and write CC on the basis of it.
-
-then do the comparison using img-compare.sh
-
-
-
 TODO:
- did the change to amonlog make a difference?
-
-Hexdump:
-for progs in ${list[@]}; do
-  a="${progs}_MIN_REQ"
-  b="${progs}_CURR"
-  echo "$progs: ${!a}:${!b}"
-done
+ did the change to amonlog make a difference? erm - can't see any... yet.
 
 WAV Ragged Headers:
-
-  add hexdump to amon (from amon.git/hd.sh)
- write "validate-wav-header" which compares all 3. (for later use)
- msg="$1" # WOW - only taking the first arg!!!! try adding them all!!!
- log "should incorporate the details from hd.sh here TODO"
-
 
   -USR1 (split) does this right - why not with (the harder) exit?
   try the other three signals (SIGINT, SIGTERM and SIGABRT) - does that do it?
@@ -37,12 +12,6 @@ WAV Ragged Headers:
 
   Workaround 1: use "sleep" duration before kill [ with extra cleanup of tinies ]
   Workaround 3: write "header-fix" which actually fixes the fields (in hexedit).
-
-
-img-compare.sh:
-  1. Write desktop code CC.sh (copy card).
-         lastpart=`fdisk -l /dev/sdf | head -2 | cut -f3`
-         dd if=/dev/sdf of=cc.img
 
 
 MASTERSWITCH:

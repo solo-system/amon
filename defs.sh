@@ -725,7 +725,7 @@ function wavdump(){
 
 
     if [ "$1" ] ; then
-	$file=$1
+	file=$1
     else
 	file=$(find $AMONDATA -type f -printf '[%12s bytes]: %p\n' | sort -k 4  | awk '{print $4}' | tail -2 | head -1)
     fi

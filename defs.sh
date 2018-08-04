@@ -676,23 +676,23 @@ function calendarTarget() {
     fi
 
     # This is new for wittypi - decision might include a reboot time, so split it.
-    read yesno rbt <<< $decision
+    read onoff rbt <<< $decision
 
-    if [ $yesno != "on" -a $yesno != "off" ] ; then
+    if [ $onoff != "on" -a $onoff != "off" ] ; then
 	log -q "Calendar must return yes/no as first token. Invalid: \"$decision\"  (assuming \"on\")"
 	echo "on"
 	return 0
     fi
 
-    # See if the calendar returned a reboot time.
+    # Logging: See if the calendar returned a reboot time.
     if [ "$rbt" ] ; then
-	log -q "Calendar returned yesno=\"$yesno\" with rbt=\"$rbt\""
+	log -q "Calendar returned onoff=\"$onoff\" with rbt=\"$rbt\""
 	if [ "$WITTYPI" != yes ]; then
 	    log -q "WARNING: Calendar returned reboot time for nonexistent Witty Pi - ignoring rbt"
 	fi
     else
-	log -q "Calendar returned yesno=\"$yesno\""
-	if [ "$WITTYPI" = yes ]; then
+	log -q "Calendar returned onoff=\"$onoff\""
+	if [ $onoff = "off" -a "$WITTYPI" = yes ]; then
 	    log -q "WARNING: Calendar fails to provide a reboot time for the Witty Pi.  So stopping, but not shutting down"
 	fi
     fi

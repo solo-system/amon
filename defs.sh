@@ -450,6 +450,13 @@ function setstateoff {
 # write response/log to both logfile and (if it exists) the screen.
 function log {
 
+    if [ ! -f $AMONLOG ] ; then
+	echo "ERROR: there is no amonlogfile: $AMONLOG"
+	echo "ERROR: I hope this makes it into cron.og"
+	echo "ERROR: I am log() from defs.sh"
+	echo "I was called with the message: $1"
+    fi
+
     if [ "$1" = '-q' ] ; then
 	STDOUT=0
 	shift

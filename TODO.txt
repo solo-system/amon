@@ -1,6 +1,9 @@
 Tue 31 Jul 2018
 ---------------
 
+need to clear out things from the cron.log (they should get logexe'd)
+
+
 TODO:
  did the change to amonlog make a difference? erm - can't see any... yet.
 

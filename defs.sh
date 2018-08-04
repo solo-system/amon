@@ -460,10 +460,12 @@ function setstateoff {
 function log {
 
     if [ ! -f $AMONLOG ] ; then
-	echo "ERROR: there is no amonlogfile: $AMONLOG"
+	echo "ERROR: $(tstamp): there is no amonlogfile: $AMONLOG"
 	echo "ERROR: I hope this makes it into cron.og"
 	echo "ERROR: I am log() from defs.sh"
-	echo "I was called with the message: $1"
+	echo "ERROR: I was called with the message: $1"
+	echo "ERROR: I _think_ this happens just as we call shutdown (does that make sense? - time=$(tstamp))"
+	# don't bail out here - good to continue to see the "no such file" complaints from below.
     fi
 
     if [ "$1" = '-q' ] ; then

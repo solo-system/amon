@@ -1,51 +1,52 @@
-Tue 31 Jul 2018
+Sat 04 Aug 2018
 ---------------
-
-need to clear out things from the cron.log (they should get logexe'd)
-
-
-TODO:
- did the change to amonlog make a difference? erm - can't see any... yet.
-
-WAV Ragged Headers:
-
-  -USR1 (split) does this right - why not with (the harder) exit?
-  try the other three signals (SIGINT, SIGTERM and SIGABRT) - does that do it?
-  inspect aplay.c code (see upgrade-alsa.sh), to confirm it's broken (in 1.1.6)
-
-  Workaround 1: use "sleep" duration before kill [ with extra cleanup of tinies ]
-  Workaround 3: write "header-fix" which actually fixes the fields (in hexedit).
-
-
-MASTERSWITCH:
- My new solo this morning started with :
- 2018-08-01_06-33-08: [amon[633]->main]: INFO: No statefile "/mnt/sdcard/amondata/logs/amon.state" - creating one ...
- 2018-08-01_06-33-08: [amon[633]->main]: Creating statefile: amon MASTERSWITCH is "on"
-
- ?calendar=off -> we call "stop" (right?). Without a witty pi, watchdog should turn us on again.  Why not?.
-
-With calendar: a stop will be "fixed" at next watchdog.
-               a off  will never be recovered from (because statefile trumps calendar response).
-Do we need to re-instate MASTERSWITCH in /boot/amon.conf?
-
 
 TESTING:
   1. test original with "run for 10 mins without calendar".
   2. test original against "run overnight on a 1h-on-1h-off.sh calendar.
   3. test original against "run overnight on a witty pi and 1h-on-1h-off-calendar.
   try a CLAC
-  always check in cron.log for spurious output.  It's bedlam in there.
+  Get everything in cron.log properly logged into log() or logexe()
 
-watchdog locking:
-  Check the "grep" works (look at code, then run one by hand to overlap)
-  What should watchdog do if solo-boot.sh.started is still there.
-  Should watchdogs kill each other? Wait?
+TODO:
+ did the change to amonlog make a difference? erm - can't see any... yet.
+ - call to "df"?  (this one is easy to logexec-ify (or just plain $(ls) on command line to log())
+ - calls to set volume etc?
+ - calls to wp.sh
+ - see cron.log for other overspill
+ need to clear out things from the cron.log (they should get logexe'd)
 
-dailyProvision.sh:
-  /var/lib/apt/lists has a 60M "Packages" file
-  dailyProvision to also produce list of all files in / ordered by size
+WAV Ragged Headers:
+  -USR1 (split) fixes up header, (SIGINT, SIGTERM and SIGABRT) do not.
+  Workaround 1: use "sleep" duration before kill [ with extra cleanup of tinies ]
+  Workaround 2: write headerfix() (in "hexedit").  Call after SIGINT is sent (ie after a "stop")
+  Real solution: inspect aplay.c (see upgrade-alsa.sh), confirm problem (in 1.1.6), report or fix.
+
+MASTERSWITCH:
+ My new solo this morning started with :
+ 2018-08-01_06-33-08: [amon[633]->main]: INFO: No statefile "/mnt/sdcard/amondata/logs/amon.state" - creating one ...
+ 2018-08-01_06-33-08: [amon[633]->main]: Creating statefile: amon MASTERSWITCH is "on"
+
+ when calendar=off -> we call "stop" (right?). Without a witty pi, watchdog should turn us on again.  Why not?.
+ With calendar: a stop will be "fixed" at next watchdog.
+                a off  will never be recovered from (because statefile trumps calendar response).
+ Do we need to re-instate MASTERSWITCH in /boot/amon.conf?
+
+WATCHDOG LOCKING:
+  1. watchdog() wait for solo-boot.sh to finish. (YES - surely? - particularly with long fsck times?)
+  2. watchdog() avoid each other. [ Not needed - this happens rarely.  The boottime clustering I saw will be cured by above.
+
+PROVISIONING:
+ /var/lib/apt/lists has a 60M "Packages" file
+ dailyProvision to also produce list of all files in / ordered by size
+  
+CC / img-compare.sh
+  img-compare.sh should exit (if given $outfile), having produced a diff of the two hierarchies.  Consider fsdiff()
+  do we put the "datecode" of dailyProvision anywhere inside the sosi?  Would be useful to test 
+  echo "version" > /opt/solo/build-info.txt (could have entries like SOSI_VERSION=2018-01-01-02-03-03, SOLO_HEAD=xxx).
 
 tidying up wp.sh <--> amon interface:
+ Try running as if we are in a different timezone.
  what time format should we use to talk to each other:
    a. want users calendars to output "things sensible to the user".
    b. want to have a format within amon that we can "take 90 seconde off of" to account for boot time.
@@ -55,14 +56,14 @@ tidying up wp.sh <--> amon interface:
      - show the rbttime.
      - prepare for shutdown (? - what does it do?)
 
-RBT compliance:
- New policy:  The solo starts rebooting at the time you put in calendar.  It takes about 90 seconds to start recording.
+Calendars:
+ reboot-time policy: The solo starts rebooting at the time you put in calendar.  It takes about 90 seconds to start recording.
  reboot times grow as sdcard fills up (is that it?) try a deep-clean to see.
  is there a fsck.log?
  Is there a systemd tool to profile reboot timings.
 
 TODO (but not today):
-  tieyp up SB_VOLUME=20 in boot/amon.conf to be SB2_volume perhaps.
+  tidy up SB_VOLUME=20 in boot/amon.conf to be SB2_volume perhaps.
   tidy up names of sbplay2 and sbplay3 in asound.conf here.  Need to also change defs.sh at same time (and grep for others)
   old calendars to use "IFS=S read" trick obviating multiple calls to date.
   amon look for solo-boot.started but NOT solo-boot.finished, and waits (or exits).

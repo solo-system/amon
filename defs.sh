@@ -40,7 +40,16 @@ function watchdog {
     log "---MARK--- watchdog starting. (locked by: $lockfile)"
     log "System load (from /proc/loadavg): $(cat /proc/loadavg)"
 
-    [ "$DEBUG" == yes ] && log " disk free: $(df /boot / /mnt/sdcard/)"
+    # [ "$DEBUG" == yes ] && log " disk free: $(df /boot / /mnt/sdcard/)"
+    log "BEGIN testing logging"
+    log "about to test diskfree using dollar include on commandline:"
+    log "disk free: $(df /boot / /mnt/sdcard/)"
+    log "done testing diskfree using dollar include on commandline"
+
+    log "about to test logexec() with df..."
+    logexec "df /boot / /mnt/sdcard/"
+    log "done test logexec() with df..."
+    log "END testing logging"
 
     # log "watchdog: first thing we do is cleanup()" # (test processes and procfile are in sync)
     amoncleanup
@@ -477,11 +486,11 @@ function log {
 }
 
 # properly log the output of external commands, throug a while loop calls to log()
-function logexe {
+function logexec {
     shift
     local cmd="$*"
     log "about to run cmd=\"$cmd\""
-    ( $cmd ) | while read line ; do log "$line" ; done
+    $cmd | while read line ; do log "$line" ; done
     log "finished running cmd=\"$cmd\""
 }
 

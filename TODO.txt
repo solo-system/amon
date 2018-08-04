@@ -1,6 +1,11 @@
 Sat 04 Aug 2018
 ---------------
 
+FIRST ON MONDAY:
+  look at results of log testing - see watchdogs - does "df" log better with $(dollar include) on log() command line directly, or is it better to go through logexec().  They are both implemented.
+  check that the cron.log is emptying (are we still seeing AMONLOG "no such file"? entries? solve with watchdog wait for solo-boot.sh to finish).
+  
+
 TESTING:
   1. test original with "run for 10 mins without calendar".
   2. test original against "run overnight on a 1h-on-1h-off.sh calendar.

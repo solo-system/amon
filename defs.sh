@@ -489,7 +489,7 @@ function log {
 
 # properly log the output of external commands, throug a while loop calls to log()
 function logexec {
-    shift
+    #shift
     local cmd="$*"
     log "about to run cmd=\"$cmd\""
     $cmd | while read line ; do log "$line" ; done

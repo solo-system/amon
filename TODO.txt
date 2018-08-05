@@ -1,25 +1,28 @@
 Sat 04 Aug 2018
 ---------------
 
-FIRST ON MONDAY:
-  look at results of log testing - see watchdogs - does "df" log better with $(dollar include) on log() command line directly, or is it better to go through logexec().  They are both implemented.
-  check that the cron.log is emptying (are we still seeing AMONLOG "no such file"? entries? solve with watchdog wait for solo-boot.sh to finish).
-  
+TODO:
+ are we still seeing AMONLOG "no such file"? entries? solve with watchdog wait for solo-boot.sh to finish).
+ Then, continue to clean up cron.log, now that we have logexec() working
+ - calls to set volume etc?
+ - calls to wp.sh
+
+get a dawn() and dusk() routine going
+ - what does it take (date? TZ? latitude?)
+ - what can it find for itself?
+ - we should be able to hand it overries of these for testing.
+
+ eg rbt=(dawn) - 1 hour.
+ 
 
 TESTING:
   1. test original with "run for 10 mins without calendar".
   2. test original against "run overnight on a 1h-on-1h-off.sh calendar.
   3. test original against "run overnight on a witty pi and 1h-on-1h-off-calendar.
   try a CLAC
+  tidy up all my old hardware by testing it out. bin the baddies.
   Get everything in cron.log properly logged into log() or logexe()
 
-TODO:
- did the change to amonlog make a difference? erm - can't see any... yet.
- - call to "df"?  (this one is easy to logexec-ify (or just plain $(ls) on command line to log())
- - calls to set volume etc?
- - calls to wp.sh
- - see cron.log for other overspill
- need to clear out things from the cron.log (they should get logexe'd)
 
 WAV Ragged Headers:
   -USR1 (split) fixes up header, (SIGINT, SIGTERM and SIGABRT) do not.

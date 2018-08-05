@@ -40,16 +40,10 @@ function watchdog {
     log "---MARK--- watchdog starting. (locked by: $lockfile)"
     log "System load (from /proc/loadavg): $(cat /proc/loadavg)"
 
-    # [ "$DEBUG" == yes ] && log " disk free: $(df /boot / /mnt/sdcard/)"
-    log "BEGIN testing logging"
-    log "about to test diskfree using dollar include on commandline:"
-    log "disk free: $(df /boot / /mnt/sdcard/)"
-    log "done testing diskfree using dollar include on commandline"
-
-    log "about to test logexec() with df..."
-    logexec "df /boot / /mnt/sdcard/"
-    log "done test logexec() with df..."
-    log "END testing logging"
+    # NOTE: this "dollar include" way of logging works - newlines are
+    # maintained, but you don't get the timestamps in front of the
+    # output in amon.log".  That's why logexec() exists.
+    [[ -n "$DEBUG" ]] && logexec "df /boot / /mnt/sdcard/"
 
     # log "watchdog: first thing we do is cleanup()" # (test processes and procfile are in sync)
     amoncleanup

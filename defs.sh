@@ -747,3 +747,9 @@ function wavdump(){
     log "Done: to wavdump.sh $file"
 
 }
+
+function duskdawn() {
+    log "in duskdawn - about to call the python script"
+    logexec "/home/amon/amon/duskdawn.py"
+    log "done calling duskdawn.py"
+}

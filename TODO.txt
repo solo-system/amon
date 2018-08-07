@@ -1,5 +1,7 @@
 Sat 04 Aug 2018
 ---------------
+Raoul Klima says: For owl studies : record from 30 minutes before sunset till 30 minutes after sunrise. 
+https://en.wikipedia.org/wiki/Sunrise_equation
 
 -------
 # use python3:

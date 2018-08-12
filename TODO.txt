@@ -1,47 +1,24 @@
 Sat 04 Aug 2018
 ---------------
+
+# keep gpio pins quiet (particularly the shutdown alarm)
+if [ at boot time only? (uptime < 2 mins?)] 
+if [ -s $WITTYPI ] ; then
+ unmount rtc?
+ wp.sh clear-all-alarms
+fi
+
+Should I merge the calendars/witty with calendars? (if not, why are they separated?)
+
 Raoul Klima says: For owl studies : record from 30 minutes before sunset till 30 minutes after sunrise. 
 https://en.wikipedia.org/wiki/Sunrise_equation
 
--------
-# use python3:
-sudo apt-get install python3-pip # install pip3
-sudo -H pip3 install pyephem
-then scp solo1.py
-pi@raspberrypi:~ $ chmod +x solo1.py
-pi@raspberrypi:~ $ ./solo1.py
-Today rising: 2018/8/7 04:27:42
-Today settig: 2018/8/6 20:10:24
-It works!!!
-
-OR (to take less space?)
-wget https://pypi.python.org/packages/source/e/ephem/ephem-3.7.6.0.tar.gz#md5=0e33905844e3be5c901c13e5a9c938a3
-tar ...
-(complains on desktop that we need extensions/_libastro.c:3:20: fatal error: Python.h: No such file or directory)
-which is in python3-dev, I think).
-----
-
-does this work in provision.sh?
-pip install pyephem?
-
-get a dusk and dawn script.
-Bats: (night) start @sunset - 1 hour ; stop @sunrise + 1 hour
-dawn chorus: start@(sunrise-1hour) ; stop @(sunrise 4 hours).
-
-
+=======
 TODO:
  are we still seeing AMONLOG "no such file"? entries? solve with watchdog wait for solo-boot.sh to finish).
  Then, continue to clean up cron.log, now that we have logexec() working
  - calls to set volume etc?
  - calls to wp.sh
-
-get a dawn() and dusk() routine going
- - what does it take (date? TZ? latitude?)
- - what can it find for itself?
- - we should be able to hand it overries of these for testing.
-
- eg rbt=(dawn) - 1 hour.
- 
 
 TESTING:
   1. test original with "run for 10 mins without calendar".
@@ -51,12 +28,12 @@ TESTING:
   tidy up all my old hardware by testing it out. bin the baddies.
   Get everything in cron.log properly logged into log() or logexe()
 
-
 WAV Ragged Headers:
   -USR1 (split) fixes up header, (SIGINT, SIGTERM and SIGABRT) do not.
   Workaround 1: use "sleep" duration before kill [ with extra cleanup of tinies ]
   Workaround 2: write headerfix() (in "hexedit").  Call after SIGINT is sent (ie after a "stop")
   Real solution: inspect aplay.c (see upgrade-alsa.sh), confirm problem (in 1.1.6), report or fix.
+       		 Look at code for play.c accepting interrupts.
 
 MASTERSWITCH:
  My new solo this morning started with :
@@ -112,11 +89,15 @@ TODO (but not today):
   can we glide over a reboot time set in the wittypi alarm, and just be up and stay up? (or should we keep zeroing that alarm?)
 
 Other hardware:
+  New hardware: new hardware should NOT get auto-detect, there are too many.
+  Consider amon-bespoke.conf is included if it exists. (so users can quickly copy their conf files in there and go).
+  support dodotronic 384. AUDIOHW=dodotronic384?
+  http://www.audioinjector.net/rpi-zero (on order?)
   https://fe-pi.com/products
   Behringer U-CONTROL UCA202
   http://www.richardmudhar.com/
-  http://www.audioinjector.net/rpi-zero
 
+---------------------------------------------------------------------------
 
 Mon 30 Jul 2018
 ---------------

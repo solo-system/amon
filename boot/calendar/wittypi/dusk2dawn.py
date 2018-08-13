@@ -62,7 +62,7 @@ print("sun set (local): %s" % ssetblt.strftime(dateformat) ,file=sys.stderr)
 if (srise < sset):
     waittime = sriseb - utcnow
     print('sun-rise is next (in %s) at %s, so it\'s currently night -> we should be ON' % (waittime, sriseblt.strftime(dateformat)), file=sys.stderr)
-    print("on until RISE: %s" % sriseblt.strftime(returnformat))
+    print("on")
 else:
     waittime = ssetb - utcnow
     print('sun-set is next (in %s), at %s, so it\'s currently day -> we should be OFF, rebooting at sunset' % (waittime, ssetblt.strftime(dateformat)) ,file=sys.stderr)

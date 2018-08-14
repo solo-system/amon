@@ -22,7 +22,7 @@ returnformat="%Y %m %d %H %M %S" # what we return on stdout
 
 # what time is it right now?
 utcnow=datetime.datetime.utcnow().replace(tzinfo=timezone.utc)
-print("now: %s" % utcnow.strftime(dateformat),file=sys.stderr)
+print("\n dusk2dawn.py Started (now: %s)" % utcnow.strftime(dateformat),file=sys.stderr)
 
 sun = ephem.Sun() # which astro-object are we interested in?
 
@@ -67,3 +67,5 @@ else:
     waittime = ssetb - utcnow
     print('sun-set is next (in %s), at %s, so it\'s currently day -> we should be OFF, rebooting at sunset' % (waittime, ssetblt.strftime(dateformat)) ,file=sys.stderr)
     print('off %s' % ssetblt.strftime(returnformat))
+
+print("dusk2dawn.py Finished" ,file=sys.stderr)

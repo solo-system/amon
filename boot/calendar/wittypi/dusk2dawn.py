@@ -8,7 +8,7 @@
 # can we get lat long from sys.environment("SOLOLAT", "SOLOLONG")
 # REMEMBER: keep stdout clean to return "on" or "off ..."
 #           Send all logging to stderr
-# Warning: deltas are untested and I suspect buggy.
+# Warning: fringes are untested and I suspect buggy.
 
 import datetime
 import sys
@@ -16,21 +16,25 @@ import ephem # for sunrise and sunset times. (pip install pyephem)
 from datetime import timedelta
 from datetime import timezone
 
+# The solo's latitude and longitude: (should get from amon.conf somehow)
+lat = '55.9667'; lon = '-3.2167'   # Edinburgh (GMT / BST) GMT+0
+#lat = '34.0522'; lon = '-118.2437' # LA (PST /PDT) GMT-8
+#lat = '42.3601'; lon = '-71.0589'  # Boston (EST / EDT) GMT-5
+fringe=30 # pre-dusk and post-dawn extension in minutes.
+
 # what is the output format we hand back to amon?
 dateformat="%Y-%m-%d %H:%M:%S %Z" # for debug in stderr
 returnformat="%Y %m %d %H %M %S" # what we return on stdout
 
 # what time is it right now?
 utcnow=datetime.datetime.utcnow().replace(tzinfo=timezone.utc)
-print("\n dusk2dawn.py Started (now: %s)" % utcnow.strftime(dateformat),file=sys.stderr)
+print("\ndusk2dawn.py Started lat=%s lon=%s fringe=%s (time-now: %s)" % (lat, lon, fringe, utcnow.strftime(dateformat)), file=sys.stderr)
 
 sun = ephem.Sun() # which astro-object are we interested in?
 
 # set up the observer, at the SOLO's location.
 solobox = ephem.Observer()
-solobox.lat = '55.9667'; solobox.lon = '-3.2167'   # Edinburgh (GMT / BST) GMT+0
-solobox.lat = '34.0522'; solobox.lon = '-118.2437' # LA (PST /PDT) GMT-8
-solobox.lat = '42.3601'; solobox.lon = '-71.0589'  # Boston (EST / EDT) GMT-5
+solobox.lat = lat ; solobox.lon = lon;
 
 #solobox.pressure = 0 # atmospheric dispersion?
 #solobox.horizon = '0.0' # degrees(?) raise the horizon for later dawn, earlier dusk.
@@ -41,31 +45,27 @@ solobox.lat = '42.3601'; solobox.lon = '-71.0589'  # Boston (EST / EDT) GMT-5
 #   - ... and then explicitly setting timezone to "utc"
 srise = solobox.next_rising(sun).datetime().replace(tzinfo=timezone.utc) 
 sset  = solobox.next_setting(sun).datetime().replace(tzinfo=timezone.utc) 
-print("sunrise: %s" % srise.strftime(dateformat) ,file=sys.stderr)
-print("sun set: %s" % sset.strftime(dateformat) ,file=sys.stderr)
 
-delta = timedelta(minutes=0)
-if (delta != timedelta(minutes=0) ): print("WARNINIG: borders might not work - they are UNTESTED", file=sys.stderr)
-print("add the border: %s" % delta,file=sys.stderr)
-sriseb = srise - delta
-ssetb = sset + delta
-print("sunrise (with border): %s" % sriseb.strftime(dateformat) ,file=sys.stderr)
-print("sun set (with border): %s" % ssetb.strftime(dateformat) ,file=sys.stderr)
 
-#print("convert these UTC times into localtime:",file=sys.stderr)
+fringetd = timedelta(minutes=fringe)
+if (fringe != timedelta(minutes=0) ): print("WARNINIG: fringes might not work - it's UNTESTED", file=sys.stderr)
+
+sriseb = srise - fringetd
+ssetb = sset + fringetd
+
 sriseblt = sriseb.astimezone()
 ssetblt = ssetb.astimezone()
-print("sunrise (local): %s" % sriseblt.strftime(dateformat) ,file=sys.stderr)
-print("sun set (local): %s" % ssetblt.strftime(dateformat) ,file=sys.stderr)
 
+print("sunrise: pure=%s with-fringe=%s local=%s" % (srise.strftime(dateformat), sriseb.strftime(dateformat), sriseblt.strftime(dateformat)), file=sys.stderr)
+print("sun set: pure=%s with-fringe=%s local=%s" % (sset.strftime(dateformat), ssetb.strftime(dateformat), ssetblt.strftime(dateformat)), file=sys.stderr)
 
 if (srise < sset):
     waittime = sriseb - utcnow
-    print('sun-rise is next (in %s) at %s, so it\'s currently night -> we should be ON' % (waittime, sriseblt.strftime(dateformat)), file=sys.stderr)
+    print('Decision: sun-rise is next (in %s) at %s, so it\'s currently night -> we should be ON' % (waittime, sriseblt.strftime(dateformat)), file=sys.stderr)
     print("on")
 else:
     waittime = ssetb - utcnow
-    print('sun-set is next (in %s), at %s, so it\'s currently day -> we should be OFF, rebooting at sunset' % (waittime, ssetblt.strftime(dateformat)) ,file=sys.stderr)
+    print('Decision: sun-set is next (in %s) at %s, so it\'s currently day -> we should be OFF, rebooting at sunset' % (waittime, ssetblt.strftime(dateformat)) ,file=sys.stderr)
     print('off %s' % ssetblt.strftime(returnformat))
 
 print("dusk2dawn.py Finished" ,file=sys.stderr)

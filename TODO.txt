@@ -1,12 +1,21 @@
 Sat 04 Aug 2018
 ---------------
 
+How to get lat and long into Calendars:
+- add to command line (but that seems silly for calendars not based on latlong)
+- have calendars read the amon.conf file (grumble - is that possible?)
+- have people themselves add the LAT/LONG to the calendar files?
+
 # keep gpio pins quiet (particularly the shutdown alarm)
 if [ at boot time only? (uptime < 2 mins?)] 
 if [ -s $WITTYPI ] ; then
  unmount rtc?
  wp.sh clear-all-alarms
 fi
+
+Is the "border" functionality the right "sense"?  for dusk2dawn, a positive border should make ontimes (in evening) EARLIER and V.V.
+
+Does the border functionality work at all?
 
 Should I merge the calendars/witty with calendars? (if not, why are they separated?)
 

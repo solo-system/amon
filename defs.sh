@@ -454,11 +454,9 @@ function setstateoff {
 function log {
 
     if [ ! -f $AMONLOG ] ; then
-	echo "ERROR: $(tstamp): there is no amonlogfile: $AMONLOG"
-	echo "ERROR: I hope this makes it into cron.og"
-	echo "ERROR: I am log() from defs.sh"
-	echo "ERROR: I was called with the message: $1"
-	echo "ERROR: I _think_ this happens just as we call shutdown (does that make sense? - time=$(tstamp))"
+	echo "WARN: log(): $(tstamp):  there is no amonlogfile: $AMONLOG"
+	echo "WARN: log(): I was asked to log the message: \"$1\""
+#	echo "ERROR: I _think_ this happens just as we call shutdown (does that make sense? - time=$(tstamp))"
 	# don't bail out here - good to continue to see the "no such file" complaints from below.
     fi
 
@@ -608,6 +606,11 @@ function deep-clean {
     #rm -rvf *.log testrec.wav ${WAVDIR}/* ${LOGDIR}/*
     rm -rvf *.log testrec.wav ${WAVDIR}/* ${LOGDIR}/{amon.log,arecord.log,calendar.log,cron.log} ${LOGDIR}/old/arecord-*.log
 
+    # make an empty log file - log() gets hysterical without an amon.log:
+    touch ${LOGDIR}/amon.log
+
+    # and make the first log entry:
+    log "re-created empty log file after deep-clean"
 }
 
 # count the number of "arecord" processes running"

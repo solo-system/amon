@@ -24,33 +24,46 @@
 # octal.  I got these errors in calendar.log:
 # /boot/solo/calendar/5m-on-5m-off.sh: line 41: 08: value too great for base (error token is "08")
 
-year=$(date +"%Y")
-month=$(date +"%-m")
-day=$(date +"%-d")
-hour=$(date +"%-H")
-minute=$(date +"%-M")
+# 10#08 solves the base problem (yuk).
+
+datestr=$(date +"%Y %-m %-d %-H %-M %-S")
+read year month day hour minute second <<< $datestr
+
+#echo "$year $month $day"
+#echo "$hour $minute $second"
+#echo yeah
 
 # don't look at seconds - you can't do anything meaningful with
 # seconds.  This script is called every minute (at just a few seconds
 # after the "top of the clock")
-echo "$0: debug: year is $year, month is $month, day is $day, hour is $hour, minute is $minute" 1>&2
+#echo "$0: debug: year is $year, month is $month, day is $day, hour is $hour, minute is $minute" 1>&2
 
 # if the clock wrong, we can't do anything meaningful - so assume
 # recordings should be "on"
-if [ $year -lt 2016 ] ; then
-    echo "clock is not set - bailing out" 1>&2
-    echo "on"
-    exit 0
-fi
+#if [ $year -lt 2018 ] ; then
+#    echo "clock is not set - bailing out" 1>&2
+#    echo "on"
+#    exit 0
+#fi
 
 # only record first 5 minutes of each 10 minutes.
 # this logic says : "if remainder of $minute divided by ten is less than 5"
-if [ $(($minute % 10)) -lt 5 ] ; then
+if [ $(( $minute % 10 )) -lt 5 ] ; then
     echo "on"
     exit 0
 fi
 
-echo "off"
+# We will return "off", so calculate the reboot time (rst)
+
+# The time in 10 mins is:
+read -a rst <<< $(date  +"%Y %-m %-d %-H %-M %-S" -d "10 minutes")
+
+# munge it: "minutes" rounds to be multiple of ten, and zero the "seconds" element.
+rst[4]=$((   ${rst[4]} / 10 * 10   ))
+rst[5]=0
+
+# print the output.
+echo "off ${rst[@]}"
 
 # echo "Calendar script finished" 1>&2
 

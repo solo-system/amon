@@ -96,6 +96,7 @@ Other hardware:
 Documentation:
 mention:   reboot-time policy: The solo starts rebooting at the time you put in calendar.  It takes about 90 seconds to start recording.
 
+fix up 1h-on-1h-off and 5m-on-5m-off to be nicely commented.  I did 1h... but 5m needs comments trimmed.
 
 
 ---------------------------------------------------------------------------

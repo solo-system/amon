@@ -86,7 +86,7 @@ function watchdog {
 	    log "we are stopped, but we should be recording, so starting..."
 	    start
 	else # we are already recording
-	    log "we are recording, just as we should be."
+	    log "All is good: we are recording, just as we should be."
 	    # possibly split the audiofile, if the minute-of-day divides $DURATION
 	    minute=$(date +"%-M")
 	    rem=$(( $minute % $DURATION ))
@@ -96,23 +96,28 @@ function watchdog {
 	if [ $cleanupcode == 1 ] ; then  # but we are running.
 	    log "we are running, but we should be stopped, so stop... "
 	    stop
-	else	
-	    log "we are stopped, just as we should be. All is calm."
+	else
+	    log "All is good: we are stopped, just as we should be."
 	fi
 	
 	if [ $WITTYPI == "yes" -a "$rbt" ] ; then
-	    log "Wittypi: setting reboot time to rbt=$rbt"
-	    sudo /home/amon/amon/wp.sh setrbt $rbt
-	    # sudo /home/amon/amon/wp.sh status
-	    log "Wittypi: syncing discs"
-	    sync ; sync # good ol' fasioned paranoia.
-	    log "Wittypi: *** Calling shutdown now: Bye. ***"
-	    sudo /home/amon/amon/wp.sh shutdown # change this to shutdown-prep.
-	    # call the actual shutdown ourselves.
-	    # sudo poweroff.
-	    
-	fi
-    fi
+	    currentuptime=$(cut -f1 -d' ' /proc/uptime)
+	    if [ $currentuptime < 180 ] ; then
+		log "Refusing to shutdown: 180 sec min (uptime=$currentuptime)"
+	    else
+		log "Wittypi: setting reboot time to rbt=$rbt"
+		sudo /home/amon/amon/wp.sh setrbt $rbt
+		# sudo /home/amon/amon/wp.sh status
+		log "Wittypi: syncing discs"
+		sync ; sync # good ol' fasioned paranoia.
+		log "Wittypi: *** Calling shutdown now: Bye. ***"
+		sudo /home/amon/amon/wp.sh shutdown
+		# change the above to shutdown-prep.
+		# call the actual shutdown ourselves.
+		# sudo poweroff.
+	    fi # currentuptime check
+	fi # wittypi and rbt
+    fi # calonoff = "off"
 
     status # print status for the log
 

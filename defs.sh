@@ -29,7 +29,7 @@ function watchdog {
     # bail out if we are still booting...
     waitcount=10
     while [ ! -f /tmp/solo-boot.finished -a $waitcount -gt 0 ] ; do
-	echo waiting $waitcount
+	log "waiting for solo-boot to finish $waitcount secs left..."
 	sleep 1
 	((waitcount--))
     done

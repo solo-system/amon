@@ -111,6 +111,9 @@ elif [ "$1" == "setrbt" ] ; then
 	echo "wp.sh[setrbt] ERROR: didn't get 6 args. Exiting"
 	exit -1
     fi
+
+    # ensure the shutdown timer is disabled (we never use it).
+    reset_shutdown_time
     
     echo "wp.sh[setrbt]: calling JCrbt_set with $# args"
     JCrbt_set $*

@@ -31,13 +31,13 @@ function watchdog {
     if [ $numothers -gt 0 ] ; then
 	log "[WARNING: there are ($numothers) other watchdogs running]"
     else
-	log "[Good: there are zero ($numothers) other watchdogs running]"
+	# log "[Good: there are zero ($numothers) other watchdogs running]"
     fi
 
     lockfile=/tmp/amon-watchdog-$$.running
     touch $lockfile
 
-    log "---MARK--- watchdog starting. (locked by: $lockfile)"
+    log "---MARK--- watchdog starting. (locked by: $lockfile, no others running)"
     log "System load (from /proc/loadavg): $(cat /proc/loadavg)"
 
     # NOTE: this "dollar include" way of logging works - newlines are

@@ -710,13 +710,13 @@ function calendarTarget() {
 
     # Logging: See if the calendar returned a reboot time.
     if [ "$rbt" ] ; then
-	log -q "Calendar returned onoff=\"$onoff\" with rbt=\"$rbt\" [$CALENDAR]"
+	log -q "Calendar's verdict is: \"$onoff\" with rbt=\"$rbt\" [$CALENDAR]"
 	if [ "$WITTYPI" != yes ]; then
 	    log -q "WARNING: Calendar returned reboot time for nonexistent Witty Pi - ignoring rbt"
 	    log -q "WARNING: See calendar log in $LOGDIR/calendar.log"
 	fi
     else
-	log -q "Calendar returned onoff=\"$onoff\" [$CALENDAR]"
+	log -q "Calendar's verdict is: \"$onoff\" [$CALENDAR]"
 	if [ $onoff = "off" -a "$WITTYPI" = yes ]; then
 	    log -q "WARNING: Calendar failed to provide a reboot time for the Witty Pi.  So stopping, but not shutting down"
 	    log -q "WARNING: See calendar log in $LOGDIR/calendar.log"

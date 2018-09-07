@@ -685,13 +685,14 @@ function calendarTarget() {
 	return 0
     fi
     
-    log -q "Checking calendar: $CALENDAR (output logged into $LOGDIR/calendar.log)"
+    #log -q "Checking calendar: $CALENDAR (output logged into $LOGDIR/calendar.log)"
 
     # now run the calendar file, grabbing the output.
     decision=$($CALENDAR 2>> $LOGDIR/calendar.log)
     returnval=$?
 
     if [ $returnval -ne 0 ] ; then
+	log -q "Warning: probem with calendar: $CALENDAR (see log in $LOGDIR/calendar.log)"
 	log -q "calendar script returned nonzero exit status [$returnval][\"$decision\"], so giving up on calendar"
 	echo "on"
 	return 0
@@ -701,6 +702,7 @@ function calendarTarget() {
     read onoff rbt <<< $decision
 
     if [ $onoff != "on" -a $onoff != "off" ] ; then
+	log -q "Warning: probem with calendar: $CALENDAR (see log in $LOGDIR/calendar.log)"
 	log -q "Calendar must return yes/no as first token. Invalid: \"$decision\"  (assuming \"on\")"
 	echo "on"
 	return 0
@@ -708,14 +710,16 @@ function calendarTarget() {
 
     # Logging: See if the calendar returned a reboot time.
     if [ "$rbt" ] ; then
-	log -q "Calendar returned onoff=\"$onoff\" with rbt=\"$rbt\""
+	log -q "Calendar returned onoff=\"$onoff\" with rbt=\"$rbt\" [$CALENDAR]"
 	if [ "$WITTYPI" != yes ]; then
 	    log -q "WARNING: Calendar returned reboot time for nonexistent Witty Pi - ignoring rbt"
+	    log -q "WARNING: See calendar log in $LOGDIR/calendar.log"
 	fi
     else
-	log -q "Calendar returned onoff=\"$onoff\""
+	log -q "Calendar returned onoff=\"$onoff\" [$CALENDAR]"
 	if [ $onoff = "off" -a "$WITTYPI" = yes ]; then
-	    log -q "WARNING: Calendar fails to provide a reboot time for the Witty Pi.  So stopping, but not shutting down"
+	    log -q "WARNING: Calendar failed to provide a reboot time for the Witty Pi.  So stopping, but not shutting down"
+	    log -q "WARNING: See calendar log in $LOGDIR/calendar.log"
 	fi
     fi
     

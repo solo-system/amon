@@ -1,14 +1,17 @@
 #!/usr/bin/python3
 
-# This calendar supports witty pi (offers a reboot time when
-# recommending "off").
-# see: http://rhodesmill.org/pyephem/date.html
+# This file is a Solo Calendar
+# This file is part of amon (https://github.com/solo-system/amon.git)
+# see readme.txt for info on calendars
+
+# This calendar records from dusk until dawn
+
+# Please prescribe the latitude and longitude of your solo deployment in this calendar.
+# Also optionally prescribe a "fringe" in minutes which starts the
+# recording earlier, and stops it later.
+# sophisticated users may fiddle with pressure and horizon too, which affect the dusk/dawn timings.
+
 # to test it, just run it (on your desktop) - it is stand alone.
-#
-# can we get lat long from sys.environment("SOLOLAT", "SOLOLONG")
-# REMEMBER: keep stdout clean to return "on" or "off ..."
-#           Send all logging to stderr
-# Warning: fringes are untested and I suspect buggy.
 
 import datetime
 import sys
@@ -16,10 +19,11 @@ import ephem # for sunrise and sunset times. (pip install pyephem)
 from datetime import timedelta
 from datetime import timezone
 
-# The solo's latitude and longitude: (should get from amon.conf somehow)
+# The solo's latitude and longitude: 
 lat = '55.9667'; lon = '-3.2167'   # Edinburgh (GMT / BST) GMT+0
 #lat = '34.0522'; lon = '-118.2437' # LA (PST /PDT) GMT-8
 #lat = '42.3601'; lon = '-71.0589'  # Boston (EST / EDT) GMT-5
+
 fringe=30 # pre-dusk and post-dawn extension in minutes.
 
 # what is the output format we hand back to amon?
@@ -46,7 +50,6 @@ solobox.lat = lat ; solobox.lon = lon;
 srise = solobox.next_rising(sun).datetime().replace(tzinfo=timezone.utc) 
 sset  = solobox.next_setting(sun).datetime().replace(tzinfo=timezone.utc) 
 
-
 fringetd = timedelta(minutes=fringe)
 if (fringe != timedelta(minutes=0) ): print("WARNINIG: fringes might not work - it's UNTESTED", file=sys.stderr)
 
@@ -69,3 +72,10 @@ else:
     print('off %s' % ssetblt.strftime(returnformat))
 
 print("dusk2dawn.py Finished" ,file=sys.stderr)
+
+########################
+# Notes:
+# can we get lat long from sys.environment("SOLOLAT", "SOLOLONG")
+# REMEMBER: keep stdout clean to return "on" or "off ..."
+#           Send all logging to stderr
+# Warning: fringes are untested and I suspect buggy.

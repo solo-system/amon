@@ -1,42 +1,44 @@
 #!/bin/bash -e
 
+# This file is a Solo Calendar
 # This file is part of amon (https://github.com/solo-system/amon.git)
+# see readme.txt for info on calendars
 
-# This is a calendar.  
-# rules for a calendar:
-# It must also return 0 (a clean exit status).
-# any info/debug output must go to stderr (and gets logged) Keep
-# stdout clean for yes/no answer.  This is what the "1>&2" does below.
-# also keep "-e" at the top for extra safety. (this causes bash to
-# exit with nonzero exit status if any command anywnere fails).
+# This calendar records for 5 mins, then off for 5 mins.
 
-# Having said all that, the wrapper that calls this handles any bad
-# situation, and if this script produces nonsense results, the amon
-# assumes recording should continue (or start).
+datestr=$(date +"%Y %-m %-d %-H %-M %-S")
+read year month day hour minute second <<< $datestr
 
-# echo "Calendar script running" 1>&2
+# This is the main decision: only record first 5 minutes of each 10 minutes.
+# this logic says : "if remainder of $minute divided by ten is less than 5"
+if [ $(( $minute % 10 )) -lt 5 ] ; then
+    echo "$datestr: we are in first 5 mins of 10, so calendar returning ON" 1>&2
+    echo "on"
+    exit 0
+fi
 
-# TODO: better to do this in one call, (too lazy to parse that
-# though).  gack - the minus signs in the following tell date to "NOT
+# We will return "off", so calculate the reboot time (rst)
+# The time 10 mins into future is:
+read -a rst <<< $(date  +"%Y %-m %-d %-H %-M %-S" -d "10 minutes")
+
+# "minutes" rounds to be multiple of ten, and zero the "seconds" element.
+rst[4]=$((   ${rst[4]} / 10 * 10   ))  # round down minutes
+rst[5]=0                               # clear out the seconds
+
+# print the output and debug
+echo "off ${rst[@]}"
+echo "$datestr: we are in second 5 mins of 10, so calendar returning OFF with reboot time of ${rst[@]}" 1>&2
+
+exit 0
+
+############################
+# NOTE: gack - the minus signs in the following tell date to "NOT
 # PAD". eg the first day of month should not be 01, but just 1.  This
 # was causing problems later in the script since numbers with leading
 # zeros are interpreted (by bash's arithmetic evaluation) as being in
 # octal.  I got these errors in calendar.log:
 # /boot/solo/calendar/5m-on-5m-off.sh: line 41: 08: value too great for base (error token is "08")
-
 # 10#08 solves the base problem (yuk).
-
-datestr=$(date +"%Y %-m %-d %-H %-M %-S")
-read year month day hour minute second <<< $datestr
-
-#echo "$year $month $day"
-#echo "$hour $minute $second"
-#echo yeah
-
-# don't look at seconds - you can't do anything meaningful with
-# seconds.  This script is called every minute (at just a few seconds
-# after the "top of the clock")
-#echo "$0: debug: year is $year, month is $month, day is $day, hour is $hour, minute is $minute" 1>&2
 
 # if the clock wrong, we can't do anything meaningful - so assume
 # recordings should be "on"
@@ -45,27 +47,3 @@ read year month day hour minute second <<< $datestr
 #    echo "on"
 #    exit 0
 #fi
-
-# only record first 5 minutes of each 10 minutes.
-# this logic says : "if remainder of $minute divided by ten is less than 5"
-if [ $(( $minute % 10 )) -lt 5 ] ; then
-    echo "on"
-    exit 0
-fi
-
-# We will return "off", so calculate the reboot time (rst)
-
-# The time in 10 mins is:
-read -a rst <<< $(date  +"%Y %-m %-d %-H %-M %-S" -d "10 minutes")
-
-# munge it: "minutes" rounds to be multiple of ten, and zero the "seconds" element.
-rst[4]=$((   ${rst[4]} / 10 * 10   ))
-rst[5]=0
-
-# print the output.
-echo "off ${rst[@]}"
-
-# echo "Calendar script finished" 1>&2
-
-# exit cleanly:
-exit 0

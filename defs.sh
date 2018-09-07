@@ -34,7 +34,7 @@ function watchdog {
 	((waitcount--))
     done
     if [ ! -f /tmp/solo-boot.finished ] ; then
-	log "Waited 10 seconds unsuccessfully for /tmp/solo-boot.finished but still not there so giving up."
+	log "Waited 10 seconds unsuccessfully for /tmp/solo-boot.finished - so giving up."
 	log "-- MARK -- : watchdog finished (unsuccessfully)"
 	exit 0
     fi

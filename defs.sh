@@ -38,8 +38,9 @@ function watchdog {
     lockfile=/tmp/amon-watchdog-$$.running
     touch $lockfile
 
-    log "---MARK--- watchdog starting. (locked by: $lockfile, no others running)"
-    log "System load (from /proc/loadavg): $(cat /proc/loadavg)"
+    #log "---MARK--- watchdog starting. (locked by: $lockfile, no others running)"
+    log "---MARK--- watchdog starting. [load: $(cat /proc/loadavg)]"
+    #log "System load (from /proc/loadavg): $(cat /proc/loadavg)"
 
     # NOTE: this "dollar include" way of logging works - newlines are
     # maintained, but you don't get the timestamps in front of the
@@ -54,7 +55,8 @@ function watchdog {
     if [ $cleanupcode == 2 ] ; then
 	log "since amoncleanup() had to kill things, watchdog does nothing more on this pass, watchdog exiting."
 	rm $lockfile
-	log "-- MARK -- : watchdog finished (removed $lockfile) --"
+	#log "-- MARK -- : watchdog finished (removed $lockfile) --"
+	log "-- MARK -- : watchdog finished"
 	return
     fi
     

@@ -54,16 +54,16 @@ function JCbounce()
 
 reset_startup_time()
 {
-    log '  Clearing auto startup time...' '-n'
+#    log '  Clearing auto startup time...' '-n'
     clear_startup_time
-    log ' done :-)'
+#    log ' done :-)'
 }
 
 reset_shutdown_time()
 {
-    log '  Clearing auto shutdown time...' '-n'
+#    log '  Clearing auto shutdown time...' '-n'
     clear_shutdown_time
-    log ' done :-)'
+#    log ' done :-)'
 }
 
 reset_all()

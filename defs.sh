@@ -119,7 +119,7 @@ function watchdog {
 	fi
 	
 	if [ $WITTYPI == "yes" -a "$rbt" ] ; then
-	    currentuptime=$(cut -f1 -d' ' /proc/uptime)
+	    currentuptime=$(cut -f1 -d'.' /proc/uptime)
 	    if [ $currentuptime -lt 180 ] ; then
 		log "Refusing to shutdown: 180 sec min (uptime=$currentuptime)"
 	    else
@@ -350,7 +350,7 @@ function start {
       mkdir -p ${LOGDIR}/old/
       ts=$(tstamp)
       newname=${LOGDIR}/old/arecord-$ts.log
-      mv -v $ARECLOG $newname
+      mv $ARECLOG $newname
       log "backed up old arecord log file: $ARECLOG to $newname"
   fi
 
@@ -492,13 +492,14 @@ function log {
     fi
     
     ts=$(tstamp)
-    msg="$1" # WOW - only taking the first arg!!!! try adding them all!!!
     msg="$*"
     lmsg="$ts: [amon[$AMONPID]->${FUNCNAME[1]}]: $msg"  # I've been reading "man bash".
 
-    # could send this to a logfile if something is set...
-    echo "$lmsg" >> $AMONLOG
-
+    # if we have a log file, write to it.
+    if [ -f $AMONLOG ] ; then
+	echo "$lmsg" >> $AMONLOG
+    fi
+    
     # if stdin is a tty (interactive session) also print to stdout - and we aren't in "-q" mode
     [ $STDOUT -eq 1 ] && tty -s && echo "$msg"
 }

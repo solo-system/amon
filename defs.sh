@@ -102,7 +102,7 @@ function watchdog {
 	
 	if [ $WITTYPI == "yes" -a "$rbt" ] ; then
 	    currentuptime=$(cut -f1 -d' ' /proc/uptime)
-	    if [ $currentuptime < 180 ] ; then
+	    if [ $currentuptime -lt 180 ] ; then
 		log "Refusing to shutdown: 180 sec min (uptime=$currentuptime)"
 	    else
 		log "Wittypi: setting reboot time to rbt=$rbt"

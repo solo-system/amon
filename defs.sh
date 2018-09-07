@@ -154,7 +154,8 @@ function watchdog {
     rm $lockfile
     [ "$DEBUG" ] && log "removed lockfile"
 
-    log "-- MARK -- : watchdog finished (removed $lockfile) --"
+    # log "-- MARK -- : watchdog finished (removed $lockfile) --"
+    log "-- MARK -- : watchdog finished."
 
 } # end of watchdog
 

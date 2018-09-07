@@ -26,10 +26,26 @@ function watchdog {
 
     log ""
 
+    # bail out if we are still booting...
+    waitcount=10
+    while [ ! -f /tmp/solo-boot.finished -a $waitcount -gt 0 ] ; do
+	echo waiting $waitcount
+	sleep 1
+	((waitcount--))
+    done
+    if [ ! -f /tmp/solo-boot.finished ] ; then
+	log "Waited 10 seconds unsuccessfully for /tmp/solo-boot.finished but still not there so giving up."
+	log "-- MARK -- : watchdog finished (unsuccessfully)"
+	exit 0
+    fi
+     
     # count the number of watchdogs
     numothers=$(ls -l /tmp/amon* 2>/dev/null | wc -l)
     if [ $numothers -gt 0 ] ; then
 	log "[WARNING: there are ($numothers) other watchdogs running]"
+	# BAIL OUT here? - might get stuck though with a stale alien
+	# lock file.  moreover - I've never seen this occur yet.  Boot
+	# clumping of cronjobs seems to be sequential not parallel.
     else
 	# log "[Good: there are zero ($numothers) other watchdogs running]"
 	true

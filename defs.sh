@@ -71,13 +71,13 @@ function watchdog {
     calendarDecision=$(calendarTarget)
     # log "calendarDecision returned : \"$calendarDecision\""
     read calonoff rbt <<< $calendarDecision
-    if [ "$rbt" ] ; then
-	log "Calendar says OFF with reboot time of $rbt"
-    elif [ $calonoff == "on" ] ; then
-	log "Calendar says ON"
-    elif [ $calonoff = "off" ] ; then 
-	log "Calendar says OFF (offers no reboot time)"
-    fi
+#    if [ "$rbt" ] ; then
+#	log "Our state should be OFF with reboot time of $rbt"
+#    elif [ $calonoff == "on" ] ; then
+#	log "Our state should be ON"
+#    elif [ $calonoff = "off" ] ; then 
+#	log "Our state should be OFF (offers no reboot time)"
+#    fi
 
     # This is the main action (4 way choice)
     if [ $calonoff = "on" ] ; then # we should be recording

@@ -32,6 +32,7 @@ function watchdog {
 	log "[WARNING: there are ($numothers) other watchdogs running]"
     else
 	# log "[Good: there are zero ($numothers) other watchdogs running]"
+	true
     fi
 
     lockfile=/tmp/amon-watchdog-$$.running

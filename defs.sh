@@ -477,12 +477,9 @@ function setstateoff {
 # write response/log to both logfile and (if it exists) the screen.
 function log {
 
-    if [ ! -f $AMONLOG ] ; then
-	echo "INFO: log(): $(tstamp):  there is no amonlogfile: $AMONLOG generating one"
-	touch $AMONLOGFILE
-#	echo "ERROR: I _think_ this happens just as we call shutdown (does that make sense? - time=$(tstamp))"
-	# don't bail out here - good to continue to see the "no such file" complaints from below.
-    fi
+#    if [ ! -f $AMONLOG ] ; then
+#	echo "INFO: log(): $(tstamp):  there is no amonlogfile: $AMONLOG generating one"
+#    fi
 
     if [ "$1" = '-q' ] ; then
 	STDOUT=0

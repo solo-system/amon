@@ -478,8 +478,8 @@ function setstateoff {
 function log {
 
     if [ ! -f $AMONLOG ] ; then
-	echo "WARN: log(): $(tstamp):  there is no amonlogfile: $AMONLOG"
-	echo "WARN: log(): I was asked to log the message: \"$1\""
+	echo "INFO: log(): $(tstamp):  there is no amonlogfile: $AMONLOG generating one"
+	touch $AMONLOGFILE
 #	echo "ERROR: I _think_ this happens just as we call shutdown (does that make sense? - time=$(tstamp))"
 	# don't bail out here - good to continue to see the "no such file" complaints from below.
     fi
@@ -495,10 +495,8 @@ function log {
     msg="$*"
     lmsg="$ts: [amon[$AMONPID]->${FUNCNAME[1]}]: $msg"  # I've been reading "man bash".
 
-    # if we have a log file, write to it.
-    if [ -f $AMONLOG ] ; then
-	echo "$lmsg" >> $AMONLOG
-    fi
+    # make the log entry
+    echo "$lmsg" >> $AMONLOG
     
     # if stdin is a tty (interactive session) also print to stdout - and we aren't in "-q" mode
     [ $STDOUT -eq 1 ] && tty -s && echo "$msg"

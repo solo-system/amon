@@ -53,23 +53,23 @@ sset  = solobox.next_setting(sun).datetime().replace(tzinfo=timezone.utc)
 fringetd = timedelta(minutes=fringe)
 if (fringe != timedelta(minutes=0) ): print("WARNINIG: fringes might not work - it's UNTESTED", file=sys.stderr)
 
-sriseb = srise - fringetd
-ssetb = sset + fringetd
+srisefringe = srise - fringetd
+ssetfringe = sset + fringetd
 
-sriseblt = sriseb.astimezone()
-ssetblt = ssetb.astimezone()
+srisefringelt = srisefringe.astimezone()
+ssetfringelt = ssetfringe.astimezone()
 
-print("sunrise: pure=%s with-fringe=%s local=%s" % (srise.strftime(dateformat), sriseb.strftime(dateformat), sriseblt.strftime(dateformat)), file=sys.stderr)
-print("sun set: pure=%s with-fringe=%s local=%s" % (sset.strftime(dateformat), ssetb.strftime(dateformat), ssetblt.strftime(dateformat)), file=sys.stderr)
+print("sunrise: pure=%s with-fringe=%s local=%s" % (srise.strftime(dateformat), srisefringe.strftime(dateformat), srisefringelt.strftime(dateformat)), file=sys.stderr)
+print("sun set: pure=%s with-fringe=%s local=%s" % (sset.strftime(dateformat), ssetfringe.strftime(dateformat), ssetfringelt.strftime(dateformat)), file=sys.stderr)
 
 if (srise < sset):
-    waittime = sriseb - utcnow
-    print('Decision: sun-rise is next (in %s) at %s, so it\'s currently night -> we should be ON' % (waittime, sriseblt.strftime(dateformat)), file=sys.stderr)
+    waittime = srisefringe - utcnow
+    print('Decision: sun-rise is next (in %s) at %s, so it\'s currently night -> we should be ON' % (waittime, srisefringelt.strftime(dateformat)), file=sys.stderr)
     print("on")
 else:
-    waittime = ssetb - utcnow
-    print('Decision: sun-set is next (in %s) at %s, so it\'s currently day -> we should be OFF, rebooting at sunset' % (waittime, ssetblt.strftime(dateformat)) ,file=sys.stderr)
-    print('off %s' % ssetblt.strftime(returnformat))
+    waittime = ssetfringe - utcnow
+    print('Decision: sun-set is next (in %s) at %s, so it\'s currently day -> we should be OFF, rebooting at sunset' % (waittime, ssetfringelt.strftime(dateformat)) ,file=sys.stderr)
+    print('off %s' % ssetfringelt.strftime(returnformat))
 
 print("dusk2dawn.py Finished" ,file=sys.stderr)
 

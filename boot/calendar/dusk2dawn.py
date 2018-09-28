@@ -53,8 +53,8 @@ sset  = solobox.next_setting(sun).datetime().replace(tzinfo=timezone.utc)
 fringetd = timedelta(minutes=fringe)
 if (fringe != timedelta(minutes=0) ): print("WARNINIG: fringes might not work - it's UNTESTED", file=sys.stderr)
 
-srisefringe = srise - fringetd
-ssetfringe = sset + fringetd
+srisefringe = srise + fringetd
+ssetfringe = sset - fringetd
 
 srisefringelt = srisefringe.astimezone()
 ssetfringelt = ssetfringe.astimezone()

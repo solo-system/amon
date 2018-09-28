@@ -19,12 +19,13 @@ import ephem # for sunrise and sunset times. (pip install pyephem)
 from datetime import timedelta
 from datetime import timezone
 
-# The solo's latitude and longitude: 
+# The solo's latitude and longitude:
 lat = '55.9667'; lon = '-3.2167'   # Edinburgh (GMT / BST) GMT+0
 #lat = '34.0522'; lon = '-118.2437' # LA (PST /PDT) GMT-8
 #lat = '42.3601'; lon = '-71.0589'  # Boston (EST / EDT) GMT-5
 
 fringe=30 # pre-dusk and post-dawn extension in minutes.
+fringetd = timedelta(minutes=fringe)
 
 # what is the output format we hand back to amon?
 dateformat="%Y-%m-%d %H:%M:%S %Z" # for debug in stderr
@@ -47,10 +48,9 @@ solobox.lat = lat ; solobox.lon = lon;
 #   - call next_rising() to get the event time in UTC
 #   - ... convert to python's datetime structure.
 #   - ... and then explicitly setting timezone to "utc"
-srise = solobox.next_rising(sun).datetime().replace(tzinfo=timezone.utc) 
-sset  = solobox.next_setting(sun).datetime().replace(tzinfo=timezone.utc) 
+srise = solobox.next_rising(sun, start=utcnow-fringetd).datetime().replace(tzinfo=timezone.utc)
+sset  = solobox.next_setting(sun, start=utcnow+fringetd).datetime().replace(tzinfo=timezone.utc)
 
-fringetd = timedelta(minutes=fringe)
 if (fringe != timedelta(minutes=0) ): print("WARNINIG: fringes might not work - it's UNTESTED", file=sys.stderr)
 
 srisefringe = srise + fringetd

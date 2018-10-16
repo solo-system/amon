@@ -19,7 +19,7 @@ import ephem # for sunrise and sunset times. (pip install pyephem)
 from datetime import timedelta
 from datetime import timezone
 
-# The solo's latitude and longitude:
+# The solo's latitude and longitude in decimal degrees.
 lat = '55.9667'; lon = '-3.2167'   # Edinburgh (GMT / BST) GMT+0
 #lat = '34.0522'; lon = '-118.2437' # LA (PST /PDT) GMT-8
 #lat = '42.3601'; lon = '-71.0589'  # Boston (EST / EDT) GMT-5
@@ -51,31 +51,29 @@ solobox.lat = lat ; solobox.lon = lon;
 srise = solobox.next_rising(sun, start=utcnow-fringetd).datetime().replace(tzinfo=timezone.utc)
 sset  = solobox.next_setting(sun, start=utcnow+fringetd).datetime().replace(tzinfo=timezone.utc)
 
-if (fringe != timedelta(minutes=0) ): print("WARNINIG: fringes might not work - it's UNTESTED", file=sys.stderr)
-
 srisefringe = srise + fringetd
 ssetfringe = sset - fringetd
 
 srisefringelt = srisefringe.astimezone()
 ssetfringelt = ssetfringe.astimezone()
 
-print("sunrise: pure=%s with-fringe=%s local=%s" % (srise.strftime(dateformat), srisefringe.strftime(dateformat), srisefringelt.strftime(dateformat)), file=sys.stderr)
-print("sun set: pure=%s with-fringe=%s local=%s" % (sset.strftime(dateformat), ssetfringe.strftime(dateformat), ssetfringelt.strftime(dateformat)), file=sys.stderr)
+print("sunrise: pure=%s with-fringe=%s [local=%s]" % (srise.strftime(dateformat), srisefringe.strftime(dateformat), srisefringelt.strftime(dateformat)), file=sys.stderr)
+print("sun set: pure=%s with-fringe=%s [local=%s]" % (sset.strftime(dateformat), ssetfringe.strftime(dateformat), ssetfringelt.strftime(dateformat)), file=sys.stderr)
 
 if (srise < sset):
     waittime = srisefringe - utcnow
-    print('Decision: sun-rise is next (in %s) at %s, so it\'s currently night -> we should be ON' % (waittime, srisefringelt.strftime(dateformat)), file=sys.stderr)
+    print('Decision: sun-rise is next (in %s) at %s [local=%s], so it\'s currently night -> we should be ON' % (waittime, srisefringe.strftime(dateformat), srisefringelt.strftime(dateformat)), file=sys.stderr)
     print("on")
 else:
     waittime = ssetfringe - utcnow
-    print('Decision: sun-set is next (in %s) at %s, so it\'s currently day -> we should be OFF, rebooting at sunset' % (waittime, ssetfringelt.strftime(dateformat)) ,file=sys.stderr)
-    print('off %s' % ssetfringelt.strftime(returnformat))
+    print('Decision: sun-set is next (in %s) at %s [local=%s], so it\'s currently day -> we should be OFF, rebooting at sunset' % (waittime, ssetfringe.strftime(dateformat), ssetfringelt.strftime(dateformat)) ,file=sys.stderr)
+    print('off %s' % ssetfringe.strftime(returnformat))
 
-print("dusk2dawn.py Finished" ,file=sys.stderr)
+print("dusk2dawn.py Finished", file=sys.stderr)
 
 ########################
 # Notes:
 # can we get lat long from sys.environment("SOLOLAT", "SOLOLONG")
 # REMEMBER: keep stdout clean to return "on" or "off ..."
 #           Send all logging to stderr
-# Warning: fringes are untested and I suspect buggy.
+# the reboot time is sent back in UTC.

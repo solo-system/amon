@@ -8,10 +8,9 @@ Rules for a calendar:
  - keep stdout clean for on/off decision and optional reboot time.
  - all logging redirected to stderr via 1>&2, gets logged into calendar.log
  - optionally return a reboot time (rbt) if "off", for witty pi.
- - reboot time is a hextuple (y m d h m s)
+ - reboot time is a sextuple (y m d h m s) in UTC.
 
-
-3 forms of valid output are:
+So, 3 forms of valid output are:
 
 on
 off

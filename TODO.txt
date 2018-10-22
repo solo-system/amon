@@ -1,3 +1,15 @@
+dtwfly, InputNorm (mfcc output norm?) and thresholding automatically?
+design audiomuxer (signals, emultiple open files, etc)
+Then do arecord | audiomuxer  which would split according to the split schedule.  COULD IT CLOSE FILES PROPERLY>???
+ - can it open extra output through a pipe?
+  (ADD OUTFILE /mnt/sdcard/ type mp3 '|mp3encode | $outfile)
+   - can we open / close things on the fly?  (open a socket pipe or something that takes instructions?, and acts upon them?)
+    - separately, can we do recognition on the fly? and output results somehow?
+     - OUTPUT "|dtwfly -needle /boot/solo/amon/needles/quack.wav -outdir"
+     (or perhaps dtwfly contacts the socket and requests it's own output stream?)
+
+
+
 Critical path for release:
 --------------------------
 

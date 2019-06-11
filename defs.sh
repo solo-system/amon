@@ -225,6 +225,16 @@ function prepare_microphone {
 	    log "ERROR: No such mic config file: \"$conf\". Dunno what will happen..."
 	fi
 	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
+    elif grep "USB-Audio - Sound Blaster X-Fi Go! Pro" /proc/asound/cards > /dev/null ; then
+	MICNAME="soundblasterxfigopro"
+	conf=mics/$MICNAME.conf
+	if [ -f $conf ] ; then
+	    log "Detected microphone: \"$MICNAME\" microphone => reading config file \"$conf\""
+	    . mics/$MICNAME.conf
+	else
+	    log "ERROR: No such mic config file: \"$conf\". Dunno what will happen..."
+	fi
+	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
     elif grep -q "Fe-Pi_Audio" /proc/asound/cards ; then
         MICNAME="fe-pi"
         conf=mics/$MICNAME.conf

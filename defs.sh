@@ -518,9 +518,7 @@ function logexecold {
     log "finished running cmd=\"$cmd\""
 }
 
-# this is the same as logexec, except it captures stderr too.  we
-# loose the newlines in the command's output, but thats better than
-# losing the errors.
+# This version of logexec() captures stderr too (unlike the old one above)
 function logexec {
     local cmd="$*"
     log "[] about to run cmd=\"$cmd\""

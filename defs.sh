@@ -213,7 +213,7 @@ function prepare_microphone {
 	    log " Hardware doesn't match mic conf file: $micconf"
 	fi
     done
-    
+    log "All above was experimental - not actually find and set up the soundcard"
 					  
     if  grep "Snowflake" /proc/asound/cards > /dev/null ; then
 	MICNAME="Blue:Snowflake"

@@ -195,6 +195,7 @@ function prepare_microphone {
     # however, if it appears in amixer, do it in the mic setup file.
 
     # NEW match method for mics to config files:
+    whichconf=""
     grep -l "^CARD_REGEXP=" mics/* | while read micconf ; do
 	log "INFO: mic conf: $micconf supports REGEXP autodetect of soundcards..."
 	line=$(grep "^CARD_REGEXP=" $micconf)

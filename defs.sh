@@ -509,13 +509,24 @@ function log {
     [ $STDOUT -eq 1 ] && tty -s && echo "$msg"
 }
 
-# properly log the output of external commands, throug a while loop calls to log()
-function logexec {
+# properly log the output of external commands, throug a while loop calls to log() HOWEVER, I can't for the life of me get it to capture (and log) stderr. tried 2>&1 everywhere.  See exec-and-log below:
+function logexecold {
     #shift
     local cmd="$*"
     log "about to run cmd=\"$cmd\""
     $cmd | while read line ; do log "$line" ; done
     log "finished running cmd=\"$cmd\""
+}
+
+# this is the same as logexec, except it captures stderr too.  we
+# loose the newlines in the command's output, but thats better than
+# losing the errors.
+function logexec {
+    local cmd="$*"
+    log "[] about to run cmd=\"$cmd\""
+    result=$($cmd 2>&1)
+    log "$result"
+    log "[] finished running cmd=\"$cmd\""
 }
 
 function tstamp {

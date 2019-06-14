@@ -194,6 +194,22 @@ function prepare_microphone {
     # if it appears in /proc/asound/card0/stream0 -> arecord needs it
     # however, if it appears in amixer, do it in the mic setup file.
 
+    # NEW match method for mics to config files:
+    grep -l "^CARD_REGEXP=" mics/* | while read micconf ; do
+	log "INFO: mic conf: $micconf supports REGEXP autodetect of soundcards..."
+	regexp=$(grep "^CARD_REGEXP=" $conffile)
+	log "got regexp = $regexp"
+	# does that regexp match any of the actual hardware in /proc/asound/cards?
+	if a=$(grep "$regexp" /proc/asound/cards) ; then
+	    log "MATCH: mic config file: $micconf matches installed hardware."
+	    log "MATCH: it matches line: $a"
+	    break
+	else
+	    log " Hardware doesn't match mic conf file: $micconf"
+	fi
+    done
+    
+					  
     if  grep "Snowflake" /proc/asound/cards > /dev/null ; then
 	MICNAME="Blue:Snowflake"
 	AUDIODEVICE="-D hw:Snowflake"

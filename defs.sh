@@ -197,10 +197,15 @@ function prepare_microphone {
     # NEW match method for mics to config files:
     grep -l "^CARD_REGEXP=" mics/* | while read micconf ; do
 	log "INFO: mic conf: $micconf supports REGEXP autodetect of soundcards..."
-	regexp=$(grep "^CARD_REGEXP=" $conffile)
-	log "got regexp = $regexp"
+	line=$(grep "^CARD_REGEXP=" $micconf)
+	log "got line=$line - now evaling it"
+	eval $line
+	if [ ! -n $CARD_REGEXP ] ; then
+	    echo "card_regexp is not set - should bail out."
+	    continue
+	fi
 	# does that regexp match any of the actual hardware in /proc/asound/cards?
-	if a=$(grep "$regexp" /proc/asound/cards) ; then
+	if a=$(grep "$CARD_REGEXP" /proc/asound/cards) ; then
 	    log "MATCH: mic config file: $micconf matches installed hardware."
 	    log "MATCH: it matches line: $a"
 	    break

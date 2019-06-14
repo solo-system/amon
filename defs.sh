@@ -212,10 +212,12 @@ function prepare_microphone {
 	if a=$(grep "$CARD_REGEXP" /proc/asound/cards) ; then
 	    log "MATCH: mic config file: $micconf matches installed hardware."
 	    log "MATCH: it matches line: $a"
-	    whichconf=$micconf
+	    log "SOURCING: $micconf...
+	    . $micconf
 	    break
+	    log "DONE SOURCING: $micconf...
 	else
-	    log " Hardware doesn't match mic conf file: $micconf"
+	    log "NOPE: mic config file $micconf doesn't match any installed hardware - skipping."
 	fi
     done
     log "At bottom of loop: would source mic config: $whichconf"

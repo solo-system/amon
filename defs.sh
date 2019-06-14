@@ -291,7 +291,12 @@ function prepare_microphone {
 	MMAP=""
 	log "prepare_mic: [MICTYPE=CLAC] CHANNELS=$CHANNELS AUDIODEVICE=$AUDIODEVICE MMAP=$MMAP CLAC_VOL=$CLAC_VOL CLAC_DIG_VOL=$CLAC_DIG_VOL CLAC_AUDIO_SOURCE=$CLAC_AUDIO_SOURCE CLAC_PIP=$CLAC_PIP"
     else
-	log "Warning - microphone not recognised -> so not calling prepare_mic() - recording unlikely to work"
+	log "WARNING - soundcard/microphone not recognised -> so not calling prepare_mic() - recording unlikely to work"
+	log "WARNING - the contents of /proc/asound/cards is:"
+	logexec "cat /proc/asound/cards"
+	log "WARNING: Blindly choosing a default value for sound card (it'll be a miracle if you get any recordings)"
+	AUDIODEVICE="-Dplughw:1"
+	log "WARNING: chose AUDIODEVICE=$AUDIODEVICE"
     fi
 }
 

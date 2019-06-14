@@ -211,11 +211,13 @@ function prepare_microphone {
 	if a=$(grep "$CARD_REGEXP" /proc/asound/cards) ; then
 	    log "MATCH: mic config file: $micconf matches installed hardware."
 	    log "MATCH: it matches line: $a"
+	    whichconf=$micconf
 	    break
 	else
 	    log " Hardware doesn't match mic conf file: $micconf"
 	fi
     done
+    log "At bottom of loop: would source mic config: $whichconf"
     log "All above was experimental - not actually find and set up the soundcard"
 					  
     if  grep "Snowflake" /proc/asound/cards > /dev/null ; then

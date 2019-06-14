@@ -200,8 +200,10 @@ function prepare_microphone {
 	line=$(grep "^CARD_REGEXP=" $micconf)
 	log "got line=$line - now evaling it"
 	eval $line
-	if [ ! -n $CARD_REGEXP ] ; then
-	    echo "card_regexp is not set - should bail out."
+	if [ -n $CARD_REGEXP ] ; then
+	    log "got CARD_REGEXP, and it's not zero length"
+	else
+	    log "card_regexp is not set - should bail out (this shouldn't happen)."
 	    continue
 	fi
 	# does that regexp match any of the actual hardware in /proc/asound/cards?

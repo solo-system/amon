@@ -309,7 +309,7 @@ function prepare_microphone {
     
     # go through each conf file to see if it matches anything in /proc/asound/cards.  
     log "BEFORE we do automatch, AUDIODEVICE is $AUDIODEVICE"
-    grep -l "^SOUNDCARD_REGEXP=" mics/* | while read micconf ; do
+    while read micconf ; do   # the "read" reads from the redirect down below (to avoid the subshelling of pipes)
 	line=$(grep "^SOUNDCARD_REGEXP=" $micconf)
 	log "INFO: Considering conf file $micconf which supports: $line"
 	log "about to EVAL the above..."
@@ -330,7 +330,7 @@ function prepare_microphone {
 	else
 	    log "NOPE: mic config file $micconf doesn't match any installed hardware - skipping."
 	fi
-    done
+    done < <(grep -l "^SOUNDCARD_REGEXP=" mics/*)  # the redirect to "while" that avoids a subshell.
 
     # the purpose of the loop above is to choose an appropriate "micconf".  Do we have one?
     log "AFTER we do automatch, AUDIODEVICE is $AUDIODEVICE"

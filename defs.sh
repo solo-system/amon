@@ -194,34 +194,6 @@ function prepare_microphone {
     # if it appears in /proc/asound/card0/stream0 -> arecord needs it
     # however, if it appears in amixer, do it in the mic setup file.
 
-    # NEW match method for mics to config files:
-    whichconf=""
-    grep -l "^CARD_REGEXP=" mics/* | while read micconf ; do
-	log "INFO: mic conf: $micconf supports REGEXP autodetect of soundcards..."
-	line=$(grep "^CARD_REGEXP=" $micconf)
-	log "got line=$line - now evaling it"
-	eval "$line"
-	log "Done the eval - and CARD_REGEXP is now $CARD_REGEXP"
-	if [ -n "$CARD_REGEXP" ] ; then
-	    log "got CARD_REGEXP, and it's not zero length"
-	else
-	    log "card_regexp is not set - should bail out (this shouldn't happen)."
-	    continue
-	fi
-	# does that regexp match any of the actual hardware in /proc/asound/cards?
-	if a=$(grep "$CARD_REGEXP" /proc/asound/cards) ; then
-	    log "MATCH: mic config file: $micconf matches installed hardware."
-	    log "MATCH: it matches line: $a"
-	    log "SOURCING: $micconf...
-	    . $micconf
-	    break
-	    log "DONE SOURCING: $micconf...
-	else
-	    log "NOPE: mic config file $micconf doesn't match any installed hardware - skipping."
-	fi
-    done
-    log "At bottom of loop: would source mic config: $whichconf"
-    log "All above was experimental - not actually find and set up the soundcard"
 					  
     if  grep "Snowflake" /proc/asound/cards > /dev/null ; then
 	MICNAME="Blue:Snowflake"
@@ -319,14 +291,58 @@ function prepare_microphone {
 	AUDIODEVICE="-Dclac"
 	MMAP=""
 	log "prepare_mic: [MICTYPE=CLAC] CHANNELS=$CHANNELS AUDIODEVICE=$AUDIODEVICE MMAP=$MMAP CLAC_VOL=$CLAC_VOL CLAC_DIG_VOL=$CLAC_DIG_VOL CLAC_AUDIO_SOURCE=$CLAC_AUDIO_SOURCE CLAC_PIP=$CLAC_PIP"
-    else
-	log "WARNING - soundcard/microphone not recognised -> so not calling prepare_mic() - recording unlikely to work"
-	log "WARNING - the contents of /proc/asound/cards is:"
-	logexec "cat /proc/asound/cards"
-	log "WARNING: Blindly choosing a default value for sound card (it'll be a miracle if you get any recordings)"
-	AUDIODEVICE="-Dplughw:1"
-	log "WARNING: chose AUDIODEVICE=$AUDIODEVICE"
     fi
+    
+    # remove this bit:  it's the old catchall:
+    #    else
+    #	log "WARNING - soundcard/microphone not recognised -> so not calling prepare_mic() - recording unlikely to work"
+    #	log "WARNING - the contents of /proc/asound/cards is:"
+    #	logexec "cat /proc/asound/cards"
+    #	log "WARNING: Blindly choosing a default value for sound card (it'll be a miracle if you get any recordings)"
+    #	AUDIODEVICE="-Dplughw:1"
+    #	log "WARNING: chose AUDIODEVICE=$AUDIODEVICE"
+    #   fi
+    
+    # ##########################
+    # NEW (2019-06-16) AUTOMATCH.
+    # ##########################
+    
+    # go through each conf file to see if it matches anything in /proc/asound/cards.  
+    log "BEFORE we do automatch, AUDIODEVICE is $AUDIODEVICE"
+    grep -l "^SOUNDCARD_REGEXP=" mics/* | while read micconf ; do
+	line=$(grep "^CARD_REGEXP=" $micconf)
+	log "INFO: Considering conf file $micconf which supports: $line"
+	log "about to EVAL the above..."
+	eval "$line"
+	log "Done the eval - and SOUNDCARD_REGEXP is now $SOUNDCARD_REGEXP"
+	if [ -n "$SOUNDCARD_REGEXP" ] ; then
+	    log "got SOUNDCARD_REGEXP, and it's not zero length"
+	else
+	    log "SOUNDCARD_REGEXP didn't get set right. Bailing out (this shouldn't happen)."
+	    continue
+	fi
+	# does that regexp match any of the actual hardware in /proc/asound/cards?
+	log "checking to see if that SOUNDCARD REGEXP matches any cards in /proc/asound/cards"
+	if a=$(grep "$CARD_REGEXP" /proc/asound/cards) ; then
+	    log "MATCH: mic config file: $micconf matches installed hardware."
+	    log "MATCH: it matches line: $a"
+	    log "MATCH: breaking out of loop - lets hope micconf=$micconf is preserved"
+	else
+	    log "NOPE: mic config file $micconf doesn't match any installed hardware - skipping."
+	fi
+    done
+
+    # the purpose of the loop above is to choose an appropriate "micconf".  Do we have one?
+    log "AFTER we do automatch, AUDIODEVICE is $AUDIODEVICE"
+    log "At bottom of loop: would source mic config: $micconf"
+    log "All above was experimental - not actually find and set up the soundcard"
+
+    if [ ! -f "$micconf" ] ; then
+	log "fallthrough: micconf ($micconf) is no good - do the CATCHALL THING."
+	# CATCHALL HERE.
+    fi
+    
+    
 }
 
 # perform a test recording to check microphone settings etc...

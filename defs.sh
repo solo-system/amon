@@ -310,7 +310,7 @@ function prepare_microphone {
     # go through each conf file to see if it matches anything in /proc/asound/cards.  
     log "BEFORE we do automatch, AUDIODEVICE is $AUDIODEVICE"
     grep -l "^SOUNDCARD_REGEXP=" mics/* | while read micconf ; do
-	line=$(grep "^CARD_REGEXP=" $micconf)
+	line=$(grep "^SOUNDCARD_REGEXP=" $micconf)
 	log "INFO: Considering conf file $micconf which supports: $line"
 	log "about to EVAL the above..."
 	eval "$line"
@@ -323,7 +323,7 @@ function prepare_microphone {
 	fi
 	# does that regexp match any of the actual hardware in /proc/asound/cards?
 	log "checking to see if that SOUNDCARD REGEXP matches any cards in /proc/asound/cards"
-	if a=$(grep "$CARD_REGEXP" /proc/asound/cards) ; then
+	if a=$(grep "$SOUNDCARD_REGEXP" /proc/asound/cards) ; then
 	    log "MATCH: mic config file: $micconf matches installed hardware."
 	    log "MATCH: it matches line: $a"
 	    log "MATCH: breaking out of loop - lets hope micconf=$micconf is preserved"

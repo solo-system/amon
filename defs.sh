@@ -341,12 +341,16 @@ function prepare_microphone {
     log "All above was experimental - not actually find and set up the soundcard"
 
     
-    if [ ! -f "$micconf" ] ; then
+    if [ ! -f "$THISONE" ] ; then
 	log "fallthrough: micconf ($micconf) is no good - do the CATCHALL THING."
 	# CATCHALL HERE.
     fi
     
-    
+
+    log "All is well - we will not source the mic-config-file: $THISONE"
+    . $THISONE
+    log "Finished sourcing the mic config file".
+    log "Finished prepare_mic()"
 }
 
 # perform a test recording to check microphone settings etc...

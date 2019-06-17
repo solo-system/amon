@@ -344,13 +344,25 @@ function prepare_microphone {
     if [ ! -f "$THISONE" ] ; then
 	log "fallthrough: micconf ($micconf) is no good - do the CATCHALL THING."
 	# CATCHALL HERE.
-    fi
+
+	#### THIS IS cut-and-pasted pseudocode!!
+	#      	 log "WARNING: no known card detected"
+	#	 log "Here are the soundcards I support (from soundcards/ dir)"
+	#	 log "Here are the /proc/asound/cards currently plugged in"
+	#	 log "To support a new soundcard, put a xxx.conf file in soundcards/ which matches your (currently unsupported). See HERE for more details"
+	# AUDIODEV="-Dplughw:1"
+	#	 log "guessing unknown card details"
+	# should we return here?  To avoid the positive messages below.?
+	
+    fi # end of the catchall.
     
 
     log "All is well - we will not source the mic-config-file: $THISONE"
     . $THISONE
     log "Finished sourcing the mic config file".
     log "Finished prepare_mic()"
+
+    log "the things we have set are :  (WHAT - micconf, AUDIODEV and ???"
 }
 
 # perform a test recording to check microphone settings etc...

@@ -206,16 +206,16 @@ function prepare_microphone {
 #	log "prepare_mic: Found one of the dodotronic microphone types, sourcing $conf ..."
 #	. $conf
 #	log "prepare_mic: AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
-    elif grep "USB-Audio - Sound Blaster Play! 2" /proc/asound/cards > /dev/null ; then
-	MICNAME="soundblasterplay"
-	conf=mics/$MICNAME.conf
-	if [ -f $conf ] ; then
-	    log "Detected microphone: \"$MICNAME\" microphone => reading config file \"$conf\""
-	    . mics/$MICNAME.conf
-	else
-	    log "ERROR: No such mic config file: \"$conf\". Dunno what will happen..."
-	fi
-	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
+#    elif grep "USB-Audio - Sound Blaster Play! 2" /proc/asound/cards > /dev/null ; then
+#	MICNAME="soundblasterplay"
+#	conf=mics/$MICNAME.conf
+#	if [ -f $conf ] ; then
+#	    log "Detected microphone: \"$MICNAME\" microphone => reading config file \"$conf\""
+#	    . mics/$MICNAME.conf
+#	else
+#	    log "ERROR: No such mic config file: \"$conf\". Dunno what will happen..."
+#	fi
+#	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
 #    elif grep "USB-Audio - Sound Blaster Play! 3" /proc/asound/cards > /dev/null ; then
 #	MICNAME="soundblasterplay3"
 #	conf=mics/$MICNAME.conf

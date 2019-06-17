@@ -193,106 +193,7 @@ function prepare_microphone {
     # all other setup needs done inside the mic's setup file (eg vol).
     # if it appears in /proc/asound/card0/stream0 -> arecord needs it
     # however, if it appears in amixer, do it in the mic setup file.
-
 					  
-#    if  grep "Snowflake" /proc/asound/cards > /dev/null ; then
-#	MICNAME="Blue:Snowflake"
-#	AUDIODEVICE="-D hw:Snowflake"
-#	SNOWFLAKE_VOLUME="100%"
-#	log "Detected microphone: $MICNAME => preparing as audio source (volume set to $SNOWFLAKE_VOLUME)"
-#	amixer $AUDIODEVICE -q -c 1 set "Mic" $SNOWFLAKE_VOLUME
-#    elif grep -q -l -i dodotronic /proc/asound/card*/stream0 2>/dev/null; then
-#	conf=mics/dodotronic.conf
-#	log "prepare_mic: Found one of the dodotronic microphone types, sourcing $conf ..."
-#	. $conf
-#	log "prepare_mic: AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
-#    elif grep "USB-Audio - Sound Blaster Play! 2" /proc/asound/cards > /dev/null ; then
-#	MICNAME="soundblasterplay"
-#	conf=mics/$MICNAME.conf
-#	if [ -f $conf ] ; then
-#	    log "Detected microphone: \"$MICNAME\" microphone => reading config file \"$conf\""
-#	    . mics/$MICNAME.conf
-#	else
-#	    log "ERROR: No such mic config file: \"$conf\". Dunno what will happen..."
-#	fi
-#	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
-#    elif grep "USB-Audio - Sound Blaster Play! 3" /proc/asound/cards > /dev/null ; then
-#	MICNAME="soundblasterplay3"
-#	conf=mics/$MICNAME.conf
-#	if [ -f $conf ] ; then
-#	    log "Detected microphone: \"$MICNAME\" microphone => reading config file \"$conf\""
-#	    . mics/$MICNAME.conf
-#	else
-#	    log "ERROR: No such mic config file: \"$conf\". Dunno what will happen..."
-#	fi
-#	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
-#    elif grep "USB-Audio - Sound Blaster X-Fi Go! Pro" /proc/asound/cards > /dev/null ; then
-#	MICNAME="soundblasterxfigopro"
-#	conf=mics/$MICNAME.conf
-#	if [ -f $conf ] ; then
-#	    log "Detected microphone: \"$MICNAME\" microphone => reading config file \"$conf\""
-#	    . mics/$MICNAME.conf
-#	else
-#	    log "ERROR: No such mic config file: \"$conf\". Dunno what will happen..."
-#	fi
-#	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
-#    if grep -q "Fe-Pi_Audio" /proc/asound/cards ; then
-#        MICNAME="fe-pi"
-#        conf=mics/$MICNAME.conf
-#        if [ -f $conf ] ; then
-#            log "Detected microphone: \"$MICNAME\" microphone => reading config file \"$conf\""
-#            . mics/$MICNAME.conf
-#        else
-#            log "ERROR: No such mic config file: \"$conf\". Dunno what will happen..."
-#        fi
-#        log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
-    # if grep RPiCirrus /proc/asound/cards > /dev/null ; then
-	
-    # 	log "detected Cirrus Logic Audio Card => preparing as audio source"
-	
-    # 	[ ! $CLAC_VOL ]     && { log "choosing default for CLAC_DIG_VOL" ; CLAC_VOL=31 ;}
-    # 	[ ! $CLAC_DIG_VOL ] && { log "choosing default for CLAC_DIG_VOL" ; CLAC_DIG_VOL=128 ;}
-	
-    # 	# WARNING : DON'T FIDDLE WITH THE ORDER OF THE
-    # 	# reset_paths, record_from_linein_micbias,  here.  Previously 
-    # 	# had other setup and it caused a hang: complaining:
-    # 	# bmc_2708 DMA transfer could not be stopped. (or similar).
-    # 	# The arecord (from amon testrec) hung, output 44 bytes, and 
-    # 	# syslog (dmesg) showed above message.
-	
-    #     # /home/pi/Record_from_DMIC.sh >> clac.log 2>&1
-    #     # /home/pi/Record_from_Headset.sh >> clac.log 2>&1
-    #     # /home/pi/Record_from_lineIn.sh >> clac.log 2>&1
-    # 	/home/amon/clac/Reset_paths.sh -q  # initialize everything to safe values
-	
-    # 	if [ "$CLAC_AUDIO_SOURCE" = "linein" ] ; then
-    # 	    log "setting record source to: $CLAC_AUDIO_SOURCE"
-    # 	    /home/amon/clac/Record_from_Linein_Micbias.sh  # with micbias!
-    # 	    amixer -q -Dhw:RPiCirrus cset name='IN3L Volume' $CLAC_VOL
-    # 	    amixer -q -Dhw:RPiCirrus cset name='IN3R Volume' $CLAC_VOL
-    # 	    amixer -q -Dhw:RPiCirrus cset name='IN3L Digital Volume' $CLAC_DIG_VOL
-    # 	    amixer -q -Dhw:RPiCirrus cset name='IN3R Digital Volume' $CLAC_DIG_VOL
-    #     elif [ "$CLAC_AUDIO_SOURCE" = "dmic" ] ; then
-    # 	    log "setting record source to: $CLAC_AUDIO_SOURCE"
-    # 	    /home/amon/clac/Record_from_DMIC.sh  # dmic (onboard MEMS mics)
-    # 	    amixer -q -Dhw:RPiCirrus cset name='IN2L Volume' $CLAC_VOL
-    # 	    amixer -q -Dhw:RPiCirrus cset name='IN2R Volume' $CLAC_VOL
-    # 	    amixer -q -Dhw:RPiCirrus cset name='IN2L Digital Volume' $CLAC_DIG_VOL
-    # 	    amixer -q -Dhw:RPiCirrus cset name='IN2R Digital Volume' $CLAC_DIG_VOL
-    # 	else
-    # 	    log "WARNING: CLAC_AUDIO_SOURCE ($CLAC_AUDIO_SOURCE) not recognised - using default: \"dmic\""
-    # 	    /home/amon/clac/Record_from_DMIC.sh
-    # 	    amixer -q -Dhw:RPiCirrus cset name='IN2L Volume' $CLAC_VOL
-    # 	    amixer -q -Dhw:RPiCirrus cset name='IN2R Volume' $CLAC_VOL
-    # 	    amixer -q -Dhw:RPiCirrus cset name='IN2L Digital Volume' $CLAC_DIG_VOL
-    # 	    amixer -q -Dhw:RPiCirrus cset name='IN2R Digital Volume' $CLAC_DIG_VOL
-    # 	fi
-	
-    # 	AUDIODEVICE="-Dclac"
-    # 	MMAP=""
-    # 	log "prepare_mic: [MICTYPE=CLAC] CHANNELS=$CHANNELS AUDIODEVICE=$AUDIODEVICE MMAP=$MMAP CLAC_VOL=$CLAC_VOL CLAC_DIG_VOL=$CLAC_DIG_VOL CLAC_AUDIO_SOURCE=$CLAC_AUDIO_SOURCE CLAC_PIP=$CLAC_PIP"
-    # fi
-    
     # ##########################
     # NEW (2019-06-16) AUTOMATCH (hardware to (user-supplies) config.)
     # ##########################
@@ -324,10 +225,12 @@ function prepare_microphone {
 	log "Here are the soundcards I support (from soundcards/ dir)"
 	log "Here are the /proc/asound/cards currently plugged in"
 	log "To support a new soundcard, put a xxx.conf file in soundcards/ which matches your (currently unsupported). See HERE for more details"
-	AUDIODEV="-Dplughw:1"
+	ALSACARD=1
+	HWDEVICE="-Dhw:1"
+	PLUGDEVICE="-Dplughw:1"
     fi
     
-    log "prepare_mic() finished: AUDIODEV=$AUDIODEV"
+    log "prepare_microphone() finished: ALSACARD=$ALSACARD, HWDEVICE=$HWDEVICE, PLUGDEVICE=$PLUGDEVICE"
 }
 
 # perform a test recording to check microphone settings etc...
@@ -361,7 +264,7 @@ function testrec {
     TESTREC_LEN=3 # record for this many seconds
     log "Performing a test recording [ $TESTREC_LEN seconds long ...]"
     prepare_microphone
-    cmd="arecord -d $TESTREC_LEN $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE ${WAVDIR}/testrec.wav"
+    cmd="arecord -d $TESTREC_LEN $ABUFFER $MMAP $PLUGDEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE ${WAVDIR}/testrec.wav"
     log "running: $cmd"
     $cmd >& ${WAVDIR}/testrec.log
     #log "waiting 3 seconds..."
@@ -402,7 +305,7 @@ function start {
   # setup environment for arecord to correctly record
   prepare_microphone
 
-  cmd="arecord $ABUFFER $MMAP $AUDIODEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$SYSNAME-%Y-%m-%d_%H-%M-%S.wav"
+  cmd="arecord $ABUFFER $MMAP $PLUGDEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$SYSNAME-%Y-%m-%d_%H-%M-%S.wav"
 
   log "starting recording with: $cmd"
   $cmd  >& $ARECLOG &

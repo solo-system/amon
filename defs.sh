@@ -317,7 +317,7 @@ function prepare_microphone {
 	    log "conf $micconf matches installed hardware:"
 	    log "$a"
 	    MATCHEDCONF=$micconf
-#	    break
+	    break
 	else
 	    log "AUTOMATCH: conf $micconf doesn't match sound hardware - skip it."
 	fi

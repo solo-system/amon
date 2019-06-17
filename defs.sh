@@ -308,29 +308,23 @@ function prepare_microphone {
     # ##########################
     
     # go through each conf file to see if it matches anything in /proc/asound/cards.  
-    log "AUTOMATCH: about to start..."
     MATCHEDCONF=""
     while read micconf ; do   # the "read" reads from the redirect down below (to avoid the subshelling of pipes)
 	line=$(grep "^SOUNDCARD_REGEXP=" $micconf)
 	eval "$line"  # "Digest" that line from the conf - setting SOUNDCARD_REGEXP var here.
-	log "AUTOMATCH: considering $micconf (SOUNDCARD_REGEXP=$SOUNDCARD_REGEXP) against /proc/asound/cards..."
+	log "considering $micconf (SOUNDCARD_REGEXP=$SOUNDCARD_REGEXP) against /proc/asound/cards..."
 	if a=$(grep "$SOUNDCARD_REGEXP" /proc/asound/cards) ; then
-	    log "MATCH: conf $micconf matches installed hardware."
-	    log "MATCH: it matches line: $a"
+	    log "conf $micconf matches installed hardware:"
+	    log "$a"
 	    MATCHEDCONF=$micconf
-#	    log "MATCH: breaking out of loop - lets hope micconf=$micconf is preserved"
-#	    log "MATCH: breaking out of loop - lets hope MATCHEDCONF=$MATCHEDCONF is preserved"
-	    break
+#	    break
 	else
-	    log "AUTOMATCH: conf $micconf doesn't match any installed hardware - skip it."
+	    log "AUTOMATCH: conf $micconf doesn't match sound hardware - skip it."
 	fi
     done < <(grep -l "^SOUNDCARD_REGEXP=" mics/*)  # the redirect to "while" that avoids a subshell.
 
-    # MATCHEDCONF now holds (if set) the appropriate soundcard to initialise.
-    log "AUTOMATCH: At bottom of loop over conf files."
-
     if [ -f "$MATCHEDCONF" ] ; then
-	log "All is well: sourceing the mic-config-file: $MATCHEDCONF"
+	log "All is well: sourcing the mic-config-file: $MATCHEDCONF"
 	. $MATCHEDCONF
 	log "Finished sourcing the mic config file".
     else # No conf file matches detected hardware

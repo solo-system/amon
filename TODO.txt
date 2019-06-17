@@ -1,6 +1,34 @@
-Sun 16 Jun 2019
+Mon 17 Jun 2019
+---------------
+[evening session]
+
+TODO: woops - the mics/ directory is NOT copied to /boot, so NOT
+available to users to manipulate.  Dammit.  I need to make that happen
+(in the Makefile, and then via a $MICSDIR/ in amon.conf.  Then change
+defs.sh so all "mics/" turns in to $MICSDIR.  Boo Hoo.  All the
+autoconf stuff not quite worth it yet.
+
+TODO: rename prepare_mic() (init_soundhw()?)
+TODO: test catchall with no soundcard attached
+TODO: test catchall with (eg) dodo, but no dodo conf (misspell it's REGEXP)
+TODO: mics/ directory badly named (soundcards/ ?)
+TODO: eliminate the asoundrc file
+TODO: update documentation.
+TODO: Edit the page in on solo-system.git: SOLO_TZ=Etc/GMT+5
+TODO: upgrade alsa upgrade to 1.1.8 (that's what buster has)
+TODO: what version of alsa does new raspbian use? (distrowatch).
+
+
+Mon 17 Jun 2019
 ---------------
 
+Had trouble with setting variables in bash loop (actually - pipe)
+yesterday night, which slowed me down.  Used the redirect thing "<
+<(cmd)" which I'm not that fluent with.  But it works well.
+
+
+Sun 16 Jun 2019
+---------------
 BIG: I discovered "-Dplughw:1" which auto-erects a "plug" around hw:1.
 
 That means:
@@ -9,29 +37,6 @@ That means:
 
 So lets do autodetect for the new SB card (Xfi-Pro).
 
-CHANGE: prepare_mic() - s.t.:
- old-way (withOUT catchall).
- autodetect
- catchall (as outlined below).
-
-CATCHALL: 
-   if (!AUDIODEV) ; then
-      	 log "WARNING: no known card detected"
-	 log "Here are the soundcards I support (from soundcards/ dir)"
-	 log "Here are the /proc/asound/cards currently plugged in"
-	 log "To support a new soundcard, put a xxx.conf file in soundcards/ which matches your (currently unsupported). See HERE for more details"
-	 AUDIODEV="-Dplughw:1"
-	 log "guessing unknown card details"
-	fi
-
-
-TODO: mics/ directory badly named (soundcards/ ?)
-TODO: what version of alsa does new raspbian use? (distrowatch).
-TODO: add "amon version" to defs.sh (cat /boot/solo/sosi-version.txt)
-TODO: consistent DEBUG: git grep DEBUG
-TODO: change error "mic not detected" to soundcard.
-TODO: Edit the page in on solo-system.git: SOLO_TZ=Etc/GMT+5
-TODO: upgrade alsa upgrade to 1.1.8 (that's what buster has).
 
 Alsa release information. (solo needs >= 1.1.6 for ultrasound).
       debian: 9 (stretch) 1.1.3

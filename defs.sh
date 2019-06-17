@@ -219,12 +219,13 @@ function prepare_microphone {
 	. $MATCHEDCONF
     else # No conf file matches detected hardware
 	log "No match found for sound hardware [MATCHEDCONF=$MATCHEDCONF]"
-	[ "$DEBUG" ] && true # offer user some advice
-
    	log "WARNING: no known card detected"
-	log "Here are the soundcards I support (from soundcards/ dir)"
+	log "Here are the soundcards I support (from mics/ dir)"
+	logexec "ls mics/"
 	log "Here are the /proc/asound/cards currently plugged in"
-	log "To support a new soundcard, put a xxx.conf file in soundcards/ which matches your (currently unsupported). See HERE for more details"
+	logexec "cat /proc/asound/cards"
+	log "To support a new soundcard, put a xxx.conf file in mics/ directory to configure your soundcard"
+	log "I'll guess some basics to see if we can fly blind, but this is unlikely to work".
 	ALSACARD=1
 	HWDEVICE="-Dhw:1"
 	PLUGDEVICE="-Dplughw:1"
@@ -496,6 +497,11 @@ function amonlog {
 function amonping {
 #    log "amon version : $VERSION"
     log "Ping: response.  Happy."
+}
+
+# what SOSI version is this?
+function version {
+    logexec "cat /boot/solo/sosi-version.txt"
 }
 
 function diskusage {

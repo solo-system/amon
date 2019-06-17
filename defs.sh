@@ -216,16 +216,16 @@ function prepare_microphone {
 	    log "ERROR: No such mic config file: \"$conf\". Dunno what will happen..."
 	fi
 	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
-    elif grep "USB-Audio - Sound Blaster Play! 3" /proc/asound/cards > /dev/null ; then
-	MICNAME="soundblasterplay3"
-	conf=mics/$MICNAME.conf
-	if [ -f $conf ] ; then
-	    log "Detected microphone: \"$MICNAME\" microphone => reading config file \"$conf\""
-	    . mics/$MICNAME.conf
-	else
-	    log "ERROR: No such mic config file: \"$conf\". Dunno what will happen..."
-	fi
-	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
+#    elif grep "USB-Audio - Sound Blaster Play! 3" /proc/asound/cards > /dev/null ; then
+#	MICNAME="soundblasterplay3"
+#	conf=mics/$MICNAME.conf
+#	if [ -f $conf ] ; then
+#	    log "Detected microphone: \"$MICNAME\" microphone => reading config file \"$conf\""
+#	    . mics/$MICNAME.conf
+#	else
+#	    log "ERROR: No such mic config file: \"$conf\". Dunno what will happen..."
+#	fi
+#	log "prepare_mic: [MICTYPE=$MICNAME] AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
 #    elif grep "USB-Audio - Sound Blaster X-Fi Go! Pro" /proc/asound/cards > /dev/null ; then
 #	MICNAME="soundblasterxfigopro"
 #	conf=mics/$MICNAME.conf
@@ -324,9 +324,8 @@ function prepare_microphone {
     done < <(grep -l "^SOUNDCARD_REGEXP=" mics/*)  # the redirect to "while" that avoids a subshell.
 
     if [ -f "$MATCHEDCONF" ] ; then
-	log "All is well: sourcing the mic-config-file: $MATCHEDCONF"
+	log "sourcing the mic-config-file: $MATCHEDCONF"
 	. $MATCHEDCONF
-	log "Finished sourcing the mic config file".
     else # No conf file matches detected hardware
 	log "No match found for sound hardware [MATCHEDCONF=$MATCHEDCONF]"
 	[ "$DEBUG" ] && true # offer user some advice

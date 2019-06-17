@@ -418,7 +418,7 @@ function start {
   if [ -f $PIDFILE ] ; then
       log "recording now running as [$(cat $PIDFILE)]"
   else
-      log "recording failed to start (no pidfile).  output of arecord.log follows:"
+      log "recording failed to start (no pidfile). Output of arecord.log follows:"
       log "$(cat $ARECLOG)"
   fi
 

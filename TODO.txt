@@ -2,6 +2,9 @@ Mon 17 Jun 2019
 ---------------
 [evening session]
 
+TODO: test on a clac - I've been doing all the debug on the USB
+dongles.  lots of re-architecture means clac might have broken.
+
 TODO: woops - the mics/ directory is NOT copied to /boot, so NOT
 available to users to manipulate.  Dammit.  I need to make that happen
 (in the Makefile, and then via a $MICSDIR/ in amon.conf.  Then change

@@ -201,11 +201,11 @@ function prepare_microphone {
 	SNOWFLAKE_VOLUME="100%"
 	log "Detected microphone: $MICNAME => preparing as audio source (volume set to $SNOWFLAKE_VOLUME)"
 	amixer $AUDIODEVICE -q -c 1 set "Mic" $SNOWFLAKE_VOLUME
-    elif grep -q -l -i dodotronic /proc/asound/card*/stream0 2>/dev/null; then
-	conf=mics/dodotronic.conf
-	log "prepare_mic: Found one of the dodotronic microphone types, sourcing $conf ..."
-	. $conf
-	log "prepare_mic: AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
+#    elif grep -q -l -i dodotronic /proc/asound/card*/stream0 2>/dev/null; then
+#	conf=mics/dodotronic.conf
+#	log "prepare_mic: Found one of the dodotronic microphone types, sourcing $conf ..."
+#	. $conf
+#	log "prepare_mic: AUDIODEVICE=$AUDIODEVICE SAMPLERATE=$SAMPLERATE CHANELS=$CHANNELS ABUFFER=$ABUFFER MMAP=$MMAP"
     elif grep "USB-Audio - Sound Blaster Play! 2" /proc/asound/cards > /dev/null ; then
 	MICNAME="soundblasterplay"
 	conf=mics/$MICNAME.conf
@@ -308,61 +308,43 @@ function prepare_microphone {
     # ##########################
     
     # go through each conf file to see if it matches anything in /proc/asound/cards.  
-    log "BEFORE we do automatch, AUDIODEVICE is $AUDIODEVICE"
-    THISONE=""
+    log "AUTOMATCH: about to start..."
+    MATCHEDCONF=""
     while read micconf ; do   # the "read" reads from the redirect down below (to avoid the subshelling of pipes)
 	line=$(grep "^SOUNDCARD_REGEXP=" $micconf)
-	log "INFO: Considering conf file $micconf which supports: $line"
-	log "about to EVAL the above..."
-	eval "$line"
-	log "Done the eval - and SOUNDCARD_REGEXP is now $SOUNDCARD_REGEXP"
-	if [ -n "$SOUNDCARD_REGEXP" ] ; then
-	    log "got SOUNDCARD_REGEXP, and it's not zero length"
-	else
-	    log "SOUNDCARD_REGEXP didn't get set right. Bailing out (this shouldn't happen)."
-	    continue
-	fi
-	# does that regexp match any of the actual hardware in /proc/asound/cards?
-	log "checking to see if that SOUNDCARD REGEXP matches any cards in /proc/asound/cards"
+	eval "$line"  # "Digest" that line from the conf - setting SOUNDCARD_REGEXP var here.
+	log "AUTOMATCH: considering $micconf (SOUNDCARD_REGEXP=$SOUNDCARD_REGEXP) against /proc/asound/cards..."
 	if a=$(grep "$SOUNDCARD_REGEXP" /proc/asound/cards) ; then
-	    log "MATCH: mic config file: $micconf matches installed hardware."
+	    log "MATCH: conf $micconf matches installed hardware."
 	    log "MATCH: it matches line: $a"
-	    THISONE=$micconf
-	    log "MATCH: breaking out of loop - lets hope micconf=$micconf is preserved"
-	    log "MATCH: breaking out of loop - lets hope THISONE=$THISONE is preserved"
+	    MATCHEDCONF=$micconf
+#	    log "MATCH: breaking out of loop - lets hope micconf=$micconf is preserved"
+#	    log "MATCH: breaking out of loop - lets hope MATCHEDCONF=$MATCHEDCONF is preserved"
 	    break
 	else
-	    log "NOPE: mic config file $micconf doesn't match any installed hardware - skipping."
+	    log "AUTOMATCH: conf $micconf doesn't match any installed hardware - skip it."
 	fi
     done < <(grep -l "^SOUNDCARD_REGEXP=" mics/*)  # the redirect to "while" that avoids a subshell.
 
-    # the purpose of the loop above is to choose an appropriate "micconf".  Do we have one?
-    log "At bottom of loop: THISONE=$THISONE"
-    log "All above was experimental - not actually find and set up the soundcard"
+    # MATCHEDCONF now holds (if set) the appropriate soundcard to initialise.
+    log "AUTOMATCH: At bottom of loop over conf files."
 
+    if [ -f "$MATCHEDCONF" ] ; then
+	log "All is well: sourceing the mic-config-file: $MATCHEDCONF"
+	. $MATCHEDCONF
+	log "Finished sourcing the mic config file".
+    else # No conf file matches detected hardware
+	log "No match found for sound hardware [MATCHEDCONF=$MATCHEDCONF]"
+	[ "$DEBUG" ] && true # offer user some advice
+
+   	log "WARNING: no known card detected"
+	log "Here are the soundcards I support (from soundcards/ dir)"
+	log "Here are the /proc/asound/cards currently plugged in"
+	log "To support a new soundcard, put a xxx.conf file in soundcards/ which matches your (currently unsupported). See HERE for more details"
+	AUDIODEV="-Dplughw:1"
+    fi
     
-    if [ ! -f "$THISONE" ] ; then
-	log "fallthrough: micconf ($micconf) is no good - do the CATCHALL THING."
-	# CATCHALL HERE.
-
-	#### THIS IS cut-and-pasted pseudocode!!
-	#      	 log "WARNING: no known card detected"
-	#	 log "Here are the soundcards I support (from soundcards/ dir)"
-	#	 log "Here are the /proc/asound/cards currently plugged in"
-	#	 log "To support a new soundcard, put a xxx.conf file in soundcards/ which matches your (currently unsupported). See HERE for more details"
-	# AUDIODEV="-Dplughw:1"
-	#	 log "guessing unknown card details"
-	# should we return here?  To avoid the positive messages below.?
-	
-    fi # end of the catchall.
-    
-
-    log "All is well - we will not source the mic-config-file: $THISONE"
-    . $THISONE
-    log "Finished sourcing the mic config file".
-    log "Finished prepare_mic()"
-
-    log "the things we have set are :  (WHAT - micconf, AUDIODEV and ???"
+    log "prepare_mic() finished: AUDIODEV=$AUDIODEV"
 }
 
 # perform a test recording to check microphone settings etc...

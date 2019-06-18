@@ -2,15 +2,15 @@ Tue 18 Jun 2019
 ---------------
 
 Testing:
-  - remove the asoundrc file.
   - catchall: testrec with NO USB plugged in.
   - catchall dodo conf misspelled (misspell it's REGEXP)
 
 Further work:
 TODO: upgrade alsa upgrade to 1.1.8 (that's what buster has)
 TODO: Edit the page in on solo-system.git: SOLO_TZ=Etc/GMT+5
-TODO: update documentation.
+TODO: update documentation for automatch, SBxfi etc...
 
+Done: remove the asoundrc file. (Yahoo).
 Done: All soundcards (including clac work with new automatch).
 Done: Rename mics dir to audioconf/ and move to boot:
 Done: TODO: rename prepare_mic() with configure_soundcard()

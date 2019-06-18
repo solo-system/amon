@@ -13,9 +13,9 @@ file is irrelevant (but must end in .conf), but the SOUNDCARD_REGEXP
 is vital - ensure it matches how the sound card shows up in
 /proc/asound/cards.
 
-This directory used from defs.sh's prepare_microphone(), so should make
-whatever calls to "amixer..." are necessary to prepare the soundcard.
-In particular - set the volume, and unmute the soundcard
+This directory used from defs.sh's configure_soundcard(), so should make
+whatever calls to "amixer..." are necessary to initialise the soundcard.
+In particular - set the volume, and unmute the soundcard.
 
 Remember: CHANNELS, SAMPLERATE are both set on the arecord command
 line, so are probably shouldn't be included here.

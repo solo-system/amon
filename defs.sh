@@ -181,24 +181,14 @@ function conf {
     echo "finished."
 }
 
-function prepare_microphone {
-    # choose and setup microphone.
-    # how do they show up in /proc/asound/cards (or arecord -l)
-    # Blue:snowflake mic -> "Snowflake"
-    # Cirrus Logic Audio Card -> "sndrpiwsp"
-    # Dodotronic ultrasound mic (200k) -> "bits"
-    # New microphone here
+# choose and setup the soundcard.
+function configure_soundcard {
 
-    # I _think_ the arecord cmd line needs format,channnels,rate.
-    # all other setup needs done inside the mic's setup file (eg vol).
-    # if it appears in /proc/asound/card0/stream0 -> arecord needs it
-    # however, if it appears in amixer, do it in the mic setup file.
-					  
-    # ##########################
-    # NEW (2019-06-16) AUTOMATCH (hardware to (user-supplies) config.)
-    # ##########################
-    
-    # go through each conf file in turn, to see if it matches anything in /proc/asound/cards.  
+    # I just revamped this (2019-06-18) to do "automatch", whereby
+    # soundcard configuration files in audioconf/ directory are
+    # automatically chosen if they match some connected hardware.
+
+    # try each .conf in turn -> does it match any sound device? (/proc/asound/cards)
     MATCHEDCONF=""
     while read micconf ; do   # the "read" reads from the redirect down below (to avoid the subshelling of pipes)
 	line=$(grep "^SOUNDCARD_REGEXP=" $micconf)
@@ -231,7 +221,7 @@ function prepare_microphone {
 	PLUGDEVICE="-Dplughw:1"
     fi
     
-    log "prepare_microphone() finished: ALSACARD=$ALSACARD, HWDEVICE=$HWDEVICE, PLUGDEVICE=$PLUGDEVICE"
+    log "configure_soundcard() finished: ALSACARD=$ALSACARD, HWDEVICE=$HWDEVICE, PLUGDEVICE=$PLUGDEVICE"
 }
 
 # perform a test recording to check microphone settings etc...
@@ -264,7 +254,7 @@ function testrec {
 
     TESTREC_LEN=3 # record for this many seconds
     log "Performing a test recording [ $TESTREC_LEN seconds long ...]"
-    prepare_microphone
+    configure_soundcard
     cmd="arecord -d $TESTREC_LEN $ABUFFER $MMAP $PLUGDEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE ${WAVDIR}/testrec.wav"
     log "running: $cmd"
     $cmd >& ${WAVDIR}/testrec.log
@@ -304,7 +294,7 @@ function start {
   fi
 
   # setup environment for arecord to correctly record
-  prepare_microphone
+  configure_soundcard
 
   cmd="arecord $ABUFFER $MMAP $PLUGDEVICE -v --file-type wav -f $AUDIOFORMAT $CHANNELS $SAMPLERATE --process-id-file $PIDFILE --use-strftime $WAVDIR/%Y-%m-%d/audio-$SYSNAME-%Y-%m-%d_%H-%M-%S.wav"
 

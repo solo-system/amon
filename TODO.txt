@@ -1,11 +1,20 @@
 Tue 18 Jun 2019
 ---------------
-All soundcards (including clac work with new automatch).
 
-But mics/ directory still isn't user-accessible.  So do this:
+Testing:
+1. catchall: testrec with NO USB plugged in.
+2. catchall dodo conf misspelled (misspell it's REGEXP)
+3. remove the asoundrc file.
 
+Further work:
+TODO: upgrade alsa upgrade to 1.1.8 (that's what buster has)
+TODO: Edit the page in on solo-system.git: SOLO_TZ=Etc/GMT+5
+TODO: update documentation.
+
+
+Done: All soundcards (including clac work with new automatch).
 Done: Rename mics dir to audioconf/ and move to boot:
-
+Done: TODO: rename prepare_mic() with configure_soundcard()
 
 Mon 17 Jun 2019
 ---------------
@@ -14,17 +23,7 @@ Mon 17 Jun 2019
 Done: test on a clac - I've been doing all the debug on the USB
 dongles.  lots of re-architecture means clac might have broken.
 
-
-TODO: rename prepare_mic() (init_soundhw()?)
-TODO: test catchall with no soundcard attached
-TODO: test catchall with (eg) dodo, but no dodo conf (misspell it's REGEXP)
-TODO: mics/ directory badly named (soundcards/ ?)
-TODO: eliminate the asoundrc file
-TODO: update documentation.
-TODO: Edit the page in on solo-system.git: SOLO_TZ=Etc/GMT+5
-TODO: upgrade alsa upgrade to 1.1.8 (that's what buster has)
-TODO: what version of alsa does new raspbian use? (distrowatch).
-
+Done: tests on all usb dongles and they all work.
 
 Mon 17 Jun 2019
 ---------------

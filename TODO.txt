@@ -2,28 +2,9 @@ Tue 18 Jun 2019
 ---------------
 All soundcards (including clac work with new automatch).
 
-However: TODO: woops - the mics/ directory is NOT copied to /boot, so NOT
-available to users to manipulate.  Dammit.  I need to make that happen
-(in the Makefile, and then via a $MICSDIR/ in amon.conf.  Then change
-defs.sh so all "mics/" turns in to $MICSDIR.  Boo Hoo.  All the
-autoconf stuff not quite worth it yet.
+But mics/ directory still isn't user-accessible.  So do this:
 
-- move mics/ dir into boot/
-  mv mics/ boot/audioconf
-  git commit
-  
-
-Rename mics dir:
-  - git mv mics/ audioconf/
-  - Makefile: mics -> audioconf
-  - defs.sh: all occurrences.
-
-Move audioconf/ to /boot
-  git mv 
-  - edit Makefile:
-  
-  - add line to makefile
-  - add rename soundconf/
+Done: Rename mics dir to audioconf/ and move to boot:
 
 
 Mon 17 Jun 2019

@@ -212,7 +212,7 @@ function prepare_microphone {
 	else
 	    log "AUTOMATCH: conf $micconf doesn't match sound hardware - skip it."
 	fi
-    done < <(grep -l "^SOUNDCARD_REGEXP=" mics/*)  # the redirect to "while" that avoids a subshell.
+    done < <(grep -l "^SOUNDCARD_REGEXP=" $AUDIOCONF/* )  # the redirect to "while" that avoids a subshell.
 
     if [ -f "$MATCHEDCONF" ] ; then
 	log "sourcing the mic-config-file: $MATCHEDCONF"
@@ -220,11 +220,11 @@ function prepare_microphone {
     else # No conf file matches detected hardware
 	log "No match found for sound hardware [MATCHEDCONF=$MATCHEDCONF]"
    	log "WARNING: no known card detected"
-	log "Here are the soundcards I support (from mics/ dir)"
-	logexec "ls mics/"
+	log "Here are the soundcards I support (from audioconf/ dir)"
+	logexec "ls $AUDIOCONF/"
 	log "Here are the /proc/asound/cards currently plugged in"
 	logexec "cat /proc/asound/cards"
-	log "To support a new soundcard, put a xxx.conf file in mics/ directory to configure your soundcard"
+	log "To support a new soundcard, see the readme in $AUDIOCONF directory."
 	log "I'll guess some basics to see if we can fly blind, but this is unlikely to work".
 	ALSACARD=1
 	HWDEVICE="-Dhw:1"

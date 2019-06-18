@@ -5,10 +5,11 @@
 default:
 	echo "no default target yet, sorry"
 
-install: alsaconf bootfiles homefiles
+# install: alsaconf bootfiles homefiles
+install: bootfiles homefiles
 
-alsaconf:
-	cp -v asoundrc /usr/share/alsa/alsa.conf.d/alsa-solo.conf
+#alsaconf:
+#	cp -v asoundrc /usr/share/alsa/alsa.conf.d/alsa-solo.conf
 
 # move the boot files into /boot/solo (amon.conf and calendars)
 bootfiles:

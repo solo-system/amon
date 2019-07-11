@@ -1,3 +1,13 @@
+Thu 11 Jul 2019
+---------------
+TODO:
+- upgrade alsa upgrade to 1.1.8 (that's what buster has)
+- Edit the page in on solo-system.git: SOLO_TZ=Etc/GMT+5
+- update documentation for automatch, SBxfi etc...
+- look at witty pi 3 (higher voltages, but i2c interface)
+- http://www.uugear.com/product/witty-pi-3-realtime-clock-and-power-management-for-raspberry-pi
+- documentation: change calendar page to include full path of calendar.
+
 Tue 18 Jun 2019
 ---------------
 
@@ -6,9 +16,6 @@ Testing:
   - catchall dodo conf misspelled (misspell it's REGEXP)
 
 Further work:
-TODO: upgrade alsa upgrade to 1.1.8 (that's what buster has)
-TODO: Edit the page in on solo-system.git: SOLO_TZ=Etc/GMT+5
-TODO: update documentation for automatch, SBxfi etc...
 
 Done: remove the asoundrc file. (Yahoo).
 Done: All soundcards (including clac work with new automatch).

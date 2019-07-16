@@ -122,6 +122,11 @@ elif [ "$1" == "shutdown" ] ; then
     # do the shutdown
     echo "wp.sh[shutdown]: calling JCrbt_set with $# args"
     do_shutdown 4 17 0
+elif [ "$1" == "reset" ] ; then
+    # reset the timer (only need to worry about the shutdown timer.
+    echo "wp.sh[reset()]: calling reset_shutdown_time"
+    reset_shutdown_time
+    echo "wp.sh[reset()]: finished calling reset_shutdown_time"
 else    
     echo "command line not recognised. (try: status, bounce)"
     exit

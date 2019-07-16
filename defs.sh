@@ -58,6 +58,16 @@ function watchdog {
     log "---MARK--- watchdog starting. [load: $(cat /proc/loadavg)]"
     #log "System load (from /proc/loadavg): $(cat /proc/loadavg)"
 
+    # Has the witty pi had it's timer's reset since we booted?
+    WPRESET=/tmp/wittypi-reset.flag # /tmp is cleared on boot, which is what we want for WPRESET.
+    # if [ $WITTYPI == "yes" -a ! -f "$WPRESET" ] ; then # This doesn't look right - leaving it out while I triage a problem
+    if [ $WITTYPI == "yes" ] ; then
+	log "resetting all WittyPi timers..."
+	sudo /home/amon/amon/wp.sh reset
+	touch $WPRESET # do this every reboot
+	log "Done resetting all WittyPi timers."
+    fi
+    
     # NOTE: this "dollar include" way of logging works - newlines are
     # maintained, but you don't get the timestamps in front of the
     # output in amon.log".  That's why logexec() exists.

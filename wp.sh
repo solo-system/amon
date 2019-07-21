@@ -16,7 +16,8 @@ fi
 
 # unload the rtc from /dev if it's there.
 if [ -e /dev/rtc ] ; then
-  unload_rtc
+    echo "wp.sh is about to unload /dev/rtc0"
+    unload_rtc
 fi
 
 function JCrbt_set(){

@@ -60,17 +60,16 @@ function watchdog {
 
     # Has the witty pi had it's timer's reset since we booted?
     WPRESET=/tmp/wittypi-reset.flag # /tmp is cleared on boot, which is what we want for WPRESET.
-    # if [ $WITTYPI == "yes" -a ! -f "$WPRESET" ] ; then # This doesn't look right - leaving it out while I triage a problem
     if [ $WITTYPI == "yes" ] ; then
-	log "resetting all WittyPi timers..."
 	if [ -f "$WPRESET" ] ; then
-	    log "Not resetting timers, as flag file exists :$WPRESET"
+	    #log "Not resetting timers, as flag file exists :$WPRESET"
+	    true
 	else
-	    log "Actually resetting timers, as flag file nonexistent :$WPRESET"
+	    log "recently booted so resetting wittyPi timers, [flag file nonexistent :$WPRESET]"
 	    logexec sudo /home/amon/amon/wp.sh reset
 	    touch $WPRESET # do this every reboot, not every minute.
 	fi
-	log "Done resetting all WittyPi timers."
+	#log "Done resetting all WittyPi timers."
     fi
     
     # NOTE: this "dollar include" way of logging works - newlines are

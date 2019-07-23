@@ -1,3 +1,21 @@
+Tue 23 Jul 2019
+---------------
+Solo:
+ - Flash with most recent build.
+ - enable calendar and 5m.
+ - runit - does it work?
+ - log in - try using logexec with wp.sh - YES or NO?
+ - PAUSE
+ - build with new buster release
+ - do a clac test.
+ - do a test with no witty pi (witty off)
+ - do a test with witty on 5m-5m.
+ - upload, ship and update sosi.html page
+ - email Kevin, alert him to new release.
+	   
+
+
+
 Thu 11 Jul 2019
 ---------------
 TODO:

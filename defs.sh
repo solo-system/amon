@@ -63,8 +63,13 @@ function watchdog {
     # if [ $WITTYPI == "yes" -a ! -f "$WPRESET" ] ; then # This doesn't look right - leaving it out while I triage a problem
     if [ $WITTYPI == "yes" ] ; then
 	log "resetting all WittyPi timers..."
-	sudo /home/amon/amon/wp.sh reset
-	touch $WPRESET # do this every reboot
+	if [ -f "$WPRESET" ] ; then
+	    log "Not resetting timers, as flag file exists :$WPRESET"
+	else
+	    log "Actually resetting timers, as flag file nonexistent :$WPRESET"
+	    logexec sudo /home/amon/amon/wp.sh reset
+	    touch $WPRESET # do this every reboot, not every minute.
+	fi
 	log "Done resetting all WittyPi timers."
     fi
     
@@ -134,12 +139,12 @@ function watchdog {
 		log "Refusing to shutdown: 180 sec min (uptime=$currentuptime)"
 	    else
 		log "Wittypi: setting reboot time to rbt=$rbt"
-		sudo /home/amon/amon/wp.sh setrbt $rbt
+		logexec sudo /home/amon/amon/wp.sh setrbt $rbt
 		# sudo /home/amon/amon/wp.sh status
 		log "Wittypi: syncing discs"
 		sync ; sync # good ol' fasioned paranoia.
 		log "Wittypi: *** Calling shutdown now: Bye. ***"
-		sudo /home/amon/amon/wp.sh shutdown
+		logexec sudo /home/amon/amon/wp.sh shutdown
 		# change the above to shutdown-prep.
 		# call the actual shutdown ourselves.
 		# sudo poweroff.

@@ -72,3 +72,7 @@ else:
    print("twice-a-day.py: rebooting in {}".format(rbt-aware_utc_now), file=sys.stderr)
    print("twice-a-day.py: returning: {}".format(rs), file=sys.stderr)
 
+
+# NOTE:
+# can debug at desktop with things like:
+# TZ=UTC-8 ./twice-a-day.py
